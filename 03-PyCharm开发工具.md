@@ -46,7 +46,18 @@ lxml==4.2.5
 pip install -r requirements.txt
 ```
 
-### Pycharm常用快捷键
+### PyCharm常用快捷键
+通过下面5个步骤来进行配色：
+
+1.File --- Settings --- Apperance & Behavior --- Appearance --- Theme: Darcula
+
+2.File --- Settings --- Editor --- Color Scheme Font --- Scheme: Monokai
+
+3.选择Monokai后，点击右边的“齿轮”，选择Duplicate，备份原Monokai方案，再选择新创建的Monokai Copy
+
+4.File --- Settings --- Editor --- Color Scheme --- Python --- Scheme: Monokai copy
+
+5.File --- Settings --- Editor --- Color Scheme Font --- Use color scheme font...（勾选） --- Font: Fira code --- Size: 20
 
 ```
 ctrl+/  ---  单行注释（注释掉当前行内容）
@@ -55,5 +66,7 @@ ctrl+d  ---  复制粘贴（复制当前行代码并粘贴下面）
 
 ctrl+y  ---  删除（删除当前行代码）
 ```
+### PyCharm常用快捷键
+### PyCharm配置配色
 
 
