@@ -61,7 +61,7 @@ ctrl+y  ---  删除（删除当前行代码）
 通过下面5个步骤来进行配色：
 
 1.File --- Settings --- Apperance & Behavior --- Appearance --- Theme: Darcula
-[!img]https://images2018.cnblogs.com/blog/1354564/201804/1354564-20180403215540009-1958749858.png
+![img]https://images2018.cnblogs.com/blog/1354564/201804/1354564-20180403215540009-1958749858.png
 
 2.File --- Settings --- Editor --- Color Scheme Font --- Scheme: Monokai
 
