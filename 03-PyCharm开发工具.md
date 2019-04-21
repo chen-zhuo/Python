@@ -64,9 +64,17 @@ ctrl+y  ---  删除（删除当前行代码）
 ![img](https://images2018.cnblogs.com/blog/1354564/201804/1354564-20180403215540009-1958749858.png)
 
 2.File --- Settings --- Editor --- Color Scheme Font --- Scheme: Monokai
+![img](https://images2018.cnblogs.com/blog/1354564/201804/1354564-20180403215733932-609955603.png)
 
 3.选择Monokai后，点击右边的“齿轮”，选择Duplicate，备份原Monokai方案，再选择新创建的Monokai Copy
+![img](https://images2018.cnblogs.com/blog/1354564/201804/1354564-20180403220136728-1625767838.png)
+![img](https://images2018.cnblogs.com/blog/1354564/201804/1354564-20180403220314140-327909293.png)
 
 4.File --- Settings --- Editor --- Color Scheme --- Python --- Scheme: Monokai copy
+![img](https://images2018.cnblogs.com/blog/1354564/201804/1354564-20180403220457059-2139653139.png)
 
-5.File --- Settings --- Editor --- Color Scheme Font --- Use color scheme font...（勾选） --- Font: Fira code --- Size: 20
+5.File --- Settings --- Editor --- Color Scheme Font --- Use color scheme font...（勾选）
+![img](https://images2018.cnblogs.com/blog/1354564/201804/1354564-20180403220941608-1669928136.png)
+
+6.配色后的代码
+![img](https://images2018.cnblogs.com/blog/1354564/201804/1354564-20180403215217533-697643815.png)
