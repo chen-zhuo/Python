@@ -76,5 +76,5 @@ ctrl+y  ---  删除（删除当前行代码）
 5.File --- Settings --- Editor --- Color Scheme Font --- Use color scheme font...（勾选）
 ![img](https://images2018.cnblogs.com/blog/1354564/201804/1354564-20180403220941608-1669928136.png)
 
-6.配色后的代码
+完成配色后的代码：
 ![img](https://images2018.cnblogs.com/blog/1354564/201804/1354564-20180403215217533-697643815.png)
