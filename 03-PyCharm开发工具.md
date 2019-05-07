@@ -12,7 +12,7 @@ PyCharm是一个使用Python语言开发时提高其效率的工具
 
 PyCharm下面的Terminal作用类似于命令行窗口，可以执行相应的命令。
 
-### 安装包命令
+### 包命令
 
 ##### 指令下载安装
 
@@ -44,6 +44,20 @@ lxml==4.2.5
 
 ```
 pip install -r requirements.txt
+```
+
+##### 列出所有已安装的三方库
+
+```
+pip list   #列出所有已安装的三方库
+
+pip list --outdated  #列出当前已安装的第三方库中所有过期的库
+```
+
+##### 更新已安装的三方库
+
+```
+pip install --upgrade 库名
 ```
 
 ### PyCharm常用快捷键
