@@ -5,6 +5,8 @@
 库安装命令都是在 *Terminal* 当中执行。
 
 ```
+
+
 # 指令安装（从默认的pip源中下载，速度较慢）
 pip install XXX(包名)
 
@@ -76,7 +78,19 @@ Counter({7: 4, 1: 3, 4: 2, 8: 1})
 # 注释：这里输出了列表中某个数字出现的次数，并从多到少进行了排序
 ```
 
+```
+def delete_list(lt):
+    a = list(filter(lambda x: x != "", lt))
+    lt = list(a)
+    return lt  # 返回lt
 
+lt = ["", 1, 2, 3, ""]
+print(delete_list(lt))
+
+结果：
+[1, 2, 3]
+
+```
 
 ### 计数器
 
