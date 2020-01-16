@@ -1,1 +1,9 @@
+```python
+with open('file.txt', rb) as lines:
+    for line in lines:
+        print(line.encode('utf-8'))
+
+
+
+```
 
