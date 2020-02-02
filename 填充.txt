@@ -1,0 +1,135 @@
+```python
+with open('file.txt', rb) as lines:
+    for line in lines:
+        print(line.encode('utf-8'))
+
+
+
+```
+
+### 虚拟环境
+
+**本次搭建的项目环境适用于后面所有项目，其操作步骤都相同。**
+
+### Python环境和虚拟环境
+
+**python环境**：指程序运行的基础环境，只要安装了Python3，python环境就具备了。
+
+**虚拟环境**：指以Python环境为基础针对某一个项目而建立的私有环境。
+
+​	简单说，Python环境是大环境，所有项目都可使用它；虚拟环境是私有环境，只有一个项目适用它。
+
+### 虚拟环境的作用
+
+所有项目共用一个环境不是很好吗？每个项目都创建私有环境岂不是很麻烦？
+
+​	我们所做的许多事都是为了尽可能的提高效率或降低资源占有率。如果所有的项目都共用一个环境，那么在运行项目时，环境会加载许多项目用不上的包，这样反而浪费了系统的资源。因此虚拟环境轻装上阵就显得很有必要了。
+
+**虚拟环境的作用**：将不同项目所用的包隔离开来，为项目创建私有的环境。
+
+### 搭建虚拟环境
+
+##### 新建文件夹
+
+在磁盘中确定一个位置新建文件夹(名称通常是env)，用来存放虚拟环境。为了方便管理，所有的项目环境最好都放在此文件夹下。（这里我在F盘下，新建了Env文件夹用来存放虚拟环境）
+
+##### 安装virtualenv
+
+打开命令行窗口，输入下面命令安装virtualenv（virtualenv是用来创建虚拟环境的包）
+
+```
+pip3 install virtualenv
+```
+
+##### 创建虚拟环境
+
+将命令行窗口的操作路径切换到Env文件夹下，或者在Env文件夹下shift+鼠标右键，打开命令行窗口。输入下面命令：
+
+```
+F:\Env>virtualenv --no-site-packages project_env（环境名称）
+```
+
+如果命令行窗口不在Env文件夹下，我们则可以指定路径创建虚拟环境：
+
+```
+F:\>virtualenv --no-site-packages   .\Env\project_env（环境名称）
+```
+
+这样就在F盘Env文件夹下面新建了一个project_env文件夹，并在此文件夹里创建了一个干净的、没有多余安装包、名称为project_env的虚拟环境。
+
+**参数说明：**
+
+- --no-site-packages：新建的虚拟环境里不安装Python环境里面已经安装的包，是个纯净的环境
+- -p:   指定是哪个版本的python （如系统内只装了一个python版本就不用此参数了）
+
+```
+virtualenv --no-site-packages  -p +python的路径  +（安装项目环境路径）.\Env\project_env
+```
+
+创建成功界面：
+
+![QQ截图20181225151559](F:\Project Notebook\Picture\QQ截图20181225151559.png)
+
+可以看到该虚拟环境的Python版本为3.6.5，该虚拟环境的可执行文件F:\Env\project_env\Scripts\python.exe，安装了一些必要的包。
+
+回到Env文件夹，可以看到里面多了一个project_env文件夹，里面就放着虚拟环境。
+
+##### 激活虚拟环境
+
+在命令行窗口内进入刚创建环境名称为project_env文件夹下面的Scripts文件夹下，输入下面命令：
+
+```
+activate
+```
+
+执行后，命令行前端发生变化，前面多了（project_env）说明已经激活且进入了所创建的虚拟环境里。
+
+![QQ截图20181225153825](F:\Project Notebook\Picture\QQ截图20181225153825.png)
+
+**命令：**
+
+activate： 激活虚拟环境   
+
+pip list：查看**当前环境**的已安装的包
+
+deactivate：退出虚拟环境
+
+注：project_env环境中安装的包存放位置：F:\Env\Project_env\Lib\site-packages
+
+### Pycharm配置虚拟环境
+
+通过Pycharm打开项目后，进入下方的Terminal
+
+![QQ截图20181225154731](F:\Project Notebook\Picture\QQ截图20181225154731.png)
+
+可以看到并没有在虚拟环境里面，接下来就要配置了。
+
+在Pycharm的File—Settings—Project里面
+
+![QQ截图20181225155651](F:\Project Notebook\Picture\QQ截图20181225155651.png)
+
+点击‘齿轮’，点击Show All，展示已有的环境（包括一个Python环境和多个虚拟环境）
+
+![QQ截图20181225155825](F:\Project Notebook\Picture\QQ截图20181225155825.png)
+
+点击加号，添加环境
+
+![QQ截图20181225160321](F:\Project Notebook\Picture\QQ截图20181225160321.png)
+
+**注意：**这里我们要选择下面Existing environment（已经存在的环境），因为我们上面已经创建了project_env虚拟环境，路径要特别指定虚拟环境project_env\Scripts\python.exe可执行文件，点击ok即可添加。
+
+​	而上面的New environment（新环境）是重新创建一个新虚拟环境，在Location指定一个**空文件夹**（文件夹不存在也可以，它会自动新建）路径，用来存放存放环境，下方的Base interpreter（基础环境）就是指定Python环境里面Python.exe可执行文件的路径。通过这种方法创建的虚拟环境也是干净的。
+
+![QQ截图20181225162659](F:\Project Notebook\Picture\QQ截图20181225162659.png)
+
+这里可以看到列表里面多了一个带（project_env）环境，点击ok
+
+![QQ截图20181225162726](F:\Project Notebook\Picture\QQ截图20181225162726.png)
+
+这里就可以看到该环境已经安装的三个包（和上面的pip list看到的结果是一样的），所以该环境是很干净的虚拟环境，点击Apply应用。
+
+关闭Pycharm下面的Terminal，再次打开，就不同了
+
+![QQ截图20181225163323](F:\Project Notebook\Picture\QQ截图20181225163323.png)
+
+可以看见前面多了（project_env），说明该项目默认是在project_env虚拟环境中运行了。
