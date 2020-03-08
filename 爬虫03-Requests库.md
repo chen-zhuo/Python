@@ -16,7 +16,7 @@ pip install requests
 
 ##### 请求类型
 
-前面提到过，HTTP有多种请求类型，requests库同样可以实现。一般在爬虫中用的最多的是get请求、post请求。
+前面提到过，HTTP有多种请求类型，requests库同样可以实现。**一般在爬虫中用的最多的是get请求、post请求。**
 
 ```python
 # 导入requests
@@ -37,12 +37,21 @@ requests.delete('http://httpbin.org/delete')
 
 ##### GET请求
 
-**当你在浏览器中输入一个网址并回车访问时，就是一个get请求**。在requests中也只需要输入一个网址就可以发送get请求。
+**当你在浏览器中输入一个网址并回车访问时，就是一个get请求**。
+
+在requests中也只需要输入一个网址就可以发送get请求，重要参数有两个：
+
+1. **url参数：HTTP请求必备的参数，作用是确定访问的网址。**
+2. **params参数：以字典的形式传递url中参数。**
 
 ```python
 import requests
 
 # 基本的GET请求
+# 方式一：网址传递给变量，在传递给url参数
+link = 'https://httpbin.org/get'
+response = requests.get(url=link)
+# 方式二：直接传递给url参数（推荐）
 response = requests.get('https://httpbin.org/get')
 
 #打印响应的内容信息
@@ -67,7 +76,7 @@ print(response.text)
 
 # 带参GET请求：在URL中传递的参数会以键/值对的形式跟在一个问号的后面。例如， httpbin.org/get?key=val。这里的params关键字参数，就可以字典形式来传递这些参数。字典里值为 None 的键都不会被添加到 URL 的查询字符串里。
 
-# 方式一：url包含键值对
+# 方式一：url包含键值对参数
 response = requests.get('https://httpbin.org/get?name=germey&age=22')
 # 方式一：使用params关键字参数
 data = {'name': 'germey', 'age': 22}
@@ -98,15 +107,30 @@ print(response.text)
 
 ##### POST请求
 
-```
+post请求和get请求的主要区别在于：
+
+1. **post请求传递的参数长度没有限制；get请求则有所限制。**
+2. **post请求传递的参数形式是通过表单传递的，不会暴露在url当中，例如：用户密码登录用的就是post请求；get请求传递的参数是以键/值对的形式跟在一个问号的后面的。**
+
+post请求也很简单，主要是网址和传参：
+
+1. **url参数：这里和get请求都一样，每个HTTP请求都必须要有的一个参数。**
+2. **data参数：以字典`dict`的形式提交参数时，若不指定`content-type`，默认为`application/x-www-form-urlencoded`，相当于普通form表单提交；以字符串`str`的形式提交参数时，若不指定`content-type`，默认为`application/json`。**
+3. **json参数：以json数据的结构形式提交参数，若不指定`headers`中的`content-type`，默认为`application/json`。**
+4. **用data参数提交数据时，`request.body`的内容则为`a=1&b=2`的这种形式，用json参数提交数据时，`request.body`的内容则为'{"`a": 1, "b": 2}'`的这种形式**
+
+```python
+import json
 import requests
-data = {
+
+dict1 = {
     'name': 'germey',
     'age': 22
 }
-response = requests.post('https://httpbin.org/post', data=data)
+# 直接以字典的格式传递数据
+response = requests.post('https://httpbin.org/post', data=dict1)
 print(response.text)
-
+'''
 输出：
 {
   "args": {}, 
@@ -129,24 +153,60 @@ print(response.text)
   "origin": "182.149.163.126", 
   "url": "https://httpbin.org/post"
 }
+
+# 解释：因为post中data参数默认是表单传递参数，因此传递的参数出现在了form表单里面。
+'''
+
+# 将python字典dict类型数据自动转化为json数据化传递
+response = requests.post('https://httpbin.org/post', json=dict1)
+print(response.text)
+'''
+输出：
+{
+  "args": {}, 
+  "data": "{\"name\": \"germey\", \"age\": 22}", 
+  "files": {}, 
+  "form": {}, 
+  "headers": {
+    "Accept": "*/*", 
+    "Accept-Encoding": "gzip, deflate", 
+    "Content-Length": "29", 
+    "Content-Type": "application/json", 
+    "Host": "httpbin.org", 
+    "User-Agent": "python-requests/2.19.1", 
+    "X-Amzn-Trace-Id": "Root=1-5e57ebd1-d0d9017460a1ecf0e4dca6dc"
+  }, 
+  "json": {
+    "age": 22, 
+    "name": "germey"
+  }, 
+  "origin": "180.97.206.96", 
+  "url": "https://httpbin.org/post"
+}
+
+解释：因为post中json参数默认是json格式传递参数，因此出现在了"json"里面。
+'''
 ```
 
-### response属性
+##### 添加请求头
 
-```
+没有请求头的爬虫是没有灵魂的爬虫，结合之前讲过请求头中最重要的一个参数User-Agent和请求头库，可以写一个基本的爬虫了。
+
+```python
 import requests
 from fake_useragent import UserAgent
 
 # 请求头
-headers = {'User-Agent': UserAgent().random,
-           'Cookie': '...'}
-# 地址
+headers = {'User-Agent': UserAgent().random,}
+# 图片地址
 url = '...'
 # 获取响应
 response = requests.get(url=url, headers=headers)
-# 转码
-response.encoding = 'utf-8'
+```
 
+### 响应内容
+
+```python
 # 打印响应 
 print(response)					# <Response [200]>，表示获取到响应
 # 打印网页响应的状态码
