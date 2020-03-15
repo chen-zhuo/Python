@@ -1,5 +1,7 @@
 # Requests库
 
+参考内容：[requests中文文档](http://2.python-requests.org/zh_CN/latest/)
+
 ### 初识Requests
 
 ##### requests简介
@@ -7,6 +9,8 @@
 requests库是python实现的最简单易用的HTTP库，也是写爬虫必须要掌握的库。
 
 ##### 安装requests库
+
+requests 属于第三方库，就是 Python 默认不会自带的库，所以我们需要手动安装。
 
 ```
 pip install requests
@@ -204,39 +208,13 @@ url = '...'
 response = requests.get(url=url, headers=headers)
 ```
 
-### 响应内容
+### 接受响应
+
+当我们向服务器发送请求后，服务器会返回给客户端响应，在响应中包含许多内容，通过响应的各种属性可以轻松获取到我们想要的内容。
+
+##### 响应内容属性
 
 ```python
-# 打印响应 
-print(response)					# <Response [200]>，表示获取到响应
-# 打印网页响应的状态码
-print(response.status_code)    	# 200，200表示成功访问
-# 以字符型文本形式打印响应内容
-print(response.text)			# 主要用于打印网页的代码和文本内容
-# 以二进制的形式打印响应内容数据
-print(response.content)			# 主要用于打印网页中图片、音频、视频（二进制文件）内容
-# 以json格式打印响应的内容
-print(reponse.json())			# 等价于print(json.loads(reponse.text))
-# 打印响应头
-print(response.headers)
-# 打印响应的url内容
-print(response.url)				# 就是上面的url
-# 打印响应的history内容
-print(response.history)
-# 打印响应的cookie
-print(response.cookies)
-# 打印响应的cookies.items
-print(response.cookies.items())
-# 遍历cookies内容打印cookie
-for key, value in response.cookies.items():
-    print(key + '=' + value)
-```
-
-### 爬取图片
-
-图片、音频、视频都属于二进制文件，可以使用下面代码。
-
-```
 import requests
 from fake_useragent import UserAgent
 
@@ -247,60 +225,72 @@ url = '...'
 # 获取响应
 response = requests.get(url=url, headers=headers)
 
-# wb(二进制写入模式)，在当前路劲打开或新建image.png文件，重新写入数据。
-with open('./image.png', 'wb') as f:
-# 将response.content(响应图片的二进制流数据)写入到变量f的路径下的文件
-    f.write(response.content)
+# 打印响应状态 
+print(response)					# <Response [200]>，表示获取到响应
+# 打印网页响应的状态码
+print(response.status_code)    	# 200，200表示成功访问
+# 设置响应内容的编码
+# Requests会基于HTTP头部响应的编码对网页文本编码作出推测，你若设置了encoding编码，后面都使用新编码。
+response.encoding = 'UTF-8'          # 主要针对于网页中文乱码的情况
+response.encoding = 'GBK'            # 主要针对于网页编码为gbk、gb2312类型的内容
+response.encoding = 'unicode_escape' # 主要针对于网页编码为unicode类型的的内容
+# 以字符型文本形式打印响应内容
+print(response.text)			# 主要用于打印网页的代码和文本内容
+# 以二进制的形式打印响应内容数据
+print(response.content)			# 主要用于打印网页中图片、音频、视频（二进制文件）内容
+# 以json格式打印响应的内容
+print(reponse.json())			# 等价于print(json.loads(reponse.text))
+# 打印响应头
+print(response.headers)         # 查看服务器返回内容的请求头
+# 打印请求头
+print(response.requests.headers)# 查看访问时的请求头
+# 打印响应的url内容
+print(response.url)				
+# 打印响应的cookie
+print(response.cookies)         # 打印响应内容中Cookie
+# 打印响应的cookies.items
+print(response.cookies.items()) # 以字典的形式打印响应内容中Cookie
+# 遍历cookies内容打印cookie
+for key, value in response.cookies.items():
+    print(key + '=' + value)
 ```
 
-### 爬取网页信息
+##### 爬取网页
 
-```
-import pymysql
+爬取基本的网页内容，可以使用下面代码：
+
+```python
 import requests
-from lxml import etree
 from fake_useragent import UserAgent
 
 # 请求头
 headers = {'User-Agent': UserAgent().random,}
-# 地址
+# 图片地址
 url = '...'
 # 获取响应
 response = requests.get(url=url, headers=headers)
-# 转码
-response.encoding = 'utf-8'
+# 输出网页内容
+print(response.text)
+```
 
+##### 爬取图片
 
-# 解析页面
-def analyze():
-    info = etree.HTML(response.text)
-    # text()获取文本
-    user = info.xpath('.../text()')
-    # @src获取src属性
-    image = info.xpath('.../@src')
-    return user, image
+图片、音频、视频都属于二进制文件，可以使用下面代码：
 
+```python
+import requests
+from fake_useragent import UserAgent
 
-# 存入MySQL数据库
-def save_mysql(info):
-    # 连接数据库
-    host = '127.0.0.1'
-    user = 'root'
-    password = '...'
-    database = '...'
-    port = 3306
-    db = pymysql.connect(host, user, password, database, charset='utf8', port=port)
-    # 生成操作游标（对数据库进行操作）
-    cursor = db.cursor()
-    # sql语句，INSERT INTO插入，table_name数据表名，user,image字段名，values值，%s字符串，info就是上面方法的信息元祖
-    sql = "INSERT INTO table_name(user, image) values('%s','%s')" % info
-    # 通过操作游标的execute()执行sql语句
-    cursor.execute(sql)
-    # 提交执行结果（没有这它，数据库存不进数据）
-    db.commit()
+# 请求头
+headers = {'User-Agent': UserAgent().random,}
+# 图片地址
+url = '...'
+# 获取响应
+response = requests.get(url=url, headers=headers)
 
-if __name__ == '__main__':
-    info = analyze()
-    save_mysql(info)
+# wb(二进制写入模式)，在当前路径打开或新建image.png文件，重新写入数据。
+with open('image.png', 'wb') as f:
+# 将response.content(响应图片的二进制流数据)写入到变量f的路径下的文件
+    f.write(response.content)
 ```
 
