@@ -194,7 +194,7 @@ print(response.text)
 
 ##### 添加请求头
 
-没有请求头的爬虫是没有灵魂的爬虫，结合之前讲过请求头中最重要的一个参数User-Agent和请求头库，可以写一个基本的爬虫了。
+**没有请求头的爬虫是没有灵魂的爬虫**。结合之前讲过请求头中最重要的一个参数User-Agent和请求头库，可以写一个基本的爬虫了。
 
 ```python
 import requests
@@ -206,6 +206,34 @@ headers = {'User-Agent': UserAgent().random,}
 url = '...'
 # 获取响应
 response = requests.get(url=url, headers=headers)
+```
+
+**注意：headers不代表全部的请求头参数，它只是添加或覆盖某些请求头参数。**
+
+```python
+# 地址
+url = 'http://www.baidu.com'
+# 获取响应
+response1 = requests.get(url=url)
+# 输出请求头
+print(response1.request.headers)
+'''
+# 第一次访问的请求头，里面除了'User-Agent'参数，还有'Accept-Encoding'等参数
+{'User-Agent': 'python-requests/2.22.0', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
+'''
+
+# 请求头参数，重新定义了'User-Agent'参数，添加了'add'参数
+headers = {
+            'User-Agent': 'Chrome/13.0 Safari/535',
+            'add':'abc'
+          }
+response2 = requests.get(url=url, headers=headers)
+# 输出请求头
+print(response2.request.headers)
+'''
+# 第二次访问，重新定义了'User-Agent'参数，添加了'add'参数
+{'User-Agent': 'Chrome/13.0 Safari/535', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive', 'add': 'abc'}
+'''
 ```
 
 ### 接受响应
@@ -288,8 +316,8 @@ url = '...'
 # 获取响应
 response = requests.get(url=url, headers=headers)
 
-# wb(二进制写入模式)，在当前路径打开或新建image.png文件，重新写入数据。
-with open('image.png', 'wb') as f:
+# wb(二进制写入模式)，在当前路径打开或新建(文件名.后缀名)文件，重新写入数据。
+with open('文件名.后缀名', 'wb') as f:
 # 将response.content(响应图片的二进制流数据)写入到变量f的路径下的文件
     f.write(response.content)
 ```

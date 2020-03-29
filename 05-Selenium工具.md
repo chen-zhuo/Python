@@ -715,3 +715,34 @@ browser.switch_to.parent_frame()
 # 切换进入frame之中后，我们就不能对主文档的元素进行操作了，如果需要操作，那么我们只能再切换回去
 browser.switch_to.default_content()
 ```
+
+##### Selenium设置代理
+
+```
+from selenium import webdriver
+
+proxy = '127.0.0.1:9743'
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument('--proxy-server=http://' + proxy)
+browser = webdriver.Chrome(chrome_options=chrome_options)
+browser.get('http://httpbin.org/get')
+
+结果：
+{
+  "args": {}, 
+  "headers": {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8", 
+    "Accept-Encoding": "gzip, deflate", 
+    "Accept-Language": "zh-CN,zh;q=0.9", 
+    "Cache-Control": "max-age=0", 
+    "Connection": "close", 
+    "Host": "httpbin.org", 
+    "Upgrade-Insecure-Requests": "1", 
+    "User-Agent": "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36"
+  }, 
+  "origin": "117.139.208.10", 
+  "url": "http://httpbin.org/get"
+}
+```
+
+### 
