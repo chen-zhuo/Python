@@ -1,53 +1,37 @@
-# Selenium工具
+# Selenium自动化测试工具
 
 ### Selenium
 
-##### 认识selenium
+##### Selenium简介
 
-**Selenium是一个用于Web应用程序测试的工具**
+**Selenium是一款基于浏览器用于Web应用程序自动化测试的工具。**
 
-通常各大网站的后台都会有一定的反爬机制，既为了数据安全，也为了减小服务器压力。反爬的手段的方向，就是识别非浏览器客户端，**而selenium恰恰是驱动真正的浏览器去执行请求和操作**，对于服务端来说，是没有任何差别的。
+通俗点说，**用户能做的一切，Selenium驱动浏览器都能做**，无论有无界面，还是输入、点击、滑动等其他操作。
 
-**用户能做的一切，selenium几乎都驱动浏览器取做**，无论是否有界面，包括输入、点击、滑动，等等
+**Selenium特点**
 
-##### 网页数据来源
+通常各大网站都会有一定的反爬机制，既为了数据安全，也为了减小服务器压力。**反爬的方向就是，识别非浏览器客户端，而selenium恰恰是驱动真正的浏览器去执行请求和操作，对于服务端来说，是没有任何差别的。**
 
-有时候用 requests 抓取页面的时候，得到的结果可能和在浏览器中看到的不一样：在浏览器中能看到的页面数据，但是在 requests 得到的结果中并没有。**这是因为 requests 获取的都是原始的 HTML 文档，而浏览器中的页面则是经过 JavaScript 处理数据后生成的结果**。
+对于数据加密或放在不同地方的网页，使用selenium驱动浏览器**获取数据加载完成后的页面的源代码**，做到可见即可爬**。选择selenium来做爬虫，也说明网站的反爬能力比较高。**但要是开几十个浏览器窗口去获取网页源码，**作为爬虫确实比较慢了**。
 
-网页数据的来源大体有三种：
+**优点**：被反爬几率小，能运行Js，可以爬取反爬较严的网站。
 
-1. 有的页面的数据是放在HTML文档中
-2. 有的页面的数据是通过Ajax请求加载的（即向服务器请求某个接口获取数据）
-3. 有的页面的数据是通过JavaScript和特定算法计算后生成的
+**缺点**：加载耗时，效率低，稳定性差。
 
-对于数据加密或放在不同地方的网页，**使用selenium驱动浏览器获取数据加载完成后的页面的源代码，做到可见即可爬**。选择selenium来做爬虫，也说明网站的反爬能力比较高（要不然直接上scrapy了），对网页之间的连贯性，cookies，用户状态等有较高的监测。
+##### 浏览器组合
 
-### 浏览器
+**常用浏览器**：Chrome（谷歌）、Firefox（火狐）、safari（苹果浏览器）、IE（Internet Explorer）。
 
-Chrome（谷歌）、Firefox（火狐）、safari（苹果浏览器），流行组合基本是Selenium+Chrome或者Selenium+Firefox。
+**常用组合**：Selenium+Chrome或者Selenium+Firefox。
 
-##### 有头模式
+##### 有/无头模式
 
-Head Browser(有头的浏览器)，**有图形用户界面(GUI)的web浏览器**。
+有/无头模式：**浏览器运行时，是否显示浏览界面的一种模式。**
 
-##### 无头模式
-
-Headless Browser(无头的浏览器)，**没有图形用户界面(GUI)的web浏览器，通常是通过编程或命令行界面来控制的**。
-
-**注意：有头和无头只是一种运行模式，浏览器可以任选一种模式来运行。**
-
-##### 模式区别
-
-相同点：
-
-1. **有头模式和无头模式都是由selenium来驱动浏览器**。
-2. **浏览器在有头模式或无头模式下，都能完成所有操作**。
-
-不同点：
-
-1. **无头模式驱动浏览器，不会显示浏览器界面；有头模式驱动浏览器，会显示浏览器界面**。
-2. **selenium驱动浏览器，默认有头模式，设置无头模式，需要设置options参数**。
-3. 无头模式比有头模式在内存消耗，运行时间，CPU占用上面都有一定的优势
+1. 有头模式和无头模式都是由selenium来驱动浏览器。
+2. 浏览器在有头模式或无头模式下，都能完成所有操作。
+3. **无头模式驱动浏览器，不会显示浏览器界面；有头模式驱动浏览器，会显示浏览器界面。**
+4. **Selenium驱动浏览器，默认有头模式，设置无头模式，需要设置options参数。**
 
 ### Chromedriver
 
@@ -745,4 +729,55 @@ browser.get('http://httpbin.org/get')
 }
 ```
 
-### 
+##### selenium工具
+
+**selenium是一款自动化测试工具，它通过驱动浏览器来模拟用户操作，获取浏览器当前呈现的页面的源代码，做到可见即可爬。**
+
+```
+import time
+# 从selenium导入webdriver
+from selenium import webdriver
+# 通过webdriver驱动谷歌浏览器将此方法再放入变量driver
+driver = webdriver.Chrome()
+# driver.get方法访问url
+driver.get('https://www.qq.com/')
+# 休息5秒
+time.sleep(5)
+# driver.page_source方法获取网页代码
+print(driver.page_source)
+
+输出：
+...
+<ul class="yw-list" bosszone="dfz_1">
+          <li><a href="http://cd.qq.com/a/20181124/002042.htm" target="_blank">四川人注意啦！这12批食品抽检不合格</a></li>
+          <li><a href="http://cd.qq.com/a/20181124/002147.htm" target="_blank">成都小区连续四个月“天降狗屎” 肇事者称因压力大</a></li>...
+```
+
+**注意：Selenium 中， get （）方法会在网页框架加载结束后结束执行，此时获取 page_source ，可能并不是浏览器完全加载完成的页面，如有额外的 Ajax 请求，在网页源代码中也不一定能成功获取到。所以需要延时等待，确保节点已经加载出来。**
+
+##### selenium方法
+
+```
+# 先清空cookies
+browser.delete_all_cookies()
+# 访问登录页面
+browser.get('...')
+# 输入账号密码
+browser.find_element_by_id('username').send_keys('username')
+browser.find_element_by_id('password').send_keys('password')
+# 点击登录按钮
+browser.find_element_by_xpath('...').click()
+# 获取登录后的cookies，将Cookie进行保存
+cookies = browser.get_cookies()
+###################################################################
+# 当在次访问需要登录的页面时，就加载保存的cookie实现免登录
+# 清空cookie
+browser.delete_all_cookies()
+# 获取到上面保存的cookies内容：[{'domain': '.suning.com', 'expiry': 1557537894...}...]
+# 因为cookie内容是列表里面套字典，因此需要循环来添加cookie
+for i in range(len(cookies)):
+    browser.add_cookie(cookies[i])
+# 访问页面
+browser.get('...')
+```
+
