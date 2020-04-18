@@ -322,3 +322,93 @@ with open('文件名.后缀名', 'wb') as f:
     f.write(response.content)
 ```
 
+### 异常总结
+
+##### 连接超时
+
+服务器在指定时间内没有应答，抛出 `requests.exceptions.ConnectTimeout `错误
+
+```python
+import requests
+
+# 设置超时时间为0.001秒
+requests.get('http://github.com', timeout=0.001)
+
+# 抛出requests.exceptions.ConnectTimeout错误
+'''
+requests.exceptions.ConnectTimeout: HTTPConnectionPool(host='github.com', port=80): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000002B3A3B55788>, 'Connection to github.com timed out. (connect timeout=0.001)'))
+'''
+```
+
+##### 连接、读取超时
+
+**timeout 值将会用作 connect 和 read 二者的 timeout**。如果要分别制定，就**传入一个元组**，**分别指定连接和读取的超时时间，服务器在指定时间没有应答**，抛出 `requests.exceptions.ConnectTimeout` 错误。
+
+\- `timeout=(连接超时时间, 读取超时时间)`
+\- 连接：客户端连接服务器并并发送http请求服务器
+\- 读取：客户端等待服务器发送第一个字节之前的时间
+
+```python
+import requests
+
+# 设置连接的超时时间为100秒，读取的超时时间为0.01秒
+requests.get('http://github.com', timeout=(100,0.01))
+
+# 抛出requests.exceptions.ConnectTimeout错误
+'''
+requests.exceptions.ReadTimeout: HTTPConnectionPool(host='github.com', port=80): Read timed out. (read timeout=0.01)
+'''
+```
+
+##### 未知服务器
+
+访问不存在的网址，抛出 `requests.exceptions.ConnectionError` 错误。
+
+```python
+import requests
+
+# 访问不存在的网址
+requests.get('http://github.comasf')
+
+# 抛出requests.exceptions.ConnectionError错误
+'''
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='github.comasf', port=80): Max retries exceeded with url: / (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001DA07F41848>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+'''
+```
+
+##### 网络异常
+
+在断网的情况下，抛出 `requests.exceptions.ConnectionError` 错误。
+
+```python
+import requests
+
+# 已断开网络连接
+requests.get('http://github.com')
+
+# 抛出requests.exceptions.ConnectionError错误
+'''
+requests.exceptions.ConnectionError: HTTPConnectionPool(host='github.com', port=80): Max retries exceeded with url: / (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002BB2BFC46C8>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+'''
+```
+
+##### 代理异常
+
+代理服务器拒绝建立连接，端口拒绝连接或未开放，抛出 `requests.exceptions.ProxyError` 错误。
+
+代理服务器没有响应，抛出  `requests.exceptions.ConnectTimeout` 错误。
+
+```python
+import requests
+
+# 代理192.168.10.1:800
+requests.get('http://github.com', proxies={"http": "192.168.10.1:800"})
+
+# 抛出requests.exceptions.ProxyError错误
+'''
+requests.exceptions.ProxyError: HTTPConnectionPool(host='192.168.10.1', port=800): Max retries exceeded with url: http://github.com/ (Caused by ProxyError('Cannot connect to proxy.', NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fce3438c6d8>: Failed to establish a new connection: [Errno 111] Connection refused',)))
+'''
+```
+
+
+

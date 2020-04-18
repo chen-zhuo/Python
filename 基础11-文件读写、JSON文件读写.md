@@ -158,8 +158,12 @@ with open('./lewr.jpg', 'wb')as f: # wb写二进制文件
 `json.loads()`：将 `json` 格式解码成 `Python` 数据类型。
 
 ```python
+# 导入json模块
+import json                                          
+
 encoded_json = ["iplaypython", [1, 2, 3], {"name": "xiaoming"}]
-analys_json = json.loads(encoded_json)  # 将 json 格式解码成 Python 数据类型
+# 将 json 格式解码成 Python 数据类型
+analys_json = json.loads(encoded_json)  
 print(analys_json, type(analys_json))
 
 '''
@@ -173,18 +177,37 @@ print(analys_json, type(analys_json))
 `json.dumps()`：将 `Python` 数据类型编码为 `json` 格式。
 
 ```python
-import json                                          # 导入json模块
+# 导入json模块
+import json                                          
 
-l = ['iplaypython', [1, 2, 3], {'name': 'xiaoming'}] # 创建一个l列表
-encoded_json = json.dumps(l)                         # 将l列表，进行json格式化编码
-print(l)
+# 创建一个l列表
+l = ['iplaypython', [1, 2, 3], {'name': 'xiaoming'}]
+print(l, type(l))
+
+# 将l列表，进行json格式化编码
+encoded_json = json.dumps(l)                        
 print(encoded_json, type(encoded_json))
 
+# 将l列表，进行json格式化编码，并按照json样式可视化显示
+encoded_json1 = json.dumps(l, indent=1)              
+print(encoded_json1, type(encoded_json1))
 '''
 输出：
-['iplaypython', [1, 2, 3], {'name': 'xiaoming'}]
-["iplaypython", [1, 2, 3], {"name": "xiaoming"}] <class 'str'>
+['iplaypython', [1, 2, 3], {'name': 'xiaoming'}] <class 'list'>
 # 注释：将一个list列表对象，进行了json格式的编码，单引号变双引号。
+["iplaypython", [1, 2, 3], {"name": "xiaoming"}] <class 'str'>
+# 按照json样式可视化显示
+[
+ "iplaypython",
+ [
+  1,
+  2,
+  3
+ ],
+ {
+  "name": "xiaoming"
+ }
+]<class 'str'>
 '''
 ```
 
