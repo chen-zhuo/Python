@@ -535,7 +535,7 @@ browser.implicitly_wait(10)
 
 ### 极验验证码
 
-破解极验验证码之前，先讲解一下需要用到的Selenium操作：
+破解极验验证码的思路在[爬虫12-验证码](爬虫12-验证码.md)中的“极验验证码”，给出代码之前，先讲解一下需要用到的操作：
 
 ##### 行为事件
 
@@ -575,9 +575,9 @@ ActionChains(browser).move_to_element(button3).perform()
 button3.click()
 ```
 
-##### 模拟JS
+##### 模拟Js
 
-selenium还可以使用execute_script方法来模拟运行JavaScript。
+Selenium 还可以使用 `execute_script` 方法来模拟运行JavaScript。
 
 ```python
 # 将进度条下拉到最底部
@@ -585,6 +585,162 @@ selenium还可以使用execute_script方法来模拟运行JavaScript。
 
 # 弹出alert提示框，内容是（To Bottom）
 浏览器对象.execute_script('alert("To Bottom")')
+```
+
+##### 破解极验验证码
+
+这里没有具体举例破解哪个网站极验验证码，但主体代码已经给出来了，后面根据不同的网站增添部分代码：
+
+```python
+from io import BytesIO
+from PIL import Image
+from selenium import webdriver
+from selenium.webdriver import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+# 建立CrackGeetest类
+class CrackGeetest:
+    # 滑块距离左边界的距离
+    BORDER = 6
+
+    def __init__(self, obj):
+        self.browser = obj
+        # 显示等待，设置元素统一等待时间30秒
+        self.wait = WebDriverWait(self.browser, 30)
+
+    # 模拟人类滑动滑块的滑动轨迹(涉及初中物理上的匀加速运动)
+    def get_track(self, distance):
+        # 空的滑动链表
+        track = []
+        # 位移距离
+        current = 0
+        # 间隔时间
+        t = 0.5
+        # 初速度
+        v = 0
+        while current < distance:
+            if current < distance * 4 / 5:
+                # 当前位移小于整个位移的4/5时，加速度为2
+                a = 2
+            else:
+                # 当前位移大于整个位移的4/5时，加速度为-3
+                a = -3
+            # 上次位移的末速度，等于这次的初速度
+            v0 = v
+            # 在时间t时的速度
+            v = v0 + a * t
+            # 在时间t内的位移
+            move = v0 * t + 1 / 2 * a * t * t
+            # 已经位移的总距离
+            current += move
+            # 将时间t内的位移近似值，加入到滑动链表中
+            track.append(round(move))
+        return track
+
+    # 遍历坐标，对比像素点RGB值
+    def is_pixel_equal(self, image1, image2, x, y):
+        # 根据每个坐标获取像素点RGB值
+        pixel1 = image1.load()[x, y]
+        pixel2 = image2.load()[x, y]
+        # 阈值为60，当RGB值偏差超过60，认为像素点不一样
+        threshold = 60
+        # 对比RGB值偏差的绝对值，大于60，则找到不一样的像素点，认为找到了缺口阴影部分，返回False
+        if abs(pixel1[0] - pixel2[0]) < threshold and abs(pixel1[1] - pixel2[1]) < threshold and abs(pixel1[2] - pixel2[2]) < threshold:
+            return True
+        else:
+            return False
+
+    # 获取缺口偏移量
+    def get_gap(self, image1, image2):
+        # 滑块最右边距离验证码最左边的位置大体距离为60
+        left = 60
+        # 遍历滑块最右边至验证码码最右边的部分，找出缺口阴影位置
+        for i in range(left, image1.size[0]):
+            for j in range(image1.size[1]):
+                if not self.is_pixel_equal(image1, image2, i, j):
+                    # 返回缺口横坐标
+                    return i
+
+    # 获取背景带缺口的验证码图片
+    def get_geetest_image1(self):
+        # 执行js，让验证码只显示带有背景缺口的图片
+        js = f'''...'''
+        self.browser.execute_script(js)
+        # 获取整个网页截图
+        screenshot = self.browser.get_screenshot_as_png()
+        screenshot = Image.open(BytesIO(screenshot))
+        # 获取验证码在屏幕的坐标
+        img = self.browser.find_elements_by_xpath('...')
+        location = img.location
+        size = img.size
+        top, bottom, left, right = location['y'], location['y'] + size['height'], location['x'], location['x'] + size['width']
+        # 根据坐标在整个网页截图中裁剪出验证码图片，并保存图像为'captcha1.png'
+        captcha = screenshot.crop(left, top, right, bottom)
+        captcha.save('captcha1.png')
+        return captcha
+
+    # 获取背景不带缺口的验证码图片
+    def get_geetest_image2(self):
+        # 执行js，让验证码显示不带有缺口的背景图片
+        js = f'''...'''
+        self.browser.execute_script(js)
+        # 获取整个网页截图
+        screenshot = self.browser.get_screenshot_as_png()
+        screenshot = Image.open(BytesIO(screenshot))
+        # 获取验证码在屏幕的坐标
+        img = self.browser.find_elements_by_xpath('...')
+        location = img.location
+        size = img.size
+        top, bottom, left, right = location['y'], location['y'] + size['height'], location['x'], location['x'] + size['width']
+        # 根据坐标在整个网页截图中裁剪出验证码图片，并保存图像为'captcha2.png'
+        captcha = screenshot.crop(left, top, right, bottom)
+        captcha.save('captcha2.png')
+        return captcha
+
+    # 破解验证码
+    def crack(self):
+        # 等待极验验证码加载完成
+        self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, '...')))
+        # 获取滑块对象
+        slider = self.browser.find_elements_by_xpath('...')
+        # 获取带缺口的验证码图片
+        image1 = self.get_geetest_image1()
+        # 获取不带缺口的验证码图片
+        image2 = self.get_geetest_image2()
+        # 将带缺口验证码和不带缺口验证码进行比对，获取缺口位置
+        gap = self.get_gap(image2, image1)
+        # 减去距离左边界的距离，就是滑块的位移距离
+        gap -= self.BORDER
+        # 根据距离，计算模拟人类滑动滑块的运动轨迹，获得滑动链表
+        track = self.get_track(gap)
+        # 传入浏览器对象和滑块对象
+        ActionChains(self.browser).click_and_hold(slider).perform()
+        # 遍历滑动链表
+        for x in track:
+            # 按住并拖动滑块，根据滑动链表里面的值移动相同的距离
+            ActionChains(self.browser).move_by_offset(xoffset=x, yoffset=0).perform()
+        # 松开滑块，和缺口重合
+        ActionChains(self.browser).release().perform()
+        # 验证通过
+        print('验证通过')
+
+def all_event():
+    # 创建浏览器对象
+    browser = webdriver.Chrome()
+    # 访问含有滑块验证码的网址
+    browser.get('...')
+    # 通过浏览器对象生成crack类对象
+    gee = CrackGeetest(obj=browser)
+    # 点击按钮生成极验验证码
+    browser.find_element_by_xpath('...').click()
+    # 执行类中的crack()的方法，破解验证码
+    gee.crack()
+
+
+if __name__ == '__main__':
+    all_event()
 ```
 
 
