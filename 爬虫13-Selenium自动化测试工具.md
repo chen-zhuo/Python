@@ -656,12 +656,14 @@ class CrackGeetest:
     def get_gap(self, image1, image2):
         # 滑块最右边距离验证码最左边的位置大体距离为60
         left = 60
-        # 遍历滑块最右边至验证码码最右边的部分，找出缺口阴影位置
+        # 遍历滑块最右边至验证码码最右边的部分，找出缺口阴影最左边的位置坐标(注意是：缺口阴影最左边)
         for i in range(left, image1.size[0]):
             for j in range(image1.size[1]):
                 if not self.is_pixel_equal(image1, image2, i, j):
-                    # 返回缺口横坐标
-                    return i
+                    # 返回阴影缺口最左边的横坐标
+                    left = i
+                    return left - 2
+        return left
 
     # 获取背景带缺口的验证码图片
     def get_geetest_image1(self):
@@ -711,7 +713,7 @@ class CrackGeetest:
         image2 = self.get_geetest_image2()
         # 将带缺口验证码和不带缺口验证码进行比对，获取缺口位置
         gap = self.get_gap(image2, image1)
-        # 减去距离左边界的距离，就是滑块的位移距离
+        # 减去距离左边界的距离，就等于滑块的位移距离
         gap -= self.BORDER
         # 根据距离，计算模拟人类滑动滑块的运动轨迹，获得滑动链表
         track = self.get_track(gap)
