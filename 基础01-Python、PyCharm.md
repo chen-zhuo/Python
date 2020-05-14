@@ -257,11 +257,12 @@ Ctrl+R  ---  替换
 # 指令安装（从默认的pip源中下载，速度较慢）
 pip install XXX(包名)
 
-# 豆瓣镜像安装（从国内镜像源网站中下载，速度快）
+# 下面的命令都是从国内镜像源网站中下载，下载速度快
+# 清华大学镜像源安装（三方库齐全，推荐）
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple XXX(包名)
+# 豆瓣镜像源安装
 pip install XXX(包名) -i http://pypi.douban.com/simple
-# 豆瓣镜像安装（并添加信任地址）
-pip install XXX(包名) -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
-# 阿里云镜像源安装（从国内镜像源网站中下载，速度快）
+# 阿里云镜像源安装
 pip install XXX(包名) -i http://mirrors.aliyun.com/pypi/simple/
 
 # 文件信息下载安装

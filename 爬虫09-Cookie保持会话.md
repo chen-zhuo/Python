@@ -62,7 +62,7 @@
 
  登录网站时，会在客户端生成 Cookies ，而 **Cookies 里面保存了 SessionID 的信息**， 登录之后的后续请求都会携带生成后的 Cookies 发送给服务器。服务器就会**根据 Cookies保存的SessionID查找出对应的Session对象，进而找到会话**。如果当前Cookie是有效的，那么服务器就判断用户当前已经登录了，返回请求的页面信息，这样我们就可以看到登录之后的页面；如果是无效的就会返回登陆页面。
 
-### 保持会话
+### Cookie和会话
 
 ##### 手动拷贝Cookie
 
@@ -160,48 +160,18 @@ _de=A856ED120905F94BAD5227D1A9BCED83; anonymid=k8b3ypsv-khbu21; first_login_flag
 '''
 ```
 
-##### 自动保持会话
+##### 会话对象Session
 
-上面的方法虽然是“自动获取Cookie”，但是要手动传递Cookie保存到headers当中，有更简便的方法吗？当然有。
-
-这里就要用到 `requests` 库的一个高级用法了：`会话对象`。
+`requests` 库的高级用法：`会话对象Session`。
 
 **会话对象让你能够跨请求保持某些参数**。它也会在同一个 Session 实例发出的所有请求之间保持 cookie。所以如果你向同一主机发送多个请求，底层的 TCP 连接将会被重用，从而带来显著的性能提升。
-
-```python
-import requests
-from fake_useragent import UserAgent
-
-# 生成一个名称为s的session对象
-s = requests.session()
-
-headers = {'User-Agent': UserAgent().chrome}
-data = {'email':'账号','password':'密码'}
-# 登录页面
-url = 'http://www.renren.com/PLogin.do'
-# 使用s去发送post请求
-response = s.post(url=url, data=data, headers=headers)
-
-# 个人主页
-url1 = 'http://www.renren.com/974088904/profile'
-# 仍然使用s去发送get请求
-response1 = s.get(url=url1, headers=headers)
-# 输出个人主页代码
-print(response1.text)
-'''
-<!Doctype html>
-<html class="nx-main860">
-<head>
-...
-<title>人人网 - 剑眉星目</title>
-'''
-```
 
 会话对象具有**主要的 Requests API 的所有方法**。
 
 ```python
 import requests
 
+# 创建一个会话对象s
 s = requests.Session()
 
 q = s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
@@ -230,6 +200,40 @@ print(r.text)
 输出：
 {"cookies": {"from-my": "browser"}}
 {"cookies": {}}
+'''
+```
+
+##### 保持会话
+
+上面人人网的例子中，虽然是“自动获取Cookie”，但是要手动传递Cookie保存到headers当中，有更简便的方法吗？当然有。这里就要用到 `requests` 库的 `会话对象Session`。
+
+```python
+import requests
+from fake_useragent import UserAgent
+
+# 生成一个名称为s的session对象
+s = requests.session()
+
+headers = {'User-Agent': UserAgent().chrome}
+data = {'email':'账号','password':'密码'}
+# 登录页面
+url = 'http://www.renren.com/PLogin.do'
+# 使用s去发送post请求
+response = s.post(url=url, data=data, headers=headers)
+
+# 注意这里：post请求发送后，会收到服务器返回在响应头的Cookie，因为这里是会话对象，底层的 TCP 连接将会被重用，Cookie被更新到新的头部中，达到了保持会话的目的。
+
+# 个人主页
+url1 = 'http://www.renren.com/974088904/profile'
+# 仍然使用s去发送get请求
+response1 = s.get(url=url1, headers=headers)
+# 输出个人主页代码
+print(response1.text)
+'''
+<!Doctype html>
+<html class="nx-main860">
+<head>...
+<title>人人网 - 剑眉星目</title>
 '''
 ```
 

@@ -38,11 +38,11 @@ Chromedriver下载链接：http://npm.taobao.org/mirrors/chromedriver/2.41/ ，�
 
 !> 相同程序驱动不同版本的Chrome浏览器，可能会有不同的报错，建议使用Firefox浏览器。
 
-##### geckodriver
+##### Geckodriver
 
-**geckodriver是驱动Firefox(火狐)浏览器的程序。**
+**Geckodriver是驱动Firefox(火狐)浏览器的程序。**
 
-geckodriver下载链接：https://github.com/mozilla/geckodriver/releases ，选择符合符合自己电脑操作系统的版本的geckodriver，进行下载，完成后解压，后面步骤和安装Chromedriver一样。
+Geckodriver下载链接：https://github.com/mozilla/geckodriver/releases ，选择符合符合自己电脑操作系统的版本的Geckodriver，进行下载，完成后解压，后面步骤和安装Chromedriver一样。
 
 ### 基本操作
 
@@ -435,7 +435,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 wait = WebDriverWait(浏览器对象, 10)
 ```
 
-在 Selenium 中内置的一个 `By` 类，在这个类中有各种方法**使用元组**来定位元素。引入路径：
+在 Selenium 中内置的一个 `By` 类，在这个类中有各种方法**通过元组**来定位元素。引入路径：
 
 ```python
 # 从selenium.webdriver.common.by 导入By包进行元素定位
