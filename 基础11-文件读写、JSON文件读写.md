@@ -185,18 +185,16 @@ import json
 
 # 创建一个l列表
 l = ['iplaypython', [1, 2, 3], {'name': 'xiaoming'}]
-print(l, type(l))
 
 # 将l列表，进行json格式化编码
 encoded_json = json.dumps(l)                        
 print(encoded_json, type(encoded_json))
 
-# 将l列表，进行json格式化编码，并按照json样式可视化显示
+# indent参数可以按照json样式可视化显示
 encoded_json1 = json.dumps(l, indent=1)              
 print(encoded_json1, type(encoded_json1))
 '''
 输出：
-['iplaypython', [1, 2, 3], {'name': 'xiaoming'}] <class 'list'>
 # 注释：将一个list列表对象，进行了json格式的编码，单引号变双引号。
 ["iplaypython", [1, 2, 3], {"name": "xiaoming"}] <class 'str'>
 # 按照json样式可视化显示
