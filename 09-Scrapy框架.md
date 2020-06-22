@@ -57,3 +57,11 @@ pip install Twisted-18.9.0-cp36-cp36m-win_amd64
 ```
 pip install scrapy
 ```
+
+另外，**Scrapy也是异步的，是基于Twisted事件驱动的**。在任何情况下，都不要写阻塞的代码。例如：
+
+1. 访问文件、数据库或者Web
+
+2. 产生新的进程并需要处理新进程的输出，如运行shell命令
+
+3. 执行系统层次操作的代码，如等待系统队列
