@@ -36,13 +36,29 @@
 
 Chromedriver下载链接：http://npm.taobao.org/mirrors/chromedriver/2.41/ ，选择符合符合自己电脑操作系统的版本进行下载。**将文件解压到环境变量下的路径**或者**在 `executable_path` 参数来指定Chromedriver文件的路径**。
 
-!> 相同程序驱动不同版本的Chrome浏览器，可能会有不同的报错，建议使用Firefox浏览器。
-
 ##### Geckodriver
 
 **Geckodriver是驱动Firefox(火狐)浏览器的程序。**
 
 Geckodriver下载链接：https://github.com/mozilla/geckodriver/releases ，选择符合符合自己电脑操作系统的版本的Geckodriver，进行下载，完成后解压，后面步骤和安装Chromedriver一样。
+
+##### 驱动浏览器详解
+
+1. 使用相同的程序和相同版本Chromedriver操作不同版本的Chrome浏览器有时候会报错，原因五花八门。
+
+2. 使用Chromedriver驱动Chrome浏览器去访问**部分网站**，其接口可能会状态码错误，返回空白页，原因未知，而使用Geckodriver驱动Firefox浏览器访问没有问题。
+
+3. **Firefox浏览器没有设置快速缓存和自动释放内存，在长时间使用Firefox时，它所占用的内存量也会随时间不断增加，所以应该考虑定期地重新启动Firefox，让它维持在一个固定的内存占用量。**Firefox设置快速缓存(默认情况下，Firefox只会使用系统内存而不会使用快速缓存)
+
+   ```
+   操作步骤：
+   　　1.打开Firefox浏览器，在地址栏中输入about:config，在过滤器中输入browser.cache.memory.enable，双击这个项目更改它的值为true。
+   　　2.在浏览器中右键点击后选择新建>整数，输入browser.cache.memory.capacity后点击确定。
+   　　3.下一步需在此输入一个值，而这个值的大小则取决于你计算机物理内存的大小。如果你的内存大小为256MB，则输入4096，如果你的内存大小为512MB的话，则输入8192。如果你的内存是128MB甚至更低，建议升级内存。
+   　　(如果要恢复默认设置，将browser.cache.memory.capacity”的值改为-1)
+   ```
+
+**提醒：后面所有的Selenium例子都是基于Chromedriver驱动和Chrome浏览器写的，和其他驱动程序和浏览器操作都大同小异，但不建议使用Chromedriver驱动和Chrome浏览器，强烈推荐Geckodriver驱动和Firefox浏览器。**
 
 ### 基本操作
 

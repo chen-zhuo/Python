@@ -139,6 +139,25 @@ with open('./lewr.jpg', 'wb')as f: # wb写二进制文件
     f.write(jpg_date)
 ```
 
+##### 大文件读写
+
+如果要复制的图片文件很大，一次将文件内容直接读入内存中可能会造成非常大的内存开销，为了减少对内存的占用，可以为`read`方法传入`size`参数来指定每次读取的字节数，通过循环读取和写入的方式来完成上面的操作：
+
+```python
+try:
+    with open('guido.jpg', 'rb') as file1, \
+        open('吉多.jpg', 'wb') as file2:
+        data = file1.read(512)
+        while data:
+            file2.write(data)
+            data = file1.read()
+except FileNotFoundError:
+    print('指定的文件无法打开.')
+except IOError:
+    print('读写文件时出现错误.')
+print('程序执行结束.')
+```
+
 ### Json文件的读写
 
 ##### json文件
