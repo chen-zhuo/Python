@@ -410,5 +410,51 @@ requests.exceptions.ProxyError: HTTPConnectionPool(host='192.168.10.1', port=800
 '''
 ```
 
+##### SSL证书
 
+使用requests库爬取有些网站比如：https://inv-veri.chinatax.gov.cn/，会报如下错误：
+
+```python
+import requests
+
+response = requests.get('https://inv-veri.chinatax.gov.cn/')
+print(response.status_code)
+'''
+报错：requests.exceptions.SSLError: ("bad handshake: Error([('SSL routines', 'tls_process_server_certificate', 'certificate verify failed')],)",)
+'''
+```
+
+原因在于：**使用requests库在爬取这些网站时，会进行一个SSL证书验证的过程，如果证书验证不通过就会报错`SSLError`。**
+
+**SSL证书可能没听过，但网址的的开端大家都很熟悉，要么是http要么是https，多这个s就代表着使用的连接是加密的，使用SSL证书的。但如果使用的SSL是无效的，不是数字证书颁发机构CA颁发，那么即使网址开端是https，访问时也会报`SSLError`错，浏览器提示不是`私密链接`。**
+
+![QQ截图20200719004117](image/QQ截图20200719004117.png)
+
+**通过设置 `verify=False`，可以让requests库忽略对SSL证书的验证，但是会有警告**，建议我们给它指定证书：
+
+```python
+import requests
+
+response = requests.get('https://inv-veri.chinatax.gov.cn/', verify=False)
+print(f'状态码：{response.status_code}')
+'''
+警告：InsecureRequestWarning: Unverified HTTPS request is being made. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#ssl-warnings InsecureRequestWarning)
+状态码：200
+'''
+```
+
+当然我们可以通过设置忽略警告的方式来屏蔽这个警告：
+
+```python
+import requests
+
+# 忽略掉警告
+requests.packages.urllib3.disable_warnings()
+response = requests.get('https://inv-veri.chinatax.gov.cn/', verify=False)
+print(f'状态码：{response.status_code}')
+'''
+输出：
+状态码：200
+'''
+```
 

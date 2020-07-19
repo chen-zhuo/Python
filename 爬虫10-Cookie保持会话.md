@@ -62,6 +62,8 @@
 
  登录网站时，会在客户端生成 Cookies ，而 **Cookies 里面保存了 SessionID 的信息**， 登录之后的后续请求都会携带生成后的 Cookies 发送给服务器。服务器就会**根据 Cookies保存的SessionID查找出对应的Session对象，进而找到会话**。如果当前Cookie是有效的，那么服务器就判断用户当前已经登录了，返回请求的页面信息，这样我们就可以看到登录之后的页面；如果是无效的就会返回登陆页面。
 
+?> 参考资料：[还分不清 Cookie、Session、Token、JWT？](https://zhuanlan.zhihu.com/p/152224669)
+
 ### Cookie和会话
 
 ##### 手动拷贝Cookie
