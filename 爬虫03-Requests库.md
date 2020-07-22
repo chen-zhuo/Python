@@ -412,7 +412,7 @@ requests.exceptions.ProxyError: HTTPConnectionPool(host='192.168.10.1', port=800
 
 ##### SSL证书
 
-使用requests库爬取有些网站比如：https://inv-veri.chinatax.gov.cn/，会报如下错误：
+使用requests库爬取有些网站比如：[国家税务总局全国增值税发票查验平台](https://inv-veri.chinatax.gov.cn/)，就会报如下错误：
 
 ```python
 import requests
