@@ -124,72 +124,155 @@ post请求也很简单，主要是网址和传参：
 4. **用data参数提交数据时，`request.body`的内容则为`a=1&b=2`的这种形式，用json参数提交数据时，`request.body`的内容则为'{"`a": 1, "b": 2}'`的这种形式**
 
 ```python
-import json
 import requests
 
-dict1 = {
-    'name': 'germey',
-    'age': 22
-}
-# 直接以字典的格式传递数据
-response = requests.post('https://httpbin.org/post', data=dict1)
+# 请求头，以form表单数据被编码为key/value格式发送到服务器
+headers1 = {'Content-Type': 'application/x-www-form-urlencoded'}
+# 请求头，以JSON数据格式发送到服务器
+headers2 = {'Content-Type': 'application/json'}
+# 字典格式参数
+dict1 = {'name': 'germey', 'age': 22, 'company':'公司'}
+# 字符串格式参数
+str1 = "{'name': 'germey', 'age': 22, 'company':'公司'}"
+# json格式参数
+json1 = "{\"name\": \"germey\", \"age\": 22, \"company\":\"公司\"}"
+
+'''
+输出注解：
+  "data": 和请求头'application/json'有关，以JSON数据格式传递
+  "form": 和请求头'application/x-www-form-urlencoded'有关，以form表单传递
+  "json": 对上面data数据中对应的数据流进行反序列化
+'''
+
+response = requests.post('https://httpbin.org/post', headers=headers1, data=dict1)
 print(response.text)
 '''
 输出：
-{
-  "args": {}, 
-  "data": "", 
-  "files": {}, 
-  "form": {
-    "age": "22", 
-    "name": "germey"
-  }, 
-  "headers": {
-    "Accept": "/", 
-    "Accept-Encoding": "gzip, deflate", 
-    "Connection": "close", 
-    "Content-Length": "18", 
-    "Content-Type": "application/x-www-form-urlencoded", 
-    "Host": "httpbin.org", 
-    "User-Agent": "python-requests/2.19.1"
-  }, 
-  "json": null, 
-  "origin": "182.149.163.126", 
-  "url": "https://httpbin.org/post"
-}
-
-# 解释：因为post中data参数默认是表单传递参数，因此传递的参数出现在了form表单里面。
+  "data": "",
+  "form": {"age": "22", "company": "\u516c\u53f8", "name": "germey"},
+  "json": null,
 '''
 
-# 将python字典dict类型数据自动转化为json数据化传递
-response = requests.post('https://httpbin.org/post', json=dict1)
+# 字符串中的汉字需要编码为UTF8
+response = requests.post('https://httpbin.org/post', headers=headers1, data=str1.encode('UTF8'))
 print(response.text)
 '''
 输出：
-{
-  "args": {}, 
-  "data": "{\"name\": \"germey\", \"age\": 22}", 
-  "files": {}, 
-  "form": {}, 
-  "headers": {
-    "Accept": "*/*", 
-    "Accept-Encoding": "gzip, deflate", 
-    "Content-Length": "29", 
-    "Content-Type": "application/json", 
-    "Host": "httpbin.org", 
-    "User-Agent": "python-requests/2.19.1", 
-    "X-Amzn-Trace-Id": "Root=1-5e57ebd1-d0d9017460a1ecf0e4dca6dc"
-  }, 
-  "json": {
-    "age": 22, 
-    "name": "germey"
-  }, 
-  "origin": "180.97.206.96", 
-  "url": "https://httpbin.org/post"
-}
-
-解释：因为post中json参数默认是json格式传递参数，因此出现在了"json"里面。
+  "data": "",
+  "form": {"{'name': 'germey', 'age': 22, 'company':'\u516c\u53f8'}": ""},
+  "json": null,
 '''
+
+# json中的汉字需要编码为UTF8
+response = requests.post('https://httpbin.org/post', headers=headers1, data=json1.encode('UTF8'))
+print(response.text)
+'''
+输出：
+  "data": "",
+  "form": {"{\"name\": \"germey\", \"age\": 22, \"company\":\"\u516c\u53f8\"}": ""},
+  "json": null,
+'''
+
+# 总结：参数data会把存储的值编码为Unicode，请求头'application/x-www-form-urlencoded'将其转换为表单的形式，如果本身是dict类型则不变，若是str类型则作为dict中的键，值为空，再传递。
+
+
+
+response = requests.post('https://httpbin.org/post', headers=headers1, json=dict1)
+print(response.text)
+'''
+输出：
+  "data": "",
+  "form": {"{\"name\": \"germey\", \"age\": 22, \"company\": \"\\u516c\\u53f8\"}": ""},
+  "json": null,
+'''
+
+# 字符串中的汉字不要编码为UTF8，因为json不能序列化(serializable)bytes类型数据
+response = requests.post('https://httpbin.org/post', headers=headers1, json=str1)
+print(response.text)
+'''
+输出：
+  "data": "",
+  "form": {"\"{'name': 'germey', 'age': 22, 'company':'\\u516c\\u53f8'}\"": ""},
+  "json": null,
+'''
+
+# json中的汉字不要编码为UTF8，因为json不能序列化(serializable)bytes类型数据
+response = requests.post('https://httpbin.org/post', headers=headers1, json=json1)
+print(response.text)
+'''
+输出：
+  "data": "",
+  "form": {"\"{\\\"name\\\": \\\"germey\\\", \\\"age\\\": 22, \\\"company\\\":\\\"\\u516c\\u53f8\\\"}\"": ""},
+  "json": null,
+'''
+
+# 总结：参数json会把存储的值进行json序列化，因为序列化后全是字符串，请求头'application/x-www-form-urlencoded'以表单的形式传递，表单的键就是序列化的字符串，值全部为空。
+
+
+
+response = requests.post('https://httpbin.org/post', headers=headers2, data=dict1)
+print(response.text)
+'''
+输出：
+  "data": "name=germey&age=22&company=%E5%85%AC%E5%8F%B8",
+  "form": {},
+  "json": null,
+'''
+
+# 字符串中的汉字需要编码为UTF8
+response = requests.post('https://httpbin.org/post', headers=headers2, data=str1.encode('UTF8'))
+print(response.text)
+'''
+输出：
+  "data": "{'name': 'germey', 'age': 22, 'company':'\u516c\u53f8'}",
+  "form": {},
+  "json": null,
+'''
+
+# json中的汉字需要编码为UTF8
+response = requests.post('https://httpbin.org/post', headers=headers2, data=json1.encode('UTF8'))
+print(response.text)
+'''
+输出：
+  "data": "{\"name\": \"germey\", \"age\": 22, \"company\":\"\u516c\u53f8\"}",
+  "form": {},
+  "json": {"age": 22, "company": "\u516c\u53f8", "name": "germey"},
+'''
+
+# 总结：参数data会把存储的值编码为Unicode，请求头'application/json'将其转换为json格式，如果本身是dict类型则数据以a=1&b=2形式传递，若是str类型则以str形式传递，若是json格式则以json格式传递，因为json数据本身可反序列化，因此最后"json": 栏有值。
+
+
+
+response = requests.post('https://httpbin.org/post', headers=headers2, json=dict1)
+print(response.text)
+'''
+输出：
+  "data": "{\"name\": \"germey\", \"age\": 22, \"company\": \"\\u516c\\u53f8\"}",
+  "form": {},
+  "json": {"age": 22, "company": "\u516c\u53f8", "name": "germey"},
+'''
+
+# 字符串中的汉字不要编码为UTF8，因为json不能序列化(serializable)bytes类型数据
+response = requests.post('https://httpbin.org/post', headers=headers2, json=str1)
+print(response.text)
+'''
+输出：
+  "data": "\"{'name': 'germey', 'age': 22, 'company':'\\u516c\\u53f8'}\"",
+  "form": {},
+  "json": "{'name': 'germey', 'age': 22, 'company':'\u516c\u53f8'}",
+'''
+
+# json中的汉字不要编码为UTF8，因为json不能序列化(serializable)bytes类型数据
+response = requests.post('https://httpbin.org/post', headers=headers2, json=json1)
+print(response.text)
+'''
+输出：
+  "data": "\"{\\\"name\\\": \\\"germey\\\", \\\"age\\\": 22, \\\"company\\\":\\\"\\u516c\\u53f8\\\"}\"",
+  "form": {},
+  "json": "{\"name\": \"germey\", \"age\": 22, \"company\":\"\u516c\u53f8\"}",
+'''
+
+# 总结：参数json会把存储的值进行序列化，请求头'application/json'会再转换一次json格式，相当于序列化了两次，因此全都可以反序列化一次，所以所有的"json": 都有值。
 ```
 
 ##### 添加请求头

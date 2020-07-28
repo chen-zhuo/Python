@@ -12,14 +12,7 @@ Scrapy是一个完整的爬虫框架，在安装过程中会涉及到许多依�
 
 首先提醒：**有的库是直接程序就可以安装，有的库需要下载下来手动安装。**
 
-手动安装库的名称通常是下面这种格式，选择适合自己环境的版本下载安装：
-
-```
-库名-18.9.0-cp36-cp36m-win_amd64
-    18.9.0：库的版本号
-    cp36：适合python3.6
-    win_amd64：适合windows64位
-```
+手动安装库的名称，选择适合自己环境的版本下载安装：
 
 1. 安装wheel库：命令行中输入`pip install wheel`命令进行安装。
 2. 安装lxml库：在 [http://www.lfd.uci.edu/~gohlke/pythonlibs/](http://www.lfd.uci.edu/~gohlke/pythonlibs/) 找到适合的版本，采用pip方式安装`pip install 路径/下载的文件.whl`。
