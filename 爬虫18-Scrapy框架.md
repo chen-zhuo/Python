@@ -1,18 +1,16 @@
 # Scrapy框架
 
-### Scrapy简介
-
 Scrapy文档参看：[Scrapy官方文档](https://doc.scrapy.org/en/latest/intro/overview.html#)  
 
-##### Scrapy安装
+### Scrapy安装
 
 Scrapy是一个完整的爬虫框架，在安装过程中会涉及到许多依赖库，需要一步一步安装：
 
-**使用Python**
+##### pip安装
 
-首先提醒：**有的库是直接程序就可以安装，有的库需要下载下来手动安装。**
+因为安装Scrapy框架需要许多的依赖库，按照下面步骤通过 `pip` 命令一步步安装：
 
-手动安装库的名称，选择适合自己环境的版本下载安装：
+?> 有的库是直接程序就可以安装，有的库需要下载下来手动安装。手动安装的库，需要在网站内选择适合自己环境的版本下载安装：参看[基础02-开发工具、包管理命令、镜像源](基础02-开发工具、包管理命令、镜像源.md)。
 
 1. 安装wheel库：命令行中输入`pip install wheel`命令进行安装。
 2. 安装lxml库：在 [http://www.lfd.uci.edu/~gohlke/pythonlibs/](http://www.lfd.uci.edu/~gohlke/pythonlibs/) 找到适合的版本，采用pip方式安装`pip install 路径/下载的文件.whl`。
@@ -22,17 +20,17 @@ Scrapy是一个完整的爬虫框架，在安装过程中会涉及到许多依�
 6. 安装pywin32库：在 [https://sourceforge.net/projects/pywin32/files/pywin32/Build%20220/](https://sourceforge.net/projects/pywin32/files/pywin32/Build 220/) 找到适合的版本，采用pip方式安装`pip install 路径/下载的文件.whl`。但是容易出现问题，就是在安装时会出现提示python3.6-32在注册表中不存在。首先根据(http://blog.csdn.net/u014680513/article/details/51005650)把Python写入注册表，在HKEY-CURRENT_USER–Software–Python–PythonCore–会发现3.6文件夹，把这个文件夹导出并重命名为3.6-32，然后导入注册表。就可以安装Pywin32了。
 7. 安装Scrapy框架：命令行中输入`pip install scrapy`命令进行安装。
 
-**使用Anaconda**
+##### conda安装
 
+因为conda会解决依赖包的问题，所以安装命令也很简单：
 
+```
+conda install scrapy
+```
 
+?> 在安装Scrapy时，conda会收集安装Scrapy所需要的依赖包，安装好后，再安装scrapy框架。
 
-
-
-
-
-
-
+### Scrapy简介
 
 **Scrapy 是一个基于 Twisted 的多线程异步处理框架，所以scrapy是自带多线程的。**
 
