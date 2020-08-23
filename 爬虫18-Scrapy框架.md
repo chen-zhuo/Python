@@ -294,33 +294,24 @@ scrapy crawl quotes -o ftp://user:pass@ftp.example.com/path/to/quotes.csv
 
 ##### 保存结果(数据库)
 
-如果想将结果保存到数据库，则可以在 pipelines.py 定义 `Item Pileline` 来实现，定义一个类并实现 `process_item()` 方法即可。启用 `Item Pipeline` 后会自动调用这个方法。`process_item()` 方法必须返回包含数据的字典或 Item 对象，或者抛出 `Dropltem` 异常。
-
-![QQ截图20200816021348](image/QQ截图20200816021348.png)
+在 settings.py 的最下面设置在 `Item Pileline` 中使用到的数据库的相关信息：
 
 ```python
-# 实现Item Pipeline，筛掉text长度大于50Item
-# 引入DropItem
-from scrapy.exceptions import DropItem
+# 设置MySQL数据库
+MYSQL_HOST = '127.0.0.1'
+MYSQL_DATABASE = '...'
+MYSQL_USER = 'root'
+MYSQL_PASSWORD = '...'
+MYSQL_PORT = 3306
 
-class Test1Pipeline:
-    def __init__(self):
-        # 设置筛选长度50
-        self.limit = 50
-
-    # 参数item：每次Spider生成的Item都会作为参数传递过来
-    # 参数spider：就是Spider实例
-    def process_item(self, item, spider):
-        if item['text']:
-            if len(item['text']) < self.limit:
-                # 超过50长度的字符用...代替
-                item['text'] = item['text'][0:self.limit].rstrip()+'...'
-            return item
-        else:
-            DropItem('Miss Text')
+# 设置MongoDB数据库
+MONGO_URI = '127.0.0.1'
+MONGO_DB = '...'
 ```
 
-将处理后的Item存入MySQL数据库，同样在 pipelines.py 定义一个 `MysqlPipeline` 实现：
+**如果想将数据保存在数据库中，则可以在 pipelines.py 定义 `Item Pileline` 来实现，定义一个类并实现 `process_item()` 方法即可。启用 `Item Pipeline` 后会自动调用这个方法。`process_item()` 方法必须返回包含数据的字典或 Item 对象，或者抛出 `Dropltem` 异常。**
+
+**保存到MySQL**：将处理后的Item存入MySQL数据库，同样在 pipelines.py 定义一个 `MysqlPipeline` 实现：
 
 ```python
 # 导入pymysql
@@ -344,21 +335,25 @@ class MysqlPipeline():
             password=crawler.settings.get('MYSQL_PASSWORD'),
             port=crawler.settings.get('MYSQL_PORT'),
         )
+    
     # 当Spider开启时，这个方法被调用，主要进行了一些初始化操作
     def open_spider(self, spider):
         self.db = pymysql.connect(self.host, self.user, self.password, self.database, charset='utf8', port=self.port)
         self.cursor = self.db.cursor()
      
     # 最主要的process_item()方法则执行了数据插入操作
+    # 参数item：每次Spider生成的Item都会作为参数传递过来
+    # 参数spider：就是Spider实例
     def process_item(self, item, spider):
+        # 定义数据表名
+        teble = 'Test1Item'
         data = dict(item)
         keys = ', '.join(data.keys())
         values = ', '.join(['%s'] * len(data))
-        # 定义数据表名
-        teble = 'Test1Item'
         sql = 'insert into %s (%s) values (%s)' % (table, keys, values)
         self.cursor.execute(sql, tuple(data.values()))
         self.db.commit()
+        # 返回Item对象
         return item
         
     # 当Spider关闭时，这个方法会调用，将数据库连接关闭
@@ -366,7 +361,7 @@ class MysqlPipeline():
         self.db.close()
 ```
 
-将处理后的Item存入MongoDB数据库，同样在 pipelines.py 定义一个 `MongoPipeline` 实现：
+**保存到MongoDB**：将处理后的Item存入MongoDB数据库，同样在 pipelines.py 定义一个 `MongoPipeline` 实现：
 
 ```python
 # 导入pymongo
@@ -390,6 +385,8 @@ class MongoPipeline(object):
         self.db = self.client[self.mongo_db]
 
     # 最主要的process_item()方法则执行了数据插入操作
+    # 参数item：每次Spider生成的Item都会作为参数传递过来
+    # 参数spider：就是Spider实例
     def process_item(self, item, spider):
     	# 定义数据表名
         name = 'Test1Item'
@@ -400,36 +397,16 @@ class MongoPipeline(object):
         self.client.close()
 ```
 
-##### 保存配置
-
-上面写了三个 `Item Pileline`，分别是字符处理 `Test1Pipeline`、保存到MySQL `MysqlPipeline`、保存到MongoDB `MongoPipeline`，接下来就要在 settings.py 启用这些配置：
-
-启用 `Item Pileline`：
+上面写了两个 `Item Pileline`，保存到MySQL `MysqlPipeline`、保存到MongoDB `MongoPipeline`，接下来就要在 settings.py 启用这些配置，启用 `Item Pileline`：
 
 ```Python
 # 取消ITEM_PIPELINES注释
 # test1项目名称，pipelines文件名称，...Pipeline在pipelines.py定义的类
 ITEM_PIPELINES = {
-   'test1.pipelines.Test1Pipeline': 300, 
    'test1.pipelines.MysqlPipeline': 400,
    'test1.pipelines.MongoPipeline': 500,
 }
-# 后面对应的键值代表调用优先级，数字越小越先被调用。因为字符处理Test1Pipeline是要先于存储的，因此后面的键值最小
-```
-
-在 settings.py 的最下面设置在 `Item Pileline` 中使用到的数据库的相关信息：
-
-```python
-# 设置MySQL数据库
-MYSQL_HOST = '127.0.0.1'
-MYSQL_DATABASE = '...'
-MYSQL_USER = 'root'
-MYSQL_PASSWORD = '...'
-MYSQL_PORT = 3306
-
-# 设置MongoDB数据库
-MONGO_URI = '127.0.0.1'
-MONGO_DB = '...'
+# 后面对应的键值代表调用优先级，数字越小越先被调用。也就是先存入MySQL，然后再存入MongoDB。
 ```
 
 ### Scrapy进阶
@@ -579,147 +556,93 @@ DOWNLOADER_MIDDLEWARES = {
 }
 ```
 
+##### 设置代理IP
 
+在项目文件的 middlewares.py 文件，新建 `ProxyMiddleware` 类，添加代理IP:
 
-
-
-
-
-
-
-### 配置分类
-
-##### 全局配置
-
-在Scrapy框架中，全局配置指的是settings.py文件中定义的配置，配置后即生效。
-
-##### 局部配置
-
-在Scrapy框架中，局部配置指的是middlewares.py、pipeline.py文件中定义的配置，**配置后需要在settings.py文件中添加并取消注释相应的中间件才生效**。
-
-**注意：在Scrapy框架中，局部配置优先于全局配置，运行框架时，全局配置只读取一次，局部配置是一直被读取。**
-
-### 设置代理IP
-
-##### 功能包添加代理IP
-
-当我们在爬取网站时，就只有当前一个IP地址，若被设置反爬的服务器封掉IP，再去访问页面就会反馈给我们403（禁止访问）的页面。
-
-**ProxyPool-master文件夹**
-
-ProxyPool-master是一个通过免费代理网站，访问设定的网址，晒选出成功访问的代理ip的功能包。
-
-我们将包装有代理ip功能的ProxyPool-master文件夹放到与上面项目文件夹相邻的地方，方便项目管理。
-
-**设置ProxyPool-master参数**
-
-在ProxyPool-master文件夹里面的setting文件设置参数：
-
-TEST_URL后面设置代理ip要测试访问的网址
-
-```
-TEST_URL = 'https://www.....com'
-```
-
-API_PORT设置端口
-
-```
-API_PORT = 5555
-```
-
-**启动ProxyPool-master**
-
-设置成功后，启动ProxyPool-master文件夹里面的run文件，启动成功后，它就会自动筛选有效代理IP，将IP存入代理IP池中。
-
-当我们访问http://127.0.0.1:5555/count 这个接口时，它就会返回当前代理池中可用的代理IP数量。
-
-当我们访问http://127.0.0.1:5555/random 这个接口时，它就会随机反馈一个代理池中的IP及端口号。
-
-当我们启动上面的代理池后，我们需要在项目里面从接口获取代理IP
-
-**middlewares文件**
-
-在项目文件的middlewares.py文件，新建ProxyMiddleware类，添加代理ip:
-
-```
-# 导入requests库
-import requests
+```python
+import random
 
 # 添加代理IP中间件
 class ProxyMiddleware(object):
-
+    # __init_()方法中添加了三个代理IP
+    def __init__(self):
+        self.proxy = [
+            '111.160.169.54:41820',
+            '115.218.214.43:9000',
+            '220.249.149.10:9999',
+        ]
+    
+    # 使用前面提到的process_request()方法，可以直接修改参数request的属性
     def process_request(self, request, spider):
-    	  # 访问代理池提供的接口，随机获取代理IP
-        pro_addr = requests.get('http://127.0.0.1:5555/random').text
-        request.meta['proxy'] = 'http://' + pro_addr
+    	# 随机获取代理IP
+        request.meta['proxy'] = 'http://'+random.choice(self.proxy)
 ```
 
-**settings文件**
+在settings文件取消 `DOWNLOADER_MIDDLEWARES` 注释，并添加上面代理IP的类方法：
 
-在settings文件取消DOWNLOADER_MIDDLEWARES注释，并添加上面代理IP的类方法
-
-```
+```python
+# test1项目名称，middlewares即middlewares.py文件，ProxyMiddleware上面定义的类
 DOWNLOADER_MIDDLEWARES = {
-    # zhipin项目名称，middlewares文件名称，ProxyMiddleware类名称
-    'zhipin.middlewares.ProxyMiddleware': 543,
+    'test1.middlewares.ProxyMiddleware': 543,
 }
 ```
 
-##### 中间件设置代理IP
+##### 添加Item处理
 
-**middlewares.py文件**
+**如果想对结果进行处理，则可以在 pipelines.py 定义 `Item Pileline` 来实现，定义一个类并实现 `process_item()` 方法即可。启用 `Item Pipeline` 后会自动调用这个方法。`process_item()` 方法必须返回包含数据的字典或 Item 对象，或者抛出 `Dropltem` 异常。**
 
+![QQ截图20200816021348](image/QQ截图20200816021348.png)
+
+在项目文件的 pipelines.py 文件，新建 `Test1Pipeline` 类，添加处理方法:
+
+```python
+# 引入DropItem
+from scrapy.exceptions import DropItem
+
+class Test1Pipeline:
+    def __init__(self):
+        # 设置筛选长度50
+        self.limit = 50
+
+    # 参数item：每次Spider生成的Item都会作为参数传递过来
+    # 参数spider：就是Spider实例
+    def process_item(self, item, spider):
+        if item['text']:
+            if len(item['text']) < self.limit:
+                # 超过50长度的字符用...代替
+                item['text'] = item['text'][0:self.limit].rstrip()+'...'
+            return item
+        else:
+            DropItem('Miss Text')
 ```
-import scrapy
-from scrapy import signals
-import random
 
-class ProxyMiddleware(object):
-    '''
-    设置Proxy
-    '''
+在settings文件取消 `ITEM_PIPELINES` 注释，并添加上面去重的类方法：
 
-    def __init__(self, ip):
-        self.ip = ip
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        return cls(ip=crawler.settings.get('PROXIES'))
-
-    def process_request(self, request, spider):
-        ip = random.choice(self.ip)
-        request.meta['proxy'] = ip
-```
-
-**settings文件**
-
-```
-# 代理IP
-PROXIES = ['http://183.207.95.27:80', 'http://111.6.100.99:80', 'http://122.72.99.103:80'...]
-
-# 取消DOWNLOADER_MIDDLEWARES注释，并添加下面代理IP的类方法
+```python
+# test1项目名称，pipelines即pipelines.py文件，DuplicatesPipeline上面定义的类
 DOWNLOADER_MIDDLEWARES = {
-    # zhipin项目名称，middlewares文件名称，ProxyMiddleware类名称
-    'zhipin.middlewares.ProxyMiddleware': 543,
+    'test1.pipelines.Test1Pipeline': 300,
 }
 ```
 
-##### 去重
+##### 添加Item去重
 
-一个用于去重的过滤器，丢弃那些已经被处理过的item。让我们假设我们的item有一个唯一的id，但是我们spider返回的多个item中包含有相同的id:
+假如 Item 有一个 `id` 属性，且属性值是唯一的，但是我们的 spider 返回的多个 Item 中包含有相同的 id，这时就要在 pipeline(项目管道) 中添加一个去重功能了，丢弃那些已经被处理过的item。
 
-**pipelines.py文件**
+在项目文件的 pipelines.py 文件，新建 `DuplicatesPipeline` 类，添加去重方法:
 
-```
+```python
+# 导入DropItem异常
 from scrapy.exceptions import DropItem
 
 class DuplicatesPipeline(object):
-
     def __init__(self):
-        # 新建一个空集合
+        # 这里定义一个空集合，因为集合能自动去重
         self.ids_seen = set()
 
     def process_item(self, item, spider):
+        # 判断Item的id是否再集合中
         if item['id'] in self.ids_seen:
             raise DropItem("Duplicate item found: %s" % item)
         else:
@@ -727,44 +650,30 @@ class DuplicatesPipeline(object):
             return item
 ```
 
-**settings.py文件**
+在settings文件取消 `ITEM_PIPELINES` 注释，并添加上面去重的类方法：
 
-```
-ITEM_PIPELINES = {
-   # zhipin项目名称，pipelines文件名称，DuplicatesPipeline类名称
-   'zhipin.pipelines.DuplicatesPipeline': 300,
+```python
+# test1项目名称，pipelines即pipelines.py文件，DuplicatesPipeline上面定义的类
+DOWNLOADER_MIDDLEWARES = {
+    'test1.pipelines.DuplicatesPipeline': 300,
 }
 ```
 
-##### 过滤
+##### 对接Selenium
 
-同过上面的使用方法，我们也可以写一个过滤器，筛选掉无效数据。
+**Scrapy 抓取页面的方式和 requests 库类似，都是直接模拟 HTTP 请求，但 Scrapy 也不能抓 JavaScript 动态渲染的页面。**如果 Scrapy 可以对接 Selenium ，那 Scrapy 就基本可以处理任何网站的抓取了。
 
-**pipelines.py文件**
 
-```
-from scrapy.exceptions import DropItem
 
-class ScreenPipeline(object):
 
-    def __init__(self):
-        pass
 
-    def process_item(self, item, spider):
-        if item['name']:
-            return item
-        else:
-            raise DropItem("无效数据")
-```
 
-**settings.py文件**
 
-```
-ITEM_PIPELINES = {
-   # zhipin项目名称，pipelines文件名称，ScreenPipeline类名称
-   'zhipin.pipelines.ScreenPipeline': 300,
-}
-```
+
+
+
+
+
 
 ### 设置新response
 
