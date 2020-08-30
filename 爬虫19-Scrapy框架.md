@@ -212,8 +212,11 @@ from ..items import Test1Item
 
 
 class QuotesSpider(scrapy.Spider):
+    # name定义了这个爬虫的名称为quotes，作用是用来区分不同的爬虫
     name = 'quotes'
+    # allowed_domains定义了允许爬取的域名，若请求链接不是这个域名下的，会被过滤掉
     allowed_domains = ['quotes.toscrape.com']
+    # start_urls定义了初始的请求
     start_urls = ['http://quotes.toscrape.com/']
 
     def parse(self, response):
@@ -518,6 +521,47 @@ process_start_requests()方法以Spider启动Request参数被调用，执行的�
 '''
 ```
 
+##### 设置新response
+
+在初始定义的spider文件中，只有一个parse方法来爬取网页信息，而第一次使用的parse方法中的response就是访问初始请求 `start_urls` 中的地址返回的响应。
+
+```python
+import scrapy
+
+class ChongSpider(scrapy.Spider):
+    name = 'chong'
+    allowed_domains = ['quotes.toscrape.com']
+    start_urls = ['http://quotes.toscrape.com/']
+
+    # parse方法被调用时，上面start_urls请求就完成了，并返回response作为唯一参数传递给这个函数。
+    def parse(self, response):
+        pass
+```
+
+但如果我们需要使用的response不是初始请求start_url返回的响应，就需要新增一个start_requests方法来重新定义响应。
+
+!> 注意：设置新response的方法的名称只能是start_requests，不能随意命名。
+
+```python
+import scrapy
+
+class ChongSpider(scrapy.Spider):
+    name = 'chong'
+    allowed_domains = ['quotes.toscrape.com']
+    start_urls = ['http://quotes.toscrape.com/']
+    
+    # 新增start_requests方法
+    def start_requests(self):
+        # 定义新的url
+        url = 'https://www.....com'
+        # 调用parse方法
+        yield scrapy.Request(url=url, callback=self.parse)
+
+    # parse方法被调用时，上面start_requests的url请求就完成了，response就是这个url的响应，就不再是start_urls的响应。
+    def parse(self, response):
+        pass
+```
+
 ##### 设置请求头
 
 方法一：在 settings.py 里面加一行 USER_AGENT 的定义即可
@@ -586,6 +630,27 @@ class ProxyMiddleware(object):
 DOWNLOADER_MIDDLEWARES = {
     'test1.middlewares.ProxyMiddleware': 543,
 }
+```
+
+##### 设置断点续爬
+
+在爬虫运行过程中，可能由于网络问题、或者突然断电等多种原因，导致爬虫意外结束。如果重启爬虫，前面爬取的数据又需要重新爬取一次，浪费时间；若舍弃没有爬取的数据，就会造成数据的不完整。**因此最好的办法就是将已经爬取的url保存起来，实现断点续爬。**
+
+```python
+import redis
+import scrapy
+
+class ChongSpider(scrapy.Spider):
+    # 使用Redis数据库的集合类型set来保存url
+    con = redis.StrictRedis(host="127.0.0.1",port=6379)
+
+    def parse(self, response):
+        # 将已下载页面的url存入Redis的save_url中
+        self.con.sadd('save_url',response.request.url)
+        ...
+        # 如果新构造的url不存在在Redis的save_url中，再执行parse方法
+        if not self.con.sismember('save_url', url):
+            yield scrapy.Request(url=url, callback=self.parse, dont_filter=True)
 ```
 
 ##### 添加Item处理
@@ -663,100 +728,58 @@ DOWNLOADER_MIDDLEWARES = {
 
 **Scrapy 抓取页面的方式和 requests 库类似，都是直接模拟 HTTP 请求，但 Scrapy 也不能抓 JavaScript 动态渲染的页面。**如果 Scrapy 可以对接 Selenium ，那 Scrapy 就基本可以处理任何网站的抓取了。
 
+因为 Selenium 的方法名称和使用方式没有发生变化，这就不具体讲解了，只是列出常用方法，这些方法大多在Middleware(中间件)中使用：
 
+```python
+# middlewares.py文件
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from scrapy.http import HtmlResponse 
+from logging import getlogger
 
+class SeleniumMiddleware():
+    # 对象初始化
+    def __init__(self, timeout=None, service_args=[]):
+        self.logger = getLogger(__name__)
+        self.timeout =timeout
+        # 用PhantomJS抓取页面
+        self.browser = webdriver.PhantomJS(service_args=service_args)
+        # 窗口大小(1400, 700)
+        self.browser.set_window_size(1400, 700)
+        # 页面加载超时时间
+        self.browser.set_page_load_timeout(self.timeout)
+        self.wait = WebDriverWait(self.browser, self.timeout)
 
+    def del_(self):
+        self.browser.close()
 
-
-
-
-
-
-
-
-
-### 设置新response
-
-在初始定义的spider文件中，只有一个parse方法来爬取网页信息，而第一次使用的parse方法中的response就是访问初始请求start_urls中的地址返回的响应。
-
-**spider文件**
-
-```
-import scrapy
-
-class ChongSpider(scrapy.Spider):
-
-    # name定义了这个爬虫的名为chong，name用来区分不同的爬虫。
-    name = 'chong'
+    def process_request(self, request, spider):
+        """
+        :param request: Request 对象
+        :param spider: Spider 对象
+        :return: HtmlResponse
+        """
+        # 内容省略
+        # 最后，页面加载完成之后，调用PhantomJS的page_source属性即可获取当前页面的源代码，然后用它来直接构造并返回一个HtmlResponse对象。构造这个对象的时候需要传入多个参数，如url、body等，这些参数实际上就是它的基础属性。
+        return HtmlResponse(url=request.url, body=self.browser.page_source, request=request, encoding='utf-8', status=200)
     
-    # allowed_domains定义了允许爬取的域名，若请求链接不是这个域名下的，会被过滤掉
-    allowed_domains = ['quotes.toscrape.com']
-    
-    # start_urls定义了初始的请求
-    start_urls = ['http://quotes.toscrape.com/']
-
-    # parse方法被调用时，上面start_urls请求就完成了，并返回response作为唯一参数传递给这个函数。
-    def parse(self, response):
-        pass
+    @classmethod
+    def from_crawler(cls, crawler):
+        # 内容省略
 ```
 
-有时候，我们需要使用的response不是初始请求start_url返回的响应，就需要新增一个start_requests方法来重新定义响应。
+在 settings.py 里，我们设置调用刚才定义的 `SeleniumMiddleware`，如下所示：
 
-**注意：设置新response的方法的名称只能是start_requests，不能随意命名。**
-
-```
-import scrapy
-
-class ChongSpider(scrapy.Spider):
-
-    # name定义了这个爬虫的名为chong，name用来区分不同的爬虫。
-    name = 'chong'
-    
-    # allowed_domains定义了允许爬取的域名，若请求链接不是这个域名下的，会被过滤掉
-    allowed_domains = ['quotes.toscrape.com']
-    
-    # start_urls定义了初始的请求
-    start_urls = ['http://quotes.toscrape.com/']
-    
-    # 新增start_requests方法
-    def start_requests(self):
-        # 定义新的url
-        url = f'https://www.baidu.com'
-        # 调用parse方法
-        yield scrapy.Request(url=url, callback=self.parse)
-
-    # parse方法被调用时，上面start_requests的url请求就完成了，response就是这个url的响应，就不再是start_urls的响应。
-    def parse(self, response):
-        pass
+```python
+DOWNLOADER_MIDDLEWARES = {
+   'test1.middlewares.SeleniumMiddleware': 543,
+}
 ```
 
-### 断点续爬
 
-在爬虫运行过程中，可能由于网络问题、或者突然断电等多种原因，导致爬虫意外结束。如果重启爬虫，前面爬取的数据又需要重新爬取一次，浪费时间；若舍弃没有爬取的数据，就会造成数据的不完整。因此最好的办法就是将已经爬取的url保存起来，实现断点续爬。
-
-这里我们使用Redis数据库的集合类型set来保存url
-
-**spier文件**
-
-```
-import redis
-import scrapy
-
-class ChongSpider(scrapy.Spider):
-    # 连接Redis
-    con = redis.StrictRedis(host="127.0.0.1",port=6379)
-
-    def start_requests(self):
-        pass
-
-    def parse(self, response):
-        # 将已下载页面的url存入Redis的save_url中
-        self.con.sadd('save_url',response.request.url)
-        ...
-        # 如果新构造的url不存在在Redis的save_url中，再执行parse方法
-        if not self.con.sismember('save_url', url):
-            yield scrapy.Request(url=url, callback=self.parse, dont_filter=True)
-```
 
 
 

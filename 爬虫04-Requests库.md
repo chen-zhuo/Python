@@ -337,30 +337,30 @@ url = '...'
 response = requests.get(url=url, headers=headers)
 
 # 打印响应状态 
-print(response)					# <Response [200]>，表示获取到响应
+print(response)                      # <Response [200]>，表示获取到响应
 # 打印网页响应的状态码
-print(response.status_code)    	# 200，200表示成功访问
+print(response.status_code)          # 200，200表示成功访问
 # 设置响应内容的编码
 # Requests会基于HTTP头部响应的编码对网页文本编码作出推测，你若设置了encoding编码，后面都使用新编码。
 response.encoding = 'UTF-8'          # 主要针对于网页中文乱码的情况
 response.encoding = 'GBK'            # 主要针对于网页编码为gbk、gb2312类型的内容
 response.encoding = 'unicode_escape' # 主要针对于网页编码为unicode类型的的内容
 # 以字符型文本形式打印响应内容
-print(response.text)			# 主要用于打印网页的代码和文本内容
+print(response.text)                 # 主要用于打印网页的代码和文本内容
 # 以二进制的形式打印响应内容数据
-print(response.content)			# 主要用于打印网页中图片、音频、视频（二进制文件）内容
+print(response.content)              # 主要用于打印网页中图片、音频、视频（二进制文件）内容
 # 以json格式打印响应的内容
-print(reponse.json())			# 等价于print(json.loads(reponse.text))
+print(reponse.json())                # 等价于print(json.loads(reponse.text))
 # 打印响应头
-print(response.headers)         # 查看服务器返回内容的请求头
+print(response.headers)              # 查看服务器返回内容的请求头
 # 打印请求头
-print(response.requests.headers)# 查看访问时的请求头
+print(response.requests.headers)     # 查看访问时的请求头
 # 打印响应的url内容
 print(response.url)				
 # 打印响应的cookie
-print(response.cookies)         # 打印响应内容中Cookie
+print(response.cookies)              # 打印响应内容中Cookie
 # 打印响应的cookies.items
-print(response.cookies.items()) # 以字典的形式打印响应内容中Cookie
+print(response.cookies.items())      # 以字典的形式打印响应内容中Cookie
 # 遍历cookies内容打印cookie
 for key, value in response.cookies.items():
     print(key + '=' + value)
@@ -405,7 +405,66 @@ with open('文件名.后缀名', 'wb') as f:
     f.write(response.content)
 ```
 
-### 异常总结
+### 异常处理
+
+##### 追踪重定向
+
+重定向：**网络请求被重新定个方向转到了其它位置。**
+
+重定向状态码：301（永久性重定向）、302（暂时性重定向）。
+
+重定向情况一般有：网站调整（如网页目录结构变化）、网页地址改变、网页扩展名（.php、.html、.asp）的改变、一个网站注册了多个域名。这些情况下都需要进行网页的重定向，否则就容易出现404错误。
+
+?> 默认状态下，requests 属性 `allow_redirects=True` ，即访问过程中会自动重定向。
+
+```python
+import requests
+url = 'http://home.cnblogs.com/u/xswt/'
+# all_redirects=False：禁止重定向
+r = requests.get(url,headers={"Content-Type":"application/json"}, allow_redirects=False)
+print(f'状态码：{r.status_code}')
+print(r.text)
+'''
+输出：
+状态码：302
+<html>
+<head><title>302 Found</title></head>
+<body bgcolor="white">
+<center><h1>302 Found</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+'''
+```
+
+响应内容属性中有一个 `history` 属性，里面存储着访问的历史记录，可以通过这个属性来追踪重定向。
+
+```python
+import requests
+url = 'http://home.cnblogs.com/u/xswt/'
+r = requests.get(url,headers={"Content-Type":"application/json"})
+# history追踪页面重定向历史，就是一个地址序列
+reditList = r.history
+print(f'获取重定向的历史记录：{reditList}')
+print(f'获取第一次重定向的headers头部信息：{reditList[0].headers}')
+print(f'获取重定向最终的url：{reditList[len(reditList)-1].headers["location"]}')
+print(r.text)
+'''
+输出：
+获取重定向的历史记录：[<Response [302]>]
+获取第一次重定向的headers头部信息：{'Date': 'Sun, 30 Aug 2020 07:44:04 GMT', 'Content-Type': 'text/html', 'Content-Length': '154', 'Connection': 'keep-alive', 'Location': 'https://home.cnblogs.com/u/xswt/', 'Via': 'HTTP/1.1 SLB.69'}
+获取重定向最终的url：https://home.cnblogs.com/u/xswt/
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    ...
+</body>
+</html>
+
+解释：访问该域名会进行一次重定向，重定向后的域名就存放在第一次重定向的headers头部信息中的Location键值对中。相较于原域名，重定向后的域名在头部变成了'https'。
+'''
+```
 
 ##### 连接超时
 
