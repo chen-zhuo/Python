@@ -18,7 +18,7 @@
 
 ##### 运行模式
 
-**有头模式(默认)**：浏览器运行时，显示浏览界面的模式。
+**有头模式**：浏览器运行时，显示浏览界面的模式（默认）。
 
 **无头模式**：浏览器运行时，不显示浏览界面的模式。
 
@@ -287,6 +287,35 @@ browser.find_element_by_id("su").click()
 time.sleep(2)
 ```
 
+##### 点击事件
+
+上面刚刚提到一种点击事件：
+
+```python
+browser.find_element_by_id("su").click()
+```
+
+但点击事件有可能出现，因为点击位置被覆盖从而点击错误问题：
+
+```python
+selenium.common.exceptions.ElementClickInterceptedException: Message: element click intercepted...
+```
+
+可以尝试下面三种方法：
+
+```python
+# js注入
+element = browser.find_element_by_id("su")
+driver.execute_script("arguments[0].click();", element)
+
+# ActionChains，需要先导入
+element = browser.find_element_by_id("su")
+webdriver.ActionChains(browser).move_to_element(element).click(element).perform()
+
+# 使用回车代替点击
+browser.find_element_by_id("su").send_keys(Keys.ENTER)
+```
+
 ##### 窗口截屏
 
 只针对**窗口显示的部分网页**进行截屏，有头模式和无头模式都能进行截屏：
@@ -380,8 +409,8 @@ print(browser.get_cookies())
 **有的网页看起来是一个HTML文档，但实际上iframe嵌入了另一个页面，而webdriver每次只能识别一个页面，如果你需要定位的元素是否在iframe之中，就需要先定位到相应的iframe，对那个页面里的元素进行定位。**
 
 ```python
-# 跳转到iframe框架，可以使用xpath定位，然后传入
-browser.switch_to.frame('...')
+# 跳转到iframe框架，可以使用xpath定位，然后传入id属性
+browser.switch_to.frame('id属性')
 
 # 再通过xpath进行定位元素
 browser.find_element_by_xpath('')
