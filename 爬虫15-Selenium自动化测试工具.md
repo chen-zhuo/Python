@@ -282,39 +282,18 @@ time.sleep(2)
 # 输入框中输入字符串"程序员"
 browser.find_element_by_id('kw').send_keys('程序员')
 time.sleep(2)
-# id="su"是百度搜索按钮，click() 是模拟点击
+# 方法一：id="su"是百度搜索按钮，使用回车
+browser.find_element_by_id("su").send_keys(Keys.ENTER)
+time.sleep(2)
+# 方法二：id="su"是百度搜索按钮，click()点击
 browser.find_element_by_id("su").click()
 time.sleep(2)
-```
-
-##### 点击事件
-
-上面刚刚提到一种点击事件：
-
-```python
-browser.find_element_by_id("su").click()
-```
-
-但点击事件有可能出现，因为点击位置被覆盖从而点击错误问题：
-
-```python
-selenium.common.exceptions.ElementClickInterceptedException: Message: element click intercepted...
-```
-
-可以尝试下面三种方法：
-
-```python
-# js注入
+# 方法三：id="su"是百度搜索按钮，通过js点击搜索
 element = browser.find_element_by_id("su")
 driver.execute_script("arguments[0].click();", element)
-
-# ActionChains，需要先导入
-element = browser.find_element_by_id("su")
-webdriver.ActionChains(browser).move_to_element(element).click(element).perform()
-
-# 使用回车代替点击
-browser.find_element_by_id("su").send_keys(Keys.ENTER)
 ```
+
+!> 凡是涉及模拟键盘、模拟鼠标的操作均不能在无头模式下进行，例如上面的 `send_keys`、`Keys...`等操作。
 
 ##### 窗口截屏
 
@@ -420,6 +399,30 @@ browser.switch_to.parent_frame()
 
 # 退回到主文档，切换进入frame之中后，我们就不能对主文档的元素进行操作了，如果要操作，那么只能再切换回去
 browser.switch_to.default_content()
+```
+
+##### 模拟运行Js
+
+Selenium 还可以使用 `execute_script` 方法来模拟运行JavaScript。
+
+```python
+# 将进度条下拉到最底部
+browser.execute_script('window.scrollTo(0, document.body.scrollHeight)')
+
+# 弹出alert提示框，内容是（To Bottom）
+browser.execute_script('alert("To Bottom")')
+
+# 点击id属性为su的按钮
+element = browser.find_element_by_id("su")
+driver.execute_script("arguments[0].click();", element)
+
+# 获取id为nice元素的title属性的值
+js='document.getElementById("nice").getAttribute("title")'
+browser.execute_script(js)
+
+# 修改id为nice元素的title属性的值
+js='document.getElementById("nice").title="测试"'
+browser.execute_script(js)
 ```
 
 ### 延时等待
@@ -618,18 +621,6 @@ button3 = wait.until(EC.element_to_be_clickable((By..., '...')))
 ActionChains(browser).move_to_element(button3).perform()
 # 点击button3
 button3.click()
-```
-
-##### 模拟Js
-
-Selenium 还可以使用 `execute_script` 方法来模拟运行JavaScript。
-
-```python
-# 将进度条下拉到最底部
-浏览器对象.execute_script('window.scrollTo(0, document.body.scrollHeight)')
-
-# 弹出alert提示框，内容是（To Bottom）
-浏览器对象.execute_script('alert("To Bottom")')
 ```
 
 ##### 破解极验验证码
