@@ -2,14 +2,16 @@
 
 ### 文件读写
 
-##### 文件类型及读写流程
+##### 文件类型
 
-文件类型一般分为两类：
+文件类型大体分为两类：
 
 1. **文本文件**：**存储有效字符信息的文件**。
 2. **二进制文件**：**音频文件、视频文件、图片文件等**
 
-**读写操作流程**：打开文件 -> 操作文件（读/写） -> 关闭文件
+##### 读写流程
+
+**文件读写操作流程**：打开文件 -> 操作文件（读/写） -> 关闭文件
 
 ##### 打开文件
 
@@ -30,7 +32,7 @@ open(文件路径，打开方式，编码方式)
 'w': 写操作（清空原有数据，将文本数据写入文件）
 'a': 写操作（保留以前的数据，将新的数据写入文件）
 'r+': 可读、可写，文件不存在会报错，写操作时会覆盖
-'w+': 可读，可写，文件不存在先创建，会覆盖
+'w+': 可读、可写，文件不存在先创建，会覆盖
 'a+': 可读、可写，文件不存在先创建，不会覆盖，追加在末尾
 二进制文件：
 'rb'/'br'  - 读操作（读出来的数据是二进制）
@@ -38,15 +40,8 @@ open(文件路径，打开方式，编码方式)
 注意：以读的方式'r'或'rb'打开文件，如果这个文件不存在，会报错；以写的方式'w'或'wb'打开文件，如果这个文件不存在，就会创建这个文件
 
 编码方式 ————> 针对文本文件的读写，二进制文件读写不设置
-encoding='utf-8'
+'utf-8'、'gbk'、'gb2312'...
 '''
-```
-
-##### 关闭文件
-
-```python
-#  ‘文件’指的是打开文件后赋值的变量
-文件.close()
 ```
 
 ##### 文件读操作
@@ -118,6 +113,13 @@ f.write(image_date)	         # 将上面的图片img.jpg的二进制数据写入
 f.close()
 ```
 
+##### 关闭文件
+
+```python
+#  ‘文件’指的是打开文件后赋值的变量
+文件.close()
+```
+
 ##### 关键字 `with`
 
 关键字 `with`：在文件**操作结束后会自动去关闭文件**。
@@ -130,13 +132,79 @@ with open() as 文件变量名：
 `with open` 操作文件：
 
 ```python
-# 读操作
 with open('./lew.jpg', 'rb')as f:  # rb读二进制文件
     jpg_date = f.read()
 
-# 写操作
 with open('./lewr.jpg', 'wb')as f: # wb写二进制文件
     f.write(jpg_date)
+
+with open('./lew.jpg', 'r', encoding='utf-8')as f:  # r读文本文件，以utf-8编码方式
+    jpg_date = f.read()
+
+# 写操作
+with open('./lewr.jpg', 'w', encoding='utf-8')as f: # w写文本文件，以utf-8编码方式
+    f.write(jpg_date)
+```
+
+##### 字符与文本
+
+当字符编码和文本文档的编码不相对应时，打开文本文件就会出现乱码。通过设置不同编码的“写操作”来生成文本文档，查看对应关系：
+
+| encoding的编码 | 生成文本文档的编码 |
+| -------------- | ------------------ |
+| ansi           | ANSI               |
+| gb2312         | ANSI               |
+| gbk            | ANSI               |
+| unicode-escape | UTF-8              |
+| utf-8          | UTF-8              |
+| utf-16         | UTF-16 LE          |
+
+##### BOM影响
+
+之前**文本文档的编码**中由提到过，UTF-8编码有两种：UTF-8、带BOM的UTF-8，下面来看看BOM在Python程序中读取的影响：
+
+```python
+# 读取编码为UTF-8的文件
+with open("Task.txt", "r",encoding='utf-8')as f:
+    nr = f.read()
+    print(nr, f'字符长度：{len(nr)}')              # 新华社 字符长度：3
+
+with open("Task.txt", "r", encoding='utf-8')as f:
+    nr = f.readlines()
+    print(nr)                                    # ['新华社']
+    print(nr[0], f'字符长度：{len(nr[0])}')        # 新华社 字符长度：3
+    print(nr[0].encode())                        # b'\xe6\x96\xb0\xe5\x8d\x8e\xe7\xa4\xbe'
+    
+# 读取编码为带BOM的UTF-8的文件
+with open("Task.txt", "r",encoding='utf-8')as f:
+    nr = f.read()
+    print(nr, f'字符长度：{len(nr)}')              # ﻿新华社 字符长度：4
+
+with open("Task.txt", "r", encoding='utf-8')as f:
+    nr = f.readlines()
+    print(nr)                                    # ['\ufeff新华社']
+    print(nr[0], f'字符长度：{len(nr[0])}')        # ﻿新华社 字符长度：4
+    print(nr[0].encode())                        # b'\xef\xbb\xbf\xe6\x96\xb0\xe5\x8d\x8e\xe7\xa4\xbe'
+
+# 注释：可以看到带BOM的UTF-8比UTF-8多了一个﻿，在列表中内容为\ufeff，编码中内容为\xef\xbb\xbf，当中ef bb bf就恰好对应了带BOM的UTF-8开头的字节流EF BB BF。
+```
+
+去掉BOM有两种方法：
+
+1. 打开文本文件，将其另存为**不带有BOM的UTF-8**。（最好是在专业版Windows系统中能显示有两个UTF-8编码选项下操作）
+2. 将字符进行 `utf-8` 编码，再以 `utf-8-sig` 解码。
+
+```python
+# 读取编码为带BOM的UTF-8的文件
+with open("Task.txt", "r",encoding='utf-8')as f:
+    nr = f.readlines()
+    nr = nr[0]
+    print(nr, f'字符长度：{len(nr)}')              # ﻿新华社 字符长度：4
+
+with open("Task.txt", "r", encoding='utf-8')as f:
+    nr = f.readlines()
+    nr = nr[0].encode().decode('utf-8-sig')      
+    print(nr, f'字符长度：{len(nr)}')              # 新华社 字符长度：3
 ```
 
 ##### 大文件读写
@@ -348,18 +416,18 @@ shutil.rmtree('路径\文件夹')
 # make_archive方法创建压缩包并返回文件路径
 '''
 参数详解：
-base_name： 文件名时，则保存至当前目录；路径时，则保存至指定路径
-如：data_bak      =>保存至当前路径
-如：/tmp/data_bak =>保存至/tmp/
-format： 压缩包种类，“zip”, “tar”, “bztar”，“gztar”
-root_dir：   要压缩的文件夹路径（默认当前目录）
-owner：  用户，默认当前用户
-group：  组，默认当前组
-logger： 用于记录日志，通常是logging.Logger对象
+base_name：文件名时，则保存至当前目录；路径时，则保存至指定路径
+如：data_bak=>保存至当前路径
+如：/tmp/data_bak=>保存至/tmp/
+format：压缩包种类，“zip”, “tar”, “bztar”，“gztar”
+root_dir：要压缩的文件夹路径（默认当前目录）
+owner：用户，默认当前用户
+group：组，默认当前组
+logger：用于记录日志，通常是logging.Logger对象
 '''
-#将/data下的文件打包放置当前程序目录
+# 将/data下的文件打包放置当前程序目录
 ret = shutil.make_archive("data_bak", 'gztar', root_dir='/data')  
-#将/data下的文件打包放置 /tmp/目录
+# 将/data下的文件打包放置/tmp/目录
 ret = shutil.make_archive("/tmp/data_bak", 'gztar', root_dir='/data')
 ```
 
