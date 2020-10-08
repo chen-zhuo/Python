@@ -443,3 +443,43 @@ usage(total=120031539200, used=78561628160, free=41469911040)
 '''
 ```
 
+### 压缩解压
+
+文件压缩解压的处理是调用 ZipFile 和 TarFile 两个模块来进行的。
+
+**zipfile压缩解压**：压缩和解压文件的格式都是 `.zip` 的压缩包。
+
+```python
+import zipfile
+
+# 压缩
+z = zipfile.ZipFile('dream.zip', 'w')
+z.write('test.log') #将test.log压缩为dream.zip文件
+z.close()
+
+# 解压
+z = zipfile.ZipFile('dream.zip', 'r')
+z.extractall() #将dream.zip文件解压出来，文件名以压缩包中的为准。
+z.close()
+```
+
+**tarfile压缩解压**：压缩和解压文件的格式都是 `.rar` 的压缩包。
+
+```python
+import tarfile
+
+# 压缩
+tar = tarfile.open('dream.tar','w')
+#将压缩包再压缩，在dream.tar中进行压缩，将dream1.zip添加进去并取别名bbs2.zip
+tar.add('E:/PycharmProjects/PythonStudy/test/dream1.zip', arcname='bbs2.zip')
+#将压缩包再压缩，在dream.tar中进行压缩，将dream2.zip添加进去并取别名cmdb.zip
+tar.add('E:/PycharmProjects/PythonStudy/test/dream2.zip', arcname='cmdb.zip')
+tar.close()
+
+# 解压
+tar = tarfile.open('dream.tar','r')
+# 解压dream.tar，分别解压出两个文件bbs2.zip、cmdb.zip
+tar.extractall()  # 可设置解压地址
+tar.close()
+```
+
