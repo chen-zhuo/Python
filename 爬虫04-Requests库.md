@@ -502,6 +502,17 @@ requests.exceptions.ReadTimeout: HTTPConnectionPool(host='github.com', port=80):
 '''
 ```
 
+##### 超过最大连接
+
+爬虫默认连接是Keep-alive的，当服务器保持的http连接数超过最大限制时，就不能再新建连接，抛出：`requests.exceptions.ConnectionError: HTTPSConnectionPool Max retries exceeded` 错误。
+
+```python
+# 解决方法一：在header中关闭持久连接
+headers = {'Connection': 'close'}
+# 解决方法二：降低访问频率
+time.sleep(3)
+```
+
 ##### 未知服务器
 
 访问不存在的网址，抛出 `requests.exceptions.ConnectionError` 错误。
@@ -525,7 +536,7 @@ requests.exceptions.ConnectionError: HTTPConnectionPool(host='github.comasf', po
 ```python
 import requests
 
-# 已断开网络连接
+# 已断开网络连接的情况下
 requests.get('http://github.com')
 
 # 抛出requests.exceptions.ConnectionError错误
