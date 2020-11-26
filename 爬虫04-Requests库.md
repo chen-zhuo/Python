@@ -466,9 +466,31 @@ print(r.text)
 '''
 ```
 
-##### 连接超时
+##### 连接、读取超时
 
-服务器在指定时间内没有应答，抛出 `requests.exceptions.ConnectTimeout `错误
+**requests默认的超时是 `None`，而这货默认是阻塞的，除非显式指定了 `timeout` 值，否则不会做超时处理，这意味着它将等待(挂起)直到连接关闭。因此使用requests最好设定 `timeout` 值。**
+
+给timeout传入一个元组，分别指定连接和读取的超时时间，服务器在指定时间没有应答，就会抛出错误。
+
+\- `timeout=(连接超时时间, 读取超时时间)`
+\- 连接：客户端连接服务器并发送http请求服务器
+\- 读取：客户端等待服务器发送第一个字节之前的时间
+
+```python
+import requests
+
+# 设置连接的超时时间为100秒，读取的超时时间为0.01秒
+requests.get('http://github.com', timeout=(100, 0.01))
+
+# 抛出requests.exceptions.ReadTimeout读取超时错误
+'''
+requests.exceptions.ReadTimeout: HTTPConnectionPool(host='github.com', port=80): Read timed out. (read timeout=0.01)
+'''
+```
+
+**timeout传入一个值将会用作 connect 和 read 二者的 timeout。**
+
+服务器在指定时间内没有应答，抛出 `requests.exceptions.ConnectTimeout `错误。
 
 ```python
 import requests
@@ -476,29 +498,9 @@ import requests
 # 设置超时时间为0.001秒
 requests.get('http://github.com', timeout=0.001)
 
-# 抛出requests.exceptions.ConnectTimeout错误
+# 抛出requests.exceptions.ConnectTimeout连接超时错误
 '''
 requests.exceptions.ConnectTimeout: HTTPConnectionPool(host='github.com', port=80): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000002B3A3B55788>, 'Connection to github.com timed out. (connect timeout=0.001)'))
-'''
-```
-
-##### 连接、读取超时
-
-**timeout 值将会用作 connect 和 read 二者的 timeout**。如果要分别制定，就**传入一个元组**，**分别指定连接和读取的超时时间，服务器在指定时间没有应答**，抛出 `requests.exceptions.ConnectTimeout` 错误。
-
-\- `timeout=(连接超时时间, 读取超时时间)`
-\- 连接：客户端连接服务器并并发送http请求服务器
-\- 读取：客户端等待服务器发送第一个字节之前的时间
-
-```python
-import requests
-
-# 设置连接的超时时间为100秒，读取的超时时间为0.01秒
-requests.get('http://github.com', timeout=(100,0.01))
-
-# 抛出requests.exceptions.ConnectTimeout错误
-'''
-requests.exceptions.ReadTimeout: HTTPConnectionPool(host='github.com', port=80): Read timed out. (read timeout=0.01)
 '''
 ```
 
