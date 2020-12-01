@@ -241,7 +241,7 @@ print('程序执行结束.')
 
 `Python` 中有内置的 `json` 模块，专门处理 `json` 格式数据的，直接导入就可用。
 
-##### `json` 转 `Python` 
+##### json和Python转换
 
 `json.loads()`：将 `json` 格式解码成 `Python` 数据类型。
 
@@ -259,8 +259,6 @@ print(analys_json, type(analys_json))
 ['iplaypython', [1, 2, 3], {'name': 'xiaoming'}] <class 'list'>
 '''
 ```
-
-##### `Python` 转 `json` 
 
 `json.dumps()`：将 `Python` 数据类型编码为 `json` 格式。
 
@@ -297,7 +295,7 @@ print(encoded_json1, type(encoded_json1))
 '''
 ```
 
-##### `json` 文件读操作
+##### json文件读写操作
 
 `json.load()`：**将文件中的 `json` 数据读取出来**。
 
@@ -313,8 +311,6 @@ print(hehe)
 [{"a": "aaa", "b": "bbb", "c": [1, 2, 3, [4, 5, 6]]}, 33, "tantengvip", true]
 '''
 ```
-
-##### `json` 文件写操作
 
 `json.dump(x,f)`：`x` 是数据对象，`f` 是文件对象，将 `json` 字符串写入到文本文件中。
 
