@@ -340,11 +340,14 @@ response = requests.get(url=url, headers=headers)
 print(response)                      # <Response [200]>，表示获取到响应
 # 打印网页响应的状态码
 print(response.status_code)          # 200，200表示成功访问
-# 设置响应内容的编码
-# Requests会基于HTTP头部响应的编码对网页文本编码作出推测，你若设置了encoding编码，后面都使用新编码。
+# 设置响应内容的编码，后面都会使用设置的新编码。
+# Requests会基于HTTP头部响应的charset字段对网页文本编码作出推测，没有charset字段默认为ISO-8859-1编码，但无法解析中文。
 response.encoding = 'UTF-8'          # 主要针对于网页中文乱码的情况
 response.encoding = 'GBK'            # 主要针对于网页编码为gbk、gb2312类型的内容
 response.encoding = 'unicode_escape' # 主要针对于网页编码为unicode类型的的内容
+# apparent_encoding会从网页的内容中分析网页编码的方式，所以apparent_encoding比encoding更加准确。
+response.encoding = response.apparent_encoding
+
 # 以字符型文本形式打印响应内容
 print(response.text)                 # 主要用于打印网页的代码和文本内容
 # 以二进制的形式打印响应内容数据
