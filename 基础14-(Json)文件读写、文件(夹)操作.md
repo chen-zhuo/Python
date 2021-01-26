@@ -273,7 +273,7 @@ l = ['iplaypython', [1, 2, 3], {'name': 'xiaoming'}]
 encoded_json = json.dumps(l)                        
 print(encoded_json, type(encoded_json))
 
-# indent参数可以按照json样式可视化显示
+# indent参数代表缩进级别，1就是缩进1个空格的距离，可以按照json样式可视化显示
 encoded_json1 = json.dumps(l, indent=1)              
 print(encoded_json1, type(encoded_json1))
 '''
@@ -292,6 +292,30 @@ print(encoded_json1, type(encoded_json1))
   "name": "xiaoming"
  }
 ]<class 'str'>
+'''
+    
+# 这里还有一个参数ensure_ascii默认为True，默认将汉字转为Unicode编码，可以指定False不转码汉字
+py_dict = {'国家':'中国', '省会':{'四川': '成都', '湖北':'武汉'}}
+print(json.dumps(py_dict, indent=1))
+print('-'*40)
+print(json.dumps(py_dict, indent=1, ensure_ascii=False))
+'''
+输出：
+{
+ "\u56fd\u5bb6": "\u4e2d\u56fd",
+ "\u7701\u4f1a": {
+  "\u56db\u5ddd": "\u6210\u90fd",
+  "\u6e56\u5317": "\u6b66\u6c49"
+ }
+}
+----------------------------------------
+{
+ "国家": "中国",
+ "省会": {
+  "四川": "成都",
+  "湖北": "武汉"
+ }
+}
 '''
 ```
 
