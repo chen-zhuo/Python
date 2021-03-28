@@ -425,6 +425,30 @@ js='document.getElementById("nice").title="测试"'
 browser.execute_script(js)
 ```
 
+##### 更换代理IP
+
+Selenium 结合Firefox（火狐浏览器）执行下面js代码可以在，浏览器运行的过程中更换代理IP：
+
+```python
+# 代理IP
+proxy = '182.105.201.71:9000'
+# Firefox设置页面
+browser.get("about:config")
+# js代码
+setupScript = '''
+var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+prefs.setIntPref("network.proxy.type", 1);
+prefs.setCharPref("network.proxy.http", "%s");
+prefs.setIntPref("network.proxy.http_port", "%s");
+prefs.setCharPref("network.proxy.ssl", "%s");
+prefs.setIntPref("network.proxy.ssl_port", "%s");
+prefs.setCharPref("network.proxy.ftp", "$%s");
+prefs.setIntPref("network.proxy.ftp_port", "%s");
+''' % (proxy.split(':')[0], proxy.split(':')[1], proxy.split(':')[0],proxy.split(':')[1], proxy.split(':')[0], proxy.split(':')[1])
+# 执行js
+browser.execute_script(setupScript)
+```
+
 ### 延时等待
 
 前面强调过，**Selenium 获取数据加载完成后的页面的源代码，而`浏览器对象.get()` 方法会在网页框架加载结束后完成执行，此时获取 `page_source` ，可能并不是浏览器完全加载完成的页面**，如有额外的 Ajax 请求、js加载，在网页源代码中也不一定能成功获取到。**所以需要延时等待，确保节点已经加载出来**。

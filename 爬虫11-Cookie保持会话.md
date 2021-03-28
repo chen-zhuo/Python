@@ -64,7 +64,7 @@
 
 ?> 参考资料：[还分不清 Cookie、Session、Token、JWT？](https://zhuanlan.zhihu.com/p/152224669)
 
-### Cookie和会话
+### 理解会话
 
 ##### 手动拷贝Cookie
 
@@ -207,7 +207,7 @@ print(r.text)
 
 ##### 保持会话
 
-上面人人网的例子中，虽然是“自动获取Cookie”，但是要手动传递Cookie保存到headers当中，有更简便的方法吗？当然有。这里就要用到上面 `requests` 库的 `会话对象Session`。
+上面人人网的例子中，虽然是“自动获取Cookie”，但也要用程序将Cookie保存到headers当中，有更简便的方法吗？当然有。这里就要用到上面 `requests` 库的 `会话对象Session`。
 
 ```python
 import requests
@@ -252,3 +252,14 @@ s = requests.session()
 s.close()
 ```
 
+##### 设置会话
+
+Session是 `requests` 库里面的一个会话对象，当然也同样能设置一些与requests方法相同的参数：
+
+```python
+# 定义一个sessions类重写里面的方法添加参数，设置超时时间
+class sessions(requests.Session):
+    def request(self, *args, **kwargs):
+        kwargs.setdefault('timeout', (30, 30))
+        return super(sessions, self).request(*args, **kwargs)
+```

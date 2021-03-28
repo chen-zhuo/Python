@@ -645,7 +645,7 @@ requests.exceptions.SSLError: HTTPSConnectionPool(host='cxpt.fssjz.cn', port=443
 '''
 ```
 
-上面错误的原因是“SSL例程”、“tls进程”和“dh密钥太小”，**说明根本问题是服务器使用的弱DH密钥，可能在 Logjam攻击 中被滥用，导致禁用警告或证书验证无济于事。**
+上面错误的原因是“SSL例程”、“tls进程”和“dh密钥太小”，**说明根本问题是服务器使用的弱DH密钥，可能在Logjam攻击中被滥用，导致禁用警告或证书验证无济于事。**
 
 **Diffie-Hellman密钥交换**：一种流行的加密算法，它允许Internet协议就共享密钥达成一致并协商安全连接。它是许多协议（包括HTTPS，SSH，IPsec，SMTPS和依赖TLS的协议）的基础。
 
