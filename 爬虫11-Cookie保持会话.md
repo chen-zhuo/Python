@@ -252,7 +252,9 @@ s = requests.session()
 s.close()
 ```
 
-##### 设置会话
+### 重写会话
+
+##### 会话超时
 
 Session是 `requests` 库里面的一个会话对象，当然也同样能设置一些与requests方法相同的参数：
 
@@ -261,5 +263,32 @@ Session是 `requests` 库里面的一个会话对象，当然也同样能设置�
 class sessions(requests.Session):
     def request(self, *args, **kwargs):
         kwargs.setdefault('timeout', (30, 30))
+        return super(sessions, self).request(*args, **kwargs)
+```
+
+##### 更换代理IP
+
+```python
+class sessions(requests.Session):
+    # 继承并添加新的属性
+    def __init__(self):
+        super().__init__()
+        self.re_ip = {}
+
+    # 调用该请求方法更换代理IP
+    def ip_proxies(self):
+        try:
+            response = requests.get(url="代理IP的url", timeout=(30, 30))
+            if response.status_code == 200:
+                proxies_list = re.findall(r"'http':'(.*?)'", response.text)
+                proxies_random = random.choice(proxies_list)
+                # 例如的代理IP：{'http': 'http://113.194.141.162:8085', 'https': 'https://113.194.141.162:8085'}
+                self.re_ip = {'http': 'http://' + proxies_random, 'https': 'https://' + proxies_random}
+        except Exception as e:
+            print(f'更换代理出错：{e}')
+
+    # 当上面方法被调用一次后，更换代理IP
+    def request(self, *args, **kwargs):
+        kwargs.setdefault('proxies', self.re_ip)
         return super(sessions, self).request(*args, **kwargs)
 ```

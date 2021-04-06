@@ -479,7 +479,7 @@ z.close()
 
 # 解压
 z = zipfile.ZipFile('dream.zip', 'r')
-z.extractall() #将dream.zip文件解压出来，文件名以压缩包中的为准。
+z.extractall(path='解压路径') #将dream.zip文件解压出来，文件名以压缩包中的为准。
 z.close()
 ```
 
