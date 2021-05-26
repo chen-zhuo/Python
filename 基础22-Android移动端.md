@@ -49,9 +49,13 @@ adb start-server：启动adb服务
 
 adb remount：adb挂载
 
-adb shell：查看设备是否连接成功
-
 adb devices：显示连接设备
+
+adb shell：进入手机系统
+
+adb push命令 ：从电脑上传送文件到手机
+
+adb pull命令 ：从手机传送文件到电脑上
 
 adb kill-server：关闭adb服务
 
@@ -95,7 +99,11 @@ List of devices attached
 '''
 ```
 
-##### 查看手机文件
+执行
+
+
+
+##### 拷贝手机文件
 
 
 
