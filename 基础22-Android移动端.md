@@ -95,23 +95,58 @@ print(os.popen('adb devices').read())
 '''
 输出：
 List of devices attached
-21a767fa	device
+21a767fa   device
+设备编号	连接状态
 '''
 ```
 
-执行
+##### 执行shell命令
 
+**shell 是 linux 系统的字符交互界面，android 设备底层是 linux 系统**。 进入 android 设备的 shell ，需要将手机练到电脑上，执行 `adb devices` 可以看到 device 状态，然后执行 `adb shell` 就进入 shell 了。
 
+![QQ截图20210530235542](image/QQ截图20210530235542.png)
+
+同样的也可以通过Python程序来执行shell命令：
+
+```python
+import os
+
+# 相当于执行adb shell命令，进入shell交互界面，又执行了ls命令查看文件夹
+dir = os.popen('adb shell "ls"').read().split('\n')
+print(dir)
+
+'''
+输出：
+ls: ./vndservice_contexts: Permission denied
+ls: ./verity_key: Permission denied
+ls: ./ueventd.rc: Permission denied
+...
+['acct', 'bt_firmware', 'bugreports', 'cache', 'charger', 'config', 'cust', 'd', 'data', 'dev', 'dsp', 'etc', 'firmware', 'mnt', 'nonplat_file_contexts', 'nonplat_property_contexts', 'nonplat_seapp_contexts', 'nonplat_service_contexts', 'oem', 'persist', 'plat_file_contexts', 'plat_property_contexts', 'plat_seapp_contexts', 'plat_service_contexts', 'proc', 'res', 'root', 'sbin', 'sdcard', 'sepolicy', 'storage', 'sys', 'system', 'tombstones', 'vendor', '']
+解释：这里输出了手机中所有的文件夹，其中手机的绝大部分文件存储在sdcard(sd卡)文件夹中
+'''
+```
 
 ##### 拷贝手机文件
 
+使用 `adb pull` 命令我们还可以将手机文件传送到电脑上。
+
+![QQ截图20210531001525](image/QQ截图20210531001525.png)
+
+其中，[ 2%]代表已传输的进度，最后的69%代表传输当前单个文件的进度。
+
+![QQ截图20210531001812](image/QQ截图20210531001812.png)
+
+但有一个遗憾，就是adb不支持传输文件名称中包含有中文的文件，会将中文判定为非法字符。
 
 
 
 
 
+##### 游戏辅助代码
 
-```
+使用adb还不仅仅局限于上面的文件的传输拷贝，还可以写一些游戏的辅助型代码，下面的代码是针对《棍子英雄》的辅助性代码，可以叫外挂。
+
+```python
 import os
 import tempfile
 import time
@@ -210,3 +245,6 @@ while flag:
     else:
         jump(touch_time)
         time.sleep(2)
+```
+
+![src=http___img.tapimg.com_market_images_5a92eeaf742fe84461828cfac2ae338a.jpg&refer=http___img.tapimg](image/src=http___img.tapimg.com_market_images_5a92eeaf742fe84461828cfac2ae338a.jpg&refer=http___img.tapimg.jpg)
