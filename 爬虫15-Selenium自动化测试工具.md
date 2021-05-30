@@ -164,7 +164,7 @@ browser = webdriver.Chrome(options=chrome_options)
 
 Selenium可以完成模拟点击、输入框输入文字等各种操作，完成这些操作就需要定位节点。Selenium 提供了一系列查找节点的方法，利用这些方法来获取想要的节点。
 
-**单节点(find_element_by...)**：通过**节点属性定位到单节点**。
+单节点(find_element_by...)：通过**节点属性定位到单节点**。
 
 ```python
 # 选择name为q的节点
@@ -183,7 +183,7 @@ browser.find_element_by_xpath('//*[@id="q"]')
 browser.find_element_by_link_text('下一页')
 ```
 
-**多节点(find_elements_by...)**：通过**下标定位多节点里的单节点**，`browser.find_elements_by('...')[N]`。
+多节点(find_elements_by...)：通过**下标定位多节点里的单节点**，`browser.find_elements_by('...')[N]`。
 
 !> 单个节点是find_element...，多个节点是find_elements...(多一个s)。
 
