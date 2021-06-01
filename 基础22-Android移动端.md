@@ -138,9 +138,12 @@ ls: ./ueventd.rc: Permission denied
 
 但有一个遗憾，就是adb不支持传输文件名称中包含有中文的文件，会将中文判定为非法字符。
 
+```python
+import os
 
-
-
+path = os.popen(f'adb pull sdcard E:\phone_file').read()
+print(path)
+```
 
 ##### 游戏辅助代码
 
@@ -156,12 +159,10 @@ from PIL import Image
 
 SCREENSHOT_PATH = tempfile.gettempdir() + "/screenshot.png"
 
-
 # 利用adb工具截图并保存
 def screenshot():
     os.system("adb shell screencap -p /mnt/sdcard/screencap.png")
     os.system("adb pull /mnt/sdcard/screencap.png {} >> {}/jump.out".format(SCREENSHOT_PATH, tempfile.gettempdir()))
-
 
 # 裁剪图片有效区域
 left = 260
@@ -174,7 +175,6 @@ def crop():
     im = im.crop((left, top, right, bottom))
     im.save('image.png')
     return im
-
 
 # 遍历图片像素点
 def get_gap(image):
@@ -227,7 +227,7 @@ def distance2time(distance):
     if distance <=700:
         DISTANCE_TO_TIME_RATIO = 1.10
         return int(distance * DISTANCE_TO_TIME_RATIO)
-
+    
 # 按压
 def jump(touch_time):
         os.system("adb shell input swipe 0 0 0 0 {}".format(touch_time))
