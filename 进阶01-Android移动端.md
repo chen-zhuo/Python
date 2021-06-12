@@ -53,9 +53,13 @@ adb devices：显示连接设备
 
 adb shell：进入手机系统
 
-adb push命令 ：从电脑上传送文件到手机
+adb push sdcard 电脑路径：从电脑上传送文件到手机sdcard中
 
-adb pull命令 ：从手机传送文件到电脑上
+adb pull sdcard 电脑路径：从手机sdcard中传送文件到电脑上
+
+adb shell rm sdcard/...：删除手机中文件
+adb shell rm -f sdcard/...：强制删除手机中文件不需要确认
+adb shell rm -r sdcard/...：递归删除手机中文件夹内文件
 
 adb kill-server：关闭adb服务
 
@@ -136,7 +140,7 @@ ls: ./ueventd.rc: Permission denied
 
 ![QQ截图20210531001812](image/QQ截图20210531001812.png)
 
-**但有一个遗憾，就是adb不支持传输文件名称中包含有中文的文件，会将中文判定为非法字符。**
+**但有一个遗憾，就是adb不支持传输文件名称中包含有中文的文件，会将中文判定为非法字符。**主要是编码的原因，中文在Windows中使用的GBK编码，而adb使用的是UTF-8编码。解决办法就是改掉中文名称或者打包英文名称的压缩文件。
 
 ```python
 import os
