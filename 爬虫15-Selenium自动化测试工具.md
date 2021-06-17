@@ -32,9 +32,19 @@
 
 ##### Chromedriver
 
-**Chromedriver是驱动Chrome(谷歌)浏览器的程序。**
+**Chromedriver是驱动Chrome(谷歌)浏览器的程序。**首先获取Chrome浏览器版本：
 
-Chromedriver下载链接：http://npm.taobao.org/mirrors/chromedriver/2.41/ ，选择符合符合自己电脑操作系统的版本进行下载。**将文件解压到环境变量下的路径**或者**在 `executable_path` 参数来指定Chromedriver文件的路径**。
+![QQ截图20210617102555](image/QQ截图20210617102555.png)
+
+Chromedriver下载链接：http://npm.taobao.org/mirrors/chromedriver/ ，选择符合Chrome版本：
+
+![QQ截图20210617102730](image/QQ截图20210617102730.png)
+
+选择符合自己电脑操作系统的文件版本进行下载：
+
+![QQ截图20210617104037](image/QQ截图20210617104037.png)
+
+**将文件解压到环境变量下的路径**或者**在 `executable_path` 参数来指定Chromedriver文件的路径**。例如：`browser = 浏览器对象(executable_path='路径/chromedriver.exe')`
 
 ##### Geckodriver
 
