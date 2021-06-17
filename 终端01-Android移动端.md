@@ -40,7 +40,7 @@ adb工具即Android Debug Bridge（安卓调试桥） tools。它就是一个命
 
 在命令行里面就可以使用adb驱动了：
 
-![image-20210516151738898](C:/Users/ChenZhuo/AppData/Roaming/Typora/typora-user-images/image-20210516151738898.png)
+![image-20210516151738898](image/image-20210516151738898.png)
 
 ##### adb常用命令
 
