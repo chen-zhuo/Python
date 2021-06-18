@@ -363,7 +363,7 @@ print(response.url)
 # 打印响应的cookie
 print(response.cookies)              # 打印响应内容中Cookie
 # 打印响应的cookies.items
-print(response.cookies.items())      # 以字典的形式打印响应内容中Cookie
+print(response.cookies.items())      # 以视图对象的形式打印响应内容中Cookie
 # 遍历cookies内容打印cookie
 for key, value in response.cookies.items():
     print(key + '=' + value)
