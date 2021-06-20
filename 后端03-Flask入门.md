@@ -2,6 +2,8 @@
 
 ### Flask简介
 
+Flask官方文档：https://dormousehole.readthedocs.io/en/latest/index.html
+
 ![flask](image/flask.png)
 
 **Flask：一个基于Werkzeug WSGI工具箱和Jinja2模板引擎的轻量级Web应用框架。**
@@ -237,8 +239,6 @@ def show_post(post_id):
 '''
 ```
 
-
-
 ##### 唯一URL/重定向
 
 **唯一URL**：`about` 的URL没有尾部斜杠，如果访问这个URL时添加了尾部斜杠就会得到 404 错误。这样可以保持URL唯一，避免重复索引同一页面。
@@ -266,6 +266,4 @@ def projects():
 访问http://192.168.0.158:8000/projects/   200 The project page
 '''
 ```
-
-
 
