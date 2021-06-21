@@ -6,11 +6,9 @@ Flask官方文档：https://dormousehole.readthedocs.io/en/latest/index.html
 
 ![flask](image/flask.png)
 
-**Flask：一个基于Werkzeug WSGI工具箱和Jinja2模板引擎的轻量级Web应用框架。**
+**Flask：一个基于Werkzeug WSGI工具箱和Jinja2模板引擎的轻量级Web应用框架。**因为它使用简单的核心，用extension增加其他功能，这也让框架相对比较灵活。核心思想是Flask只完成基本的功能，别的功能都是靠各种第三方插件来完成的，实现了模块高度化定制。
 
-Flask也被称为“microframework”，因为它使用简单的核心，用extension增加其他功能，这也让框架相对比较灵活。核心思想是Flask只完成基本的功能，别的功能都是靠各种第三方插件来完成的，实现了模块高度化定制。
-
-Flask的两个主要核心应用是Werkzeug和模板引擎Jinja，除此以外都是可以自由组装的。常用的Flask插件如下：
+**Flask的两个主要核心应用是Werkzeug和模板引擎Jinja，除此以外都是可以自由组装的。**常用的Flask插件如下：
 
 ```
 Flask-SQLalchemy：操作数据库;
@@ -85,13 +83,21 @@ if __name__ == '__main__':
     app.run()
 ```
 
-运行后如下，在最后面已给出了服务运行的 `127.0.0.1` 地址和 `5000` 端口：
+Flask 会使用内置的开发服务器来运行程序，这个服务器默认监听本地机的 5000 端口，也就是说，我们可以通过在地址栏输入 [http://127.0.0.1:5000](http://127.0.0.1:5000/) 或是 [http://localhost:5000](http://localhost:5000/) 访问程序：
 
 ![QQ截图20210617162720](image/QQ截图20210617162720.png)
 
 访问服务运行的地址和端口，显示 `Hello, World!` 说明服务已经成功运行。
 
 ![QQ截图20210617163027](image/QQ截图20210617163027.png)
+
+返回值作为响应的主体，默认会被浏览器作为 HTML 格式解析，所以我们可以添加一个 HTML 元素标记：
+
+```python
+def hello_world():
+    return '<h1>Hello, World!</h1>'
+
+![QQ截图20210621165725](image/QQ截图20210621165725.png)
 
 每次访问的访问请求、时间等信息都会在运行界面上显示：
 
@@ -101,11 +107,11 @@ if __name__ == '__main__':
 
 Flask服务默认是运行在 `127.0.0.1` 本机环回地址的 `5000` 端口上面，也就是说只能我们本机访问 `5000` 端口才能得到响应，而网络中的其他电脑却不行。
 
-**开放我们的访问端口也很简单，在 `run()` 方法添加参数 `host='0.0.0.0'` 即可：**
+**开放访问端口也很简单，在 `run()` 方法添加参数 `host='0.0.0.0'` 即可：**
 
 ![QQ截图20210617164622](image/QQ截图20210617164622.png)
 
-**服务启动后，在信息输出`Running on all addresses`，说明在局域网内的户用都可以通过这个地址和端口来访问服务，本机用户可以通过环回地址和局域网地址来访问。**
+**服务启动后，在信息输出 `Running on all addresses`，说明在局域网内的户用都可以通过这个地址和端口来访问服务，本机用户可以通过环回地址和局域网地址来访问。**
 
 ![QQ截图20210617164944](image/QQ截图20210617164944.png)
 
@@ -139,7 +145,7 @@ Flask服务默认是运行在 `127.0.0.1` 本机环回地址的 `5000` 端口上
 
 ![QQ截图20210618161425](image/QQ截图20210618161425.png)
 
-假如我们关闭debug调试模式，重新运行服务，则会出现如下页面：
+假如我们**关闭debug调试模式，重新运行服务，则会出现如下页面**：
 
 ![QQ截图20210618161718](image/QQ截图20210618161718.png)
 
@@ -147,53 +153,11 @@ Flask服务默认是运行在 `127.0.0.1` 本机环回地址的 `5000` 端口上
 
 !> 注意：虽然调试模式不能在分布环境下工作（这使得它基本不可能用于生产环境），但是它可以执行任意代码，这就是一个重大安全隐患。**因此，绝对不能在生产环境中使用调试模式 。**
 
-##### HTTP状态码
-
-**客户端发送请求，服务器就会返回响应，包括 HTTP 状态码、响应头、响应体。**
-
-HTTP 状态码(`HTTP Status Code`)：表示网页服务器响应状态的3位数字代码，按首位数字分成五个类别，共包含100多种状态码，覆盖了绝大部分可能遇到的情况。每一种状态码都有标准的（或者约定的）解释，客户端只需查看状态码，就可以判断出发生了什么情况。
-
-![QQ截图20200118230729](image/QQ截图20200118230729.png)
-
-常见的状态码：
-
-![QQ截图20200510134128](image/QQ截图20200510134128.png)
-
-```
-1xx：相关信息（API 不需要1xx状态码，下面介绍其他四类状态码的精确含义。）
-
-2xx：操作成功
-GET: 200 OK：请求成功。
-POST: 201 Created：表示生成了新的资源。
-PUT: 200 OK
-PATCH: 200 OK
-DELETE: 204 No Content：表示资源已经不存在。
-
-3xx：重定向
-301 Moved Permanently：永久重定向。
-302 Move Temporarily：暂时重定向。
-
-4xx：客户端错误
-400 Bad Request：服务器不理解客户端的请求，未做任何处理。
-401 Unauthorized：用户未提供身份验证凭据，或者没有通过身份验证。
-403 Forbidden：用户通过了身份验证，但是不具有访问资源所需的权限。
-404 Not Found：所请求的资源不存在，或不可用。
-405 Method Not Allowed：用户已经通过身份验证，但是所用的 HTTP 方法不在他的权限之内。
-410 Gone：所请求的资源已从这个地址转移，不再可用。
-415 Unsupported Media Type：客户端要求的返回格式不支持。
-422 Unprocessable Entity ：客户端上传的附件无法处理，导致请求失败。
-429 Too Many Requests：客户端的请求次数超过限额。
-
-5xx：服务器错误（一般来说，API 不会向用户透露服务器的详细信息，所以只要两个状态码就够了。）
-500 Internal Server Error：客户端请求有效，服务器处理时发生了意外。
-503 Service Unavailable：服务器无法处理请求，一般用于网站维护状态。
-```
-
 ##### route路由
 
 现代 Web 应用都使用有意义的 URL ，这样有助于用户记忆，网页会更得到用户的青睐。
 
-在Flask中使用 `route()` 装饰器来把函数绑定到 URL:
+**在Flask中使用 `route()` 装饰器来把函数绑定到 URL**:
 
 ```python
 @app.route('/page')
@@ -202,6 +166,18 @@ def index():
 ```
 
 ![QQ截图20210618163421](image/QQ截图20210618163421.png)
+
+**一个视图函数也可以绑定多个 URL，这通过附加多个装饰器实现**：
+
+```python
+@app.route('/')
+@app.route('/index')
+@app.route('/home')
+def hello():
+    return 'Welcome to My Watchlist!'
+```
+
+![QQ截图20210621170509](image/QQ截图20210621170509.png)
 
 你还可以通过把 URL 的一部分标记为 `<variable_name>` 在 URL 中添加变量，标记的部分会作为关键字参数传递给函数：
 
@@ -239,6 +215,15 @@ def show_post(post_id):
 '''
 ```
 
+**用户输入的数据可能会包含恶意代码，所以不能直接作为响应返回，需要使用 Flask 提供的 `escape()` 函数对变量进行转义处理，比如把 `<` 转换成 `&lt;`。**这样在返回响应时浏览器就不会把它们当做代码执行。
+
+```python
+from flask import escape
+
+@app.route('/user/<string:name>')
+def user_page(name):
+    return 'User: %s' % escape(name)
+
 ##### 唯一URL/重定向
 
 **唯一URL**：`about` 的URL没有尾部斜杠，如果访问这个URL时添加了尾部斜杠就会得到 404 错误。这样可以保持URL唯一，避免重复索引同一页面。
@@ -266,4 +251,71 @@ def projects():
 访问http://192.168.0.158:8000/projects/   200 The project page
 '''
 ```
+
+##### URL构建
+
+对于程序内的 URL，为了避免手写，Flask 提供了一个 `url_for` 函数来生成 URL，它接受的第一个参数就是端点值，默认为视图函数的名称：
+
+```python
+from flask import url_for, escape
+
+@app.route('/')
+def hello():
+    return 'Hello'
+
+@app.route('/user/<name>')
+def user_page(name):
+    return 'User: %s' % escape(name)
+
+@app.route('/test')
+def test_url_for():
+    # 下面是一些调用示例（请在命令行窗口查看输出的 URL）：
+    print(url_for('hello'))  # 输出：/
+    # 注意下面两个调用是如何生成包含 URL 变量的 URL 的
+    print(url_for('user_page', name='greyli'))  # 输出：/user/greyli
+    print(url_for('user_page', name='peter'))  # 输出：/user/peter
+    print(url_for('test_url_for'))  # 输出：/test
+    # 下面这个调用传入了多余的关键字参数，它们会被作为查询字符串附加到 URL 后面。
+    print(url_for('test_url_for', num=2))  # 输出：/test?num=2
+    return 'Test page'
+```
+
+##### HTTP 方法
+
+Web 应用使用不同的 HTTP 方法处理 URL 。**使用 Flask 时，一个路由默认只有 `GET` 请求**，可以使用 `route()` 装饰器的 `methods` 参数来处理不同的 HTTP 方法:
+
+```python
+# flask程序
+from flask import request
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        return 'POST请求'
+    else:
+        return 'GET请求'
+```
+
+如果当前使用了 GET 方法， Flask 会自动添加 `HEAD` 方法支持，并且同时还会按照 [HTTP RFC](https://www.ietf.org/rfc/rfc2068.txt) 来处理 `HEAD` 请求。同样， `OPTIONS` 也会自动实现。
+
+```python
+# spider程序
+import requests
+
+res = requests.get(url='http://192.168.0.158:8000/login')
+print(res.request.headers)
+print(res.text)
+res = requests.post(url='http://192.168.0.158:8000/login')
+print(res.request.headers)
+print(res.text)
+'''
+输出：
+{'User-Agent': 'python-requests/2.25.1', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
+GET请求
+{'User-Agent': 'python-requests/2.25.1', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive', 'Content-Length': '0'}
+POST请求
+'''
+```
+
+
 
