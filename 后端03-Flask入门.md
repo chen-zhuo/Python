@@ -96,7 +96,7 @@ Flask 会使用内置的开发服务器来运行程序，这个服务器默认�
 ```python
 def hello_world():
     return '<h1>Hello, World!</h1>'
-
+```
 ![QQ截图20210621165725](image/QQ截图20210621165725.png)
 
 每次访问的访问请求、时间等信息都会在运行界面上显示：
@@ -223,7 +223,7 @@ from flask import escape
 @app.route('/user/<string:name>')
 def user_page(name):
     return 'User: %s' % escape(name)
-
+```
 ##### 唯一URL/重定向
 
 **唯一URL**：`about` 的URL没有尾部斜杠，如果访问这个URL时添加了尾部斜杠就会得到 404 错误。这样可以保持URL唯一，避免重复索引同一页面。
