@@ -1,8 +1,6 @@
-# Python简介、环境安装
+# Python语言基础
 
-### Python简介
-
-##### Python语言
+##### Python简介
 
 **Python是一个高层次的结合了解释性、编译性、互动性和面向对象的脚本语言。**
 
@@ -88,8 +86,6 @@ print(sys.getrefcount(5))    # 25
 ##### Python应用领域
 
 目前 Python 在 `Web` 应用开发、云基础设施、`DevOps`、网络数据采集（爬虫）、数据分析挖掘、机器学习等领域都有着广泛的应用，因此也产生了Web后端开发、数据接口开发、自动化运维、自动化测试、科学计算和可视化、数据分析、量化交易、机器人开发、自然语言处理、图像识别等一系列相关的职位。
-
-### 环境安装
 
 ##### Python解释器
 
@@ -208,4 +204,3 @@ E:\Anaconda\Library\mingw-w64\bin（使用C with python的时候）
 在cmd中输入 ：`conda --version`——查看是否有conda环境 (检验安装成功的标志)
 
 ![v2-e458fb2141dd7084c1363770b17791ac_720w](image/v2-e458fb2141dd7084c1363770b17791ac_720w.png)
-
