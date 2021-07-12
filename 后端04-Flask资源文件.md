@@ -345,5 +345,73 @@ if __name__ == '__main__':
 
 对于模板内容重复的问题，Jinja2 提供了模板继承的支持。这个机制和 Python 类继承非常类似：**我们可以定义一个父模板，一般会称之为基模板（base template）。基模板中包含完整的 HTML 结构和导航栏、页首、页脚都通用部分。在子模板里，我们可以使用 `extends` 标签来声明继承自某个基模板。**
 
-基模板中需要在实际的子模板中追加或重写的部分则可以定义成块（block）。块使用 `block` 标签创建。通过在子模板里定义一个同样名称的块，你可以向基模板的对应块位置追加或重写内容。
+基模板中需要在实际的子模板中追加或重写的部分则可以定义成块（block）。块使用 `block` 标签创建，`endblock` 标签结束。通过在子模板里定义一个同样名称的块，你可以向基模板的对应块位置追加或重写内容。
+
+**编写基础模板：templates/base.html**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <meta charset="utf-8">
+    <title>{{ name }}'s Watchlist</title>
+    <link rel="icon" href="{{ url_for('static', filename='image/avatar.jpg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" type="text/css">
+    {% endblock %}
+</head>
+<body>
+    <h2>
+        <img alt="Avatar" class="avatar" src="{{ url_for('static', filename='image/avatar.jpg') }}">
+        {{ name }}'s Watchlist
+    </h2>
+	{% block content %}{% endblock %}
+</body>
+</html>
+```
+
+在基模板里，我们添加了两个块，一个是包含 `head`  内容的 `{% block head %}` 块，另一个是用来在子模板中插入页面主体内容的 `{% block content %}` 块。
+
+?> 在复杂的项目里，你可以定义更多的块，方便在子模板中对基模板的各个部分插入内容。另外，块的名字没有特定要求，你可以自由修改。
+
+接下来我们修改之前的两个模板：
+
+**重写子模板：主页模板templates/index.html**
+
+```html
+{% extends 'base.html' %}
+
+{% block content %}
+    {# 使用 length 过滤器获取 movies 变量的长度 #}
+    <p>{{ movies|length }} Titles</p>
+    <ul class="movie-list">
+        {% for movie in movies %}  {# 迭代 movies 变量 #}
+        <li>{{ movie.title }} - {{ movie.year }}</li>  {# 等同于 movie['title'] #}
+        {% endfor %}  {# 使用 endfor 标签结束 for 语句 #}
+    </ul>
+{% endblock %}
+```
+
+**重写子模板：错误页模板templates/404.html**
+
+```html
+{% extends 'base.html' %}
+
+{% block content %}
+    <ul class="movie-list">
+        <li>
+            Page Not Found - 404
+            <span class="float-right">
+                <a href="{{ url_for('index') }}">Go Back</a>
+            </span>
+        </li>
+    </ul>
+{% endblock %}
+```
+
+第一行使用 `extends` 标签声明扩展自模板 base.html，可以理解成“这个模板继承自 base.html“。接着我们定义了 `content` 块，这里的内容会插入到基模板中 `content` 块的位置。
+
+可以看到Jinja2 的模板继承机制，去掉了大量的重复代码，而且还能做到统一风格和规范，现在我们通过url去访问这两个模板，照常能显示：
+
+![QQ截图20210712171343](image/QQ截图20210712171343.png)
 
