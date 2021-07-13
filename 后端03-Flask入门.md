@@ -54,7 +54,7 @@ pip install Flask
 - [Jinja](https://palletsprojects.com/p/jinja/) 用于渲染页面的模板语言。
 - [MarkupSafe](https://palletsprojects.com/p/markupsafe/) 与 Jinja 共用，在渲染页面时用于避免不可信的输入，防止注入攻击。
 - [ItsDangerous](https://palletsprojects.com/p/itsdangerous/) 保证数据完整性的安全标志数据，用于保护 Flask 的 session cookie.
-- [Click](https://palletsprojects.com/p/click/) 是一个命令行应用的框架。用于提供 `flask` 命令，并允许添加自定义 管理命令。
+- [Click](https://palletsprojects.com/p/click/) 是一个命令行应用的框架。用于提供 `flask` 命令，并允许添加自定义管理命令。
 
 ![QQ截图20210617160806](image/QQ截图20210617160806.png)
 
