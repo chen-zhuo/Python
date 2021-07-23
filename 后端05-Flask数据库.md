@@ -215,6 +215,29 @@ movie表title为Mahjong的year为：1996
 | get_or_404(id) | 传入主键值作为参数，返回指定主键值的记录，如果未找到，则返回 404 错误响应 |
 | paginate()     | 返回一个 Pagination 对象，可以对记录进行分页处理             |
 
+```python
+# 分页查询<int:page>接收url传入的page变量，page只能是int类型
+@app.route("/move/page/<int:page>", methods=["GET"])
+def page(page):
+    data = []
+    try:
+        # 查询所有的数据，每5条进行分页
+        content = Movie.query.paginate(page, 5).items
+        for item in content:
+            item_dict = {}
+            item_dict.update({"title":item.title})
+            item_dict.update({"year":item.year})
+            data.append(item_dict)
+    except:
+        pass
+    return json.dumps(data, ensure_ascii=False)
+'''
+访问：http://192.168.0.158:8000/move/page/1，返回表中第1-5条数据
+访问：http://192.168.0.158:8000/move/page/2，返回表中第6-10条数据
+访问：http://192.168.0.158:8000/move/page/100，返回[]空列表
+'''
+```
+
 ?> 如果查询记录大于1000条，调用 `query().all()` 方法会导致内存激增（sqlalchemy会把所有对象放在内存中），改用 `query().yield_per(1000)` 之后，内存分配就不会那么多了。
 
 ##### 更新数据
