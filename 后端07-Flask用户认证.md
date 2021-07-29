@@ -433,8 +433,32 @@ from flask_login import login_required, logout_user
 @app.route('/logout')
 @login_required  # 用于视图保护，后面会详细介绍
 def logout():    
-    logout_user()  # 登出用户    
-    flash('Goodbye.')    
+    logout_user()  # 登出用户
+    flash('Goodbye.')
     return redirect(url_for('index'))  # 重定向回首页
 ```
+
+##### 导航栏
+
+有些地方则需要根据登录状态分别显示不同的内容，比如基模板（base.html）中的导航栏。如果用户已经登录，就显示主页和登出链接，否则显示主页和登录链接：
+
+```html
+{% if current_user.is_authenticated %}
+    <li><a href="{{ url_for('index') }}">Home</a> <a href="{{ url_for('logout') }}">Logout</a></li>
+{% else %}
+    <li><a href="{{ url_for('index') }}">Home</a> <a href="{{ url_for('login') }}">Login</a></li>
+{% endif %}
+```
+
+未登录状态：
+
+![QQ截图20210729145900](image/QQ截图20210729145900.png)
+
+点击Login，跳转到登录页面（输入用户：Tom，输入密码：123456）：
+
+![QQ截图20210729150034](image/QQ截图20210729150034.png)
+
+登录后的界面：
+
+![QQ截图20210729150101](image/QQ截图20210729150101.png)
 
