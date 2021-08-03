@@ -58,6 +58,86 @@ pip install Flask
 
 ![QQ截图20210617160806](image/QQ截图20210617160806.png)
 
+### 项目结构
+
+**Flask非常灵活，它没有一个固定的项目目录组织结构。**有经验的开发人员按照他们自己喜欢来组织项目的目录结构。但对于新手来说会感到困惑，如果没有指导，组织项目目录结构通常会很糟糕。我希望建立一个硬性的项目结构，无论这个结构是否使用到他都有存在的必要性。**选这一个路径，运行下面代码，建立Flask项目目录组织结构**：
+
+```python
+import os
+
+def build_flask(route):
+    # 建立项目文件夹
+    project = route+'/project'
+    if not os.path.exists(project):
+        os.mkdir(project)
+
+    # 建立项目结构
+    for item in ('/README.md', '/requirements.txt', '/manage.py', '/.gitignore', '/config.py'):
+        if not os.path.exists(project+item):
+            with open(project+item, 'w', encoding='utf-8') as f:
+                if item == '/README.md':
+                    f.write('# Flask项目\n本项目是以Flask框架为后端的项目。')
+                elif item == '/.gitignore':
+                    f.write('./logs/*')
+
+    # 建立文件夹
+    for item in ('/log', '/app', '/migrations', '/venv'):
+        if not os.path.exists(project+item):
+            os.mkdir(project+item)
+
+    # 建立app内文件夹
+    app = route+'/project/app'
+    for item in ('/static', '/templates', '/views', '/models', '/forms'):
+        if not os.path.exists(app+item):
+            os.mkdir(app+item)
+            if item == '/static':
+                for dir in ('/img', '/css', '/js'):
+                    if not os.path.exists(app + item + dir):
+                        os.mkdir(app + item + dir)
+            if item == '/templates':
+                for dir in ('/common', '/errors', '/func'):
+                    if not os.path.exists(app + item + dir):
+                        os.mkdir(app + item + dir)
+    for file in ('/setting.py', '/extensions.py'):
+        if not os.path.exists(app + file):
+            with open(app + file, 'w', encoding='utf-8') as f:
+                f.write('')
+
+if __name__ == '__main__':
+    route = r'存放Flask项目的路径'
+    build_flask(route)
+```
+
+运行后，会得到如下项目结构：
+
+```
+project
+|   .gitignore         # git忽略文件列表
+|   config.py          # flask配置文件
+|   manage.py          # 项目启动控制文件
+|   README.md          # 项目介绍文件
+|   requirements.txt   # 依赖包的列表
+|
++---app                # 整个程序的包目录
+|   |   extensions.py  # 扩展文件
+|   |   setting.py     # 项目信息配置文件
+|   |
+|   +---forms          # 存放表单文件夹
+|   +---models         # 存放模型文件夹
+|   +---static         # 存放静态资源文件夹
+|   |   +---css        # 存放CSS文件
+|   |   +---img        # 存放图片文件
+|   |   \---js         # 存放js文件
+|   +---templates      # 存放模板文件
+|   |   +---common     # 通用页面模板
+|   |   +---errors     # 错误页面模板
+|   |   \---func       # 功能页面模板
+|   \---views          # 视图
++---log
++---migrations
+\---venv
+```
+
 ### 快速上手
 
 ##### 最小应用
