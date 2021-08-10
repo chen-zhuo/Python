@@ -60,21 +60,23 @@ pip install Flask
 
 ### 项目结构
 
-**Flask非常灵活，它没有一个固定的项目目录组织结构。**有经验的开发人员按照他们自己喜欢来组织项目的目录结构。但对于新手来说会感到困惑，如果没有指导，组织项目目录结构通常会很糟糕。我希望建立一个硬性的项目结构，无论这个结构是否使用到他都有存在的必要性。**选这一个路径，运行下面代码，建立Flask项目目录组织结构**：
+**Flask非常灵活，它没有一个固定的项目目录组织结构。**有经验的开发人员按照他们自己喜欢来组织项目的目录结构。但对于新手来说会感到困惑，如果没有指导，组织项目目录结构通常会很糟糕。我希望建立一个硬性的项目结构，无论这个结构的其他是否使用到他都有存在的必要性。**一个好的目录结构，对整个项目的影响是深远的，尤其是对维护开发人员，方便阅读修改。**
+
+选这一个路径，运行下面代码，建立Flask项目目录组织结构：
 
 ```python
 import os
 
 def build_flask(route):
     # 建立项目文件夹
-    project = route+'/project'
+    project = route + '/flask_project'
     if not os.path.exists(project):
         os.mkdir(project)
 
     # 建立项目结构
     for item in ('/README.md', '/requirements.txt', '/manage.py', '/.gitignore', '/config.py'):
-        if not os.path.exists(project+item):
-            with open(project+item, 'w', encoding='utf-8') as f:
+        if not os.path.exists(project + item):
+            with open(project + item, 'w', encoding='utf-8') as f:
                 if item == '/README.md':
                     f.write('# Flask项目\n本项目是以Flask框架为后端的项目。')
                 elif item == '/.gitignore':
@@ -82,14 +84,14 @@ def build_flask(route):
 
     # 建立文件夹
     for item in ('/log', '/app', '/migrations', '/venv'):
-        if not os.path.exists(project+item):
-            os.mkdir(project+item)
+        if not os.path.exists(project + item):
+            os.mkdir(project + item)
 
     # 建立app内文件夹
-    app = route+'/project/app'
+    app = project + '/app'
     for item in ('/static', '/templates', '/views', '/models', '/forms'):
-        if not os.path.exists(app+item):
-            os.mkdir(app+item)
+        if not os.path.exists(app + item):
+            os.mkdir(app + item)
             if item == '/static':
                 for dir in ('/img', '/css', '/js'):
                     if not os.path.exists(app + item + dir):
@@ -98,6 +100,8 @@ def build_flask(route):
                 for dir in ('/common', '/errors', '/func'):
                     if not os.path.exists(app + item + dir):
                         os.mkdir(app + item + dir)
+
+    # 生成配置文件和扩展文件
     for file in ('/setting.py', '/extensions.py'):
         if not os.path.exists(app + file):
             with open(app + file, 'w', encoding='utf-8') as f:
@@ -111,7 +115,7 @@ if __name__ == '__main__':
 运行后，会得到如下项目结构：
 
 ```
-project
+flask_project
 |   .gitignore         # git忽略文件列表
 |   config.py          # flask配置文件
 |   manage.py          # 项目启动控制文件
@@ -133,18 +137,16 @@ project
 |   |   +---errors     # 错误页面模板
 |   |   \---func       # 功能页面模板
 |   \---views          # 视图
-+---log
-+---migrations
-\---venv
++---log                # 存放日志
++---migrations         # 数据库迁移
+\---venv               # 存放环境
 ```
 
 ### 快速上手
 
 ##### 最小应用
 
-新建 `hello_flask.py` 或其他类似名称 `.py` 文件，**但不要用 `flask.py` 作为应用名称，这会与 Flask 本身发生冲突**。
-
-一个最小的 Flask 应用如下：
+首先在 `manage.py` 文件，写一个最小的 Flask 应用如下：
 
 ```python
 # 首先我们导入了Flask类，该类的实例将会成为我们的WSGI应用。
@@ -189,13 +191,21 @@ Flask服务默认是运行在 `127.0.0.1` 本机环回地址的 `5000` 端口上
 
 **开放访问端口也很简单，在 `run()` 方法添加参数 `host='0.0.0.0'` 即可：**
 
+![QQ截图20210617164622 - 副本](image/QQ截图20210617164622 - 副本.png)
+
+服务启动后，在信息输出 `Running on all addresses`，说明在局域网内的户用都可以通过这个地址和端口来访问服务：
+
 ![QQ截图20210617164622](image/QQ截图20210617164622.png)
 
-**服务启动后，在信息输出 `Running on all addresses`，说明在局域网内的户用都可以通过这个地址和端口来访问服务，本机用户可以通过环回地址和局域网地址来访问。**
+本机用户可以通过环回地址和局域网地址来访问：
 
 ![QQ截图20210617164944](image/QQ截图20210617164944.png)
 
 **假如服务默认的 `5000` 端口被其他程序所占用，改用其他端口也很简单，在 `run()` 方法添加参数 `port=端口号` 即可：**
+
+![QQ截图20210617165420 - 副本](image/QQ截图20210617165420 - 副本.png)
+
+启动服务后，就会显示可访问的端口号：
 
 ![QQ截图20210617165420](image/QQ截图20210617165420.png)
 
