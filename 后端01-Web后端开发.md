@@ -88,7 +88,7 @@ Tornado优势：
 Tornado劣势：
 1.过于精简，只适用于纯接口化服务或者小型网站应用
 ```
-### Web开发环境
+### Web环境
 
 一般在进行Web项目开发时有两种环境：`development（开发环境）`、`production（生产环境）`。
 

@@ -74,13 +74,13 @@ def build_flask(route):
         os.mkdir(project)
 
     # 建立项目结构
-    for item in ('/README.md', '/requirements.txt', '/manage.py', '/.gitignore', '/config.py'):
+    for item in ('/README.md', '/requirements.txt', '/manage.py', '/.gitignore', '/config.py', '/.env', '/.flaskenv'):
         if not os.path.exists(project + item):
             with open(project + item, 'w', encoding='utf-8') as f:
                 if item == '/README.md':
                     f.write('# Flask项目\n本项目是以Flask框架为后端的项目。')
                 elif item == '/.gitignore':
-                    f.write('./logs/*')
+                    f.write('./logs/*\n./.env')
 
     # 建立文件夹
     for item in ('/log', '/app', '/migrations', '/venv'):
@@ -116,6 +116,8 @@ if __name__ == '__main__':
 
 ```
 flask_project
+|   .env               # 存储敏感数据
+|   .flaskenv          # 存储Flask命令行系统相关的公开环境变量
 |   .gitignore         # git忽略文件列表
 |   config.py          # flask配置文件
 |   manage.py          # 项目启动控制文件
@@ -165,9 +167,11 @@ if __name__ == '__main__':
     app.run()
 ```
 
+![QQ截图20210617162720](image/QQ截图20210617162720.png)
+
 Flask 会使用内置的开发服务器来运行程序，这个服务器默认监听本地机的 5000 端口，也就是说，我们可以通过在地址栏输入 [http://127.0.0.1:5000](http://127.0.0.1:5000/) 或是 [http://localhost:5000](http://localhost:5000/) 访问程序：
 
-![QQ截图20210617162720](image/QQ截图20210617162720.png)
+![QQ截图20210617162720 - 副本](image/QQ截图20210617162720 - 副本.png)
 
 访问服务运行的地址和端口，显示 `Hello, World!` 说明服务已经成功运行。
 
@@ -185,7 +189,7 @@ def hello_world():
 
 ![QQ截图20210617163547](image/QQ截图20210617163547.png)
 
-##### 开放访问端口
+##### 开放访问
 
 Flask服务默认是运行在 `127.0.0.1` 本机环回地址的 `5000` 端口上面，也就是说只能我们本机访问 `5000` 端口才能得到响应，而网络中的其他电脑却不行。
 
@@ -213,13 +217,35 @@ Flask服务默认是运行在 `127.0.0.1` 本机环回地址的 `5000` 端口上
 
 ![QQ截图20210617165455](image/QQ截图20210617165455.png)
 
-##### debug调试模式
+##### 开发环境
 
-当服务启动以后，假如我们希望将修改代码后增加的功能展示在网页上，就需要重启服务运行修改后的代码，但Flask提供了更好的方案：debug调试模式。
+在前面，我们讲过Web环境分为两种：**当我们在开发Web项目时，使用开发环境；当Web项目在线上运行时，使用生产环境。**根据Flask输出 `Environment: production` 可知默认启动的是生产环境，切换成开发环境的流程也很简单，首先安装用来自动导入系统环境变量的 python-dotenv：
 
-**开启debug调试模式也很简单，在 `run()` 方法添加参数 `debug=True` 即可：**在信息输出`debug mode: on` 和 `debugger is active!`，说明debug调试模式已经开启。
+```
+pip install python-dotenv
+```
+在 `.flaskenv` 文件里，我们写入一行 `FLASK_ENV=development` ，将环境变量 `FLASK_ENV` 的值设为 `development`：
+
+```
+# .flaskenv 文件
+FLASK_ENV=development
+```
+
+现在我们运行，就可以看到 `Environment: development` 说明环境已经切换到了开发环境了，并且输出 `debug mode: on` 和 `debugger is active!`，说明debug调试已经开启：
+
+![QQ截图20210812170813](image/QQ截图20210812170813.png)
+
+除了上面还有一种开启debug调试的方式就是，**在 `run()` 方法添加参数 `debug=True` **即可：
 
 ![QQ截图20210617175312](image/QQ截图20210617175312.png)
+
+但这种调试模式启动的环境依然是 `Environment: production` 生产环境：
+
+![QQ截图20210617175312 - 副本](image/QQ截图20210617175312 - 副本.png)
+
+##### debug调试
+
+**debug调试模式开启后，当程序出错，浏览器页面上会显示错误信息，并且当代码出现变动后，程序会自动重载。**
 
 我们先去访问服务端口，响应正常，内容也正确：
 
@@ -243,7 +269,7 @@ Flask服务默认是运行在 `127.0.0.1` 本机环回地址的 `5000` 端口上
 
 ##### route路由
 
-现代 Web 应用都使用有意义的 URL ，这样有助于用户记忆，网页会更得到用户的青睐。
+现代 Web 应使用有意义的 URL ，这样有助于用户记忆，更能得到用户的青睐。
 
 **在Flask中使用 `route()` 装饰器来把函数绑定到 URL**:
 
@@ -404,6 +430,3 @@ GET请求
 POST请求
 '''
 ```
-
-
-
