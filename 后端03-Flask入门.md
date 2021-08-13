@@ -235,7 +235,7 @@ FLASK_ENV=development
 
 ![QQ截图20210812170813](image/QQ截图20210812170813.png)
 
-除了上面还有一种开启debug调试的方式就是，**在 `run()` 方法添加参数 `debug=True` **即可：
+除了上面还有一种开启debug调试的方式就是，**在 `run()` 方法添加参数 `debug=True` 即可**：
 
 ![QQ截图20210617175312](image/QQ截图20210617175312.png)
 
