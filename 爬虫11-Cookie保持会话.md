@@ -12,9 +12,9 @@
 
 这种机制缺点显而易见，就是客户端在浏览网页时，服务器会与客户端频繁的建立连接和断开连接。为了弥补这一不足，**两种用于保持HTTP连接状态的技术**就应运而生了，**一个是Cookie，而另一个则是Session**。
 
-### Cookie
+## Cookie
 
-#####  Cookie简介
+###  Cookie简介
 
 **Cookie是由HTTP服务器设置保存在浏览器（即本地磁盘）中的被访问网站相关信息的小段文本。**
 
@@ -26,13 +26,13 @@
 
 ![QQ截图20200325222451](image/QQ截图20200325222451.png)
 
-##### Cookie特点
+### Cookie特点
 
 **Cookies是字典的形式存储的**，主要内容包括：名字，值，过期时间，路径和域。
 
 **Cookies并不是永久有效的，是有有效期的，Cookies的有效取决于服务器端对应的Session是否被销毁。**
 
-##### 清空cookie
+### 清空cookie
 
 在分析网页时，需要清空服务器放置给客户端的Cookie，好让服务器认为我们第一次访问的用户。
 
@@ -44,13 +44,13 @@
 
 ![QQ截图20200325225228](image/QQ截图20200325225228.png)
 
-### Session
+## Session
 
-##### Session定义
+### Session定义
 
 **Session是服务器为访问用户所创建并维护的一个对象，是存放在服务器的一种数据。**
 
-##### SessionID
+### SessionID
 
 **在服务器创建对象的同时，会为该对象产生一个唯一的编号，这个编号称为SessionID。**
 
@@ -58,15 +58,15 @@
 
 **当用户在Web页间跳转时，Session对象中的变量不会丢失而是在整个用户会话中一直存在下去。**一般这个值会有个时间限制，超时后毁掉这个值，默认30分钟。
 
-##### Cookie-Session机制
+### Cookie-Session机制
 
  登录网站时，会在客户端生成 Cookies ，而 **Cookies 里面保存了 SessionID 的信息**， 登录之后的后续请求都会携带生成后的 Cookies 发送给服务器。服务器就会**根据 Cookies保存的SessionID查找出对应的Session对象，进而找到会话**。如果当前Cookie是有效的，那么服务器就判断用户当前已经登录了，返回请求的页面信息，这样我们就可以看到登录之后的页面；如果是无效的就会返回登陆页面。
 
 ?> 参考资料：[还分不清 Cookie、Session、Token、JWT？](https://zhuanlan.zhihu.com/p/152224669)
 
-### 理解会话
+## 理解会话
 
-##### 手动拷贝Cookie
+### 手动拷贝Cookie
 
 既然服务器是通过Cookies来判断用户是否是新用户或者已经登录的用户，那么我们就在请求头中加入Cookie来保持我们的会话。
 
@@ -120,7 +120,7 @@ print(response.text)
 '''
 ```
 
-##### 自动获取Cookie
+### 自动获取Cookie
 
 上面的方法太过繁琐，需要前期需要手动登录，还需要手动拷贝Cookie，太过麻烦，而且Cookie也是有有效期的，Cookie过期，程序就不能访问了，有更好的方法吗？当然有。
 
@@ -162,7 +162,7 @@ _de=A856ED120905F94BAD5227D1A9BCED83; anonymid=k8b3ypsv-khbu21; first_login_flag
 '''
 ```
 
-##### 会话对象Session
+### 会话对象Session
 
 `requests` 库的高级用法：`会话对象Session`。
 
@@ -205,7 +205,7 @@ print(r.text)
 '''
 ```
 
-##### 保持会话
+### 保持会话
 
 上面人人网的例子中，虽然是“自动获取Cookie”，但也要用程序将Cookie保存到headers当中，有更简便的方法吗？当然有。这里就要用到上面 `requests` 库的 `会话对象Session`。
 
@@ -239,7 +239,7 @@ print(response1.text)
 '''
 ```
 
-##### 结束会话
+### 结束会话
 
 **Session对象虽然能保持连接，但在走完后底层的TCP端口不会马上断开连接，要等一会才释放**，想提前结束会话，可以使用下面方法：
 
@@ -252,9 +252,9 @@ s = requests.session()
 s.close()
 ```
 
-### 重写会话
+## 重写会话
 
-##### 会话超时
+### 会话超时
 
 Session是 `requests` 库里面的一个会话对象，当然也同样能设置一些与requests方法相同的参数：
 
@@ -266,7 +266,7 @@ class sessions(requests.Session):
         return super(sessions, self).request(*args, **kwargs)
 ```
 
-##### 更换代理IP
+### 更换代理IP
 
 ```python
 class sessions(requests.Session):

@@ -1,12 +1,12 @@
 # Selenium自动化测试工具
 
-### Selenium简介
+## Selenium简介
 
 **Selenium是一款基于浏览器用于Web应用程序自动化测试的工具。**
 
 通俗点说，**用户能做的一切，无论有无界面、输入、点击、滑动等其他操作，Selenium驱动浏览器都能做**。
 
-##### Selenium爬虫
+### Selenium爬虫
 
 通常各大网站都会有一定的反爬机制，既为了数据安全，也为了减小服务器压力。**反爬的方向就是，识别非浏览器客户端，而selenium恰恰是让真正的浏览器去执行请求和操作，对于服务端来说，是没有任何差别的。**
 
@@ -16,7 +16,7 @@
 
 **缺点**：加载耗时，效率低，稳定性差。
 
-##### 运行模式
+### 运行模式
 
 **有头模式**：浏览器运行时，显示浏览界面的模式（默认）。
 
@@ -24,13 +24,13 @@
 
 ?> 浏览器运行时，默认有头模式，设置无头模式，需要在Selenium中设置options参数。
 
-### Driver驱动程序
+## Driver驱动程序
 
 为了方便理解，打个比方，浏览器好比汽车，Driver就是车钥匙，来启动汽车，Selenium就是司机，驾驶汽车。
 
 !> 使用驱动程序，首先要保证被驱动的浏览器安装到位了。
 
-##### Chromedriver
+### Chromedriver
 
 **Chromedriver是驱动Chrome(谷歌)浏览器的程序。**首先获取Chrome浏览器版本：
 
@@ -46,13 +46,13 @@ Chromedriver下载链接：http://npm.taobao.org/mirrors/chromedriver/ ，选择
 
 **将文件解压到环境变量下的路径**或者**在 `executable_path` 参数来指定Chromedriver文件的路径**。例如：`browser = 浏览器对象(executable_path='路径/chromedriver.exe')`
 
-##### Geckodriver
+### Geckodriver
 
 **Geckodriver是驱动Firefox(火狐)浏览器的程序。**
 
 Geckodriver下载链接：https://github.com/mozilla/geckodriver/releases ，选择符合符合自己电脑操作系统的版本的Geckodriver，进行下载，完成后解压，后面步骤和安装Chromedriver一样。
 
-##### 驱动浏览器详解
+### 驱动浏览器详解
 
 1. 使用相同的程序和相同版本Chromedriver操作不同版本的Chrome浏览器有时候会报错，原因五花八门。
 
@@ -70,11 +70,11 @@ Geckodriver下载链接：https://github.com/mozilla/geckodriver/releases ，选
 
 **提醒：后面所有的Selenium例子都是基于Chromedriver驱动和Chrome浏览器写的，和其他驱动程序和浏览器操作都大同小异，但不建议使用Chromedriver驱动和Chrome浏览器，强烈推荐Geckodriver驱动和Firefox浏览器。**
 
-### 基本操作
+## 基本操作
 
 浏览器已经驱动起来了，现在就要使用Selenium库来操作浏览器的执行点击、输入等各种事件。
 
-##### 声明浏览器对象
+### 声明浏览器对象
 
 ```python
 # 导入selenium的浏览器驱动接口webdriver
@@ -87,7 +87,7 @@ browser = webdriver.Safari()
 # 注意：浏览器首字母大写
 ```
 
-##### 获取网页代码
+### 获取网页代码
 
 默认为有头模式，运行代码后，会有谷歌浏览器弹出，访问页面：
 
@@ -115,7 +115,7 @@ browser.close()
 '''
 ```
 
-##### Options参数配置
+### Options参数配置
 
 使用Chromedriver驱动chrome浏览器爬取网站信息时，**默认情况下就是一个普通的纯净的chrome浏览器，还需要对这个chrome做一些特殊的配置，以满足爬虫的行为**。
 
@@ -170,7 +170,7 @@ browser = webdriver.Chrome(options=chrome_options)
 
 !> 凡是配置参数，就必须通过 `options=chrome_options` 来启用配置，否则就是无效配置。
 
-##### 定位结点
+### 定位结点
 
 Selenium可以完成模拟点击、输入框输入文字等各种操作，完成这些操作就需要定位节点。Selenium 提供了一系列查找节点的方法，利用这些方法来获取想要的节点。
 
@@ -219,7 +219,7 @@ print(last2)
 '''
 ```
 
-##### 获取节点属性
+### 获取节点属性
 
 ```python
 from selenium import webdriver
@@ -244,9 +244,9 @@ print(logo.tag_name)				# button
 print(logo.size)					# {'height': 32, 'width': 66}
 ```
 
-### 其他操作
+## 其他操作
 
-##### 刷新、前进、后退、退出
+### 基本功能
 
 浏览器基本功能， Selenium 也可以完成：
 
@@ -267,7 +267,7 @@ browser.close()
 browser.quit()
 ```
 
-##### 全选、剪切、输入、点击
+### 键盘操作
 
 ```python
 import time
@@ -305,7 +305,7 @@ driver.execute_script("arguments[0].click();", element)
 
 !> 凡是涉及模拟键盘、模拟鼠标的操作均不能在无头模式下进行，例如上面的 `send_keys`、`Keys...`等操作。
 
-##### 窗口截屏
+### 窗口截屏
 
 只针对**窗口显示的部分网页**进行截屏，有头模式和无头模式都能进行截屏：
 
@@ -324,7 +324,7 @@ browser.get('https://www.baidu.com')
 browser.save_screenshot("baidu.png")
 ```
 
-##### 窗口句柄
+### 窗口句柄
 
 **活动窗口**：即**当前的工作窗口**。**有多个打开的窗口时，只有一个是活动窗口，它位于最上层，不被其他窗口遮挡。**
 
@@ -359,7 +359,7 @@ browser.switch_to.window(n[1])
 print(browser.page_source)
 ```
 
-##### Cookies操作
+### Cookies操作
 
 获取、添加、删除 Cookies等。
 
@@ -389,7 +389,7 @@ print(browser.get_cookies())
 '''
 ```
 
-##### Iframe定位
+### Iframe定位
 
 有时候驱动了浏览器去爬取网页，元素明明在那，浏览器中也可以看到，但就是抓取不到，`page_source` 输出的源码中也没有该元素，这个时候就需要**检查下页面是否含有iframe，如果你需要定位的元素是否在iframe之中，有可能就是因为iframe的问题**。
 
@@ -411,7 +411,7 @@ browser.switch_to.parent_frame()
 browser.switch_to.default_content()
 ```
 
-##### 模拟运行Js
+### 模拟运行Js
 
 Selenium 还可以使用 `execute_script` 方法来模拟运行JavaScript。
 
@@ -435,7 +435,7 @@ js='document.getElementById("nice").title="测试"'
 browser.execute_script(js)
 ```
 
-##### 更换代理IP
+### 更换代理IP
 
 Selenium 结合Firefox（火狐浏览器）执行下面js代码可以在，浏览器运行的过程中更换代理IP：
 
@@ -459,11 +459,11 @@ prefs.setIntPref("network.proxy.ftp_port", "%s");
 browser.execute_script(setupScript)
 ```
 
-### 延时等待
+## 延时等待
 
 前面强调过，**Selenium 获取数据加载完成后的页面的源代码，而`浏览器对象.get()` 方法会在网页框架加载结束后完成执行，此时获取 `page_source` ，可能并不是浏览器完全加载完成的页面**，如有额外的 Ajax 请求、js加载，在网页源代码中也不一定能成功获取到。**所以需要延时等待，确保节点已经加载出来**。
 
-##### 强制等待
+### 强制等待
 
 **强制等待**：**设置固定休眠时间**。 Python 内置的 time 包提供 sleep 方法， 就可以使脚本的执行过程进行休眠。
 
@@ -505,7 +505,7 @@ window["bobcmn"] = "111110101010102000000022000000052000000002d35d0af52000000963
 
 !> 强制等待有一个缺点就是，元素即使被很快的加载出来了，也还是要等待固定的休眠时间。
 
-##### 显式等待
+### 显式等待
 
 **显式等待**：**通过 `WebDriverWait()` 配合该类的 `until()` 或 `until_not()` 方法，针对于某个特定的元素设置的等待时间，**。在设置时间内，默认每隔0.5s检测一次，如果条件成立，则执行下一步，否则继续等待，直到超过设置时间，然后抛出 `TimeoutException` 错误。引入路径：
 
@@ -592,7 +592,7 @@ print(button)
 '''
 ```
 
-##### 隐式等待
+### 隐式等待
 
 **隐式等待**：**通过 `implicitly_wait()` 设置的全局等待时间，是对页面中的所有元素设置加载时间，如果超出了设置时间的则抛出 `NoSuchElementException` 异常**。可以理解成在规定的时间范围内，浏览器在不停的刷新页面，直到找到相关元素或者时间结束。
 
@@ -615,11 +615,11 @@ browser.implicitly_wait(10)
 
 ![9405009-9138e192ddc00a81](image/9405009-9138e192ddc00a81.webp)
 
-### 极验验证码
+## 极验验证码
 
 破解极验验证码的思路在[爬虫12-验证码](爬虫12-验证码.md)中的“极验验证码”，给出代码之前，先讲解一下需要用到的操作：
 
-##### 行为事件
+### 行为事件
 
 行为事件：`actionchains` 是selenium里面专门处理鼠标相关的操作如：鼠标移动，鼠标按钮操作，按键和上下文菜单（鼠标右键）交互。
 
@@ -657,7 +657,7 @@ ActionChains(browser).move_to_element(button3).perform()
 button3.click()
 ```
 
-##### 破解极验验证码
+### 破解极验验证码
 
 这里没有具体举例破解哪个网站极验验证码，但主体代码已经给出来了，后面根据不同的网站增添部分代码：
 

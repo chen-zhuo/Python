@@ -1,8 +1,8 @@
 # Android移动端
 
-### adb工具
+## adb工具
 
-##### 工具说明
+### 工具说明
 
 adb工具即Android Debug Bridge（安卓调试桥） tools。它就是一个命令行窗口，运行在5037端口，用于通过电脑端与模拟器或者真实设备交互。
 
@@ -12,7 +12,7 @@ adb工具即Android Debug Bridge（安卓调试桥） tools。它就是一个命
 
 使用场景：比如说你的手机不能开机了，手机又不能装sd卡，这种情况下你在其他模式连接手机，通过adb命令把rom推送到手机内存（手机内置存储），然后卡刷就可以了，如果没有adb命令的话根本无法操作手机导入rom，因为手机进不了系统更何况不能装sd卡。
 
-##### Android权限设置
+### Android权限设置
 
 连接手机使用adb工具就要开放手机上的一些权限，操作流程如下（仅限小米手机）：
 
@@ -24,7 +24,7 @@ adb工具即Android Debug Bridge（安卓调试桥） tools。它就是一个命
 
   4.开启安全设置（设置——系统和设备——更多设置——开发者选项——USB调试（安全设置）打开）
 
-##### 下载安装
+### 下载安装
 
 官网下载地址：https://adbshell.com/downloads
 
@@ -42,7 +42,7 @@ adb工具即Android Debug Bridge（安卓调试桥） tools。它就是一个命
 
 ![image-20210516151738898](image/image-20210516151738898.png)
 
-##### adb常用命令
+### adb常用命令
 
 ```
 adb start-server：启动adb服务
@@ -72,7 +72,7 @@ adb shell input swipe 0 0 0 0 100：在屏幕坐标(0,0)处按压100ms
 adb shell input swipe 100 200 500 600 900：900ms内从屏幕坐标(100,200)滑动到(500,600)坐标处
 ```
 
-##### 可能报错
+### 可能报错
 
 使用adb命令过程中可能会遇到如下错误：
 
@@ -86,11 +86,11 @@ adb shell input swipe 100 200 500 600 900：900ms内从屏幕坐标(100,200)滑�
 
 这个问题主要是调试授权没有成功（未授权状态）；一般出现这个问题时，打开你的手机，就会看到连接后弹出授权提示，需要你点击同意的密钥授权连接；没有的话，关掉usb连接，重新连接，开发者模式，usb调试打开，同意授权提示，最后重启adb服务进行查看。
 
-### Android移动端操作
+## Android移动端操作
 
 既然adb是一个命令行窗口的调试工具，那么我们就可以通过Python程序来执行adb命令，进而操作Android移动端的设备。
 
-##### 查看连接设备
+### 查看连接设备
 
 ```python
 import os
@@ -104,7 +104,7 @@ List of devices attached
 '''
 ```
 
-##### 执行shell命令
+### 执行shell命令
 
 **shell 是 linux 系统的字符交互界面，android 设备底层是 linux 系统**。 进入 android 设备的 shell ，需要将手机练到电脑上，执行 `adb devices` 可以看到 device 状态，然后执行 `adb shell` 就进入 shell 了。
 
@@ -130,7 +130,7 @@ ls: ./ueventd.rc: Permission denied
 '''
 ```
 
-##### 拷贝手机文件
+### 拷贝手机文件
 
 使用 `adb pull` 命令我们还可以将手机文件传送到电脑上。
 
@@ -149,7 +149,7 @@ path = os.popen(f'adb pull sdcard E:\phone_file').read()
 print(path)
 ```
 
-##### 游戏辅助代码
+### 游戏辅助代码
 
 使用adb还不仅仅局限于上面的文件的传输拷贝，还可以写一些游戏的辅助型代码，下面的代码是针对《棍子英雄》的辅助性代码，可以叫外挂。
 

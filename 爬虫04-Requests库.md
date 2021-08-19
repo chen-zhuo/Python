@@ -2,13 +2,13 @@
 
 参考内容：[requests中文文档](http://2.python-requests.org/zh_CN/latest/)
 
-### 初识Requests
+## 初识Requests
 
-##### requests简介
+### requests简介
 
 requests库是python实现的最简单易用的HTTP库，也是写爬虫必须要掌握的库。
 
-##### 安装requests库
+### 安装requests库
 
 requests 属于第三方库，就是 Python 默认不会自带的库，所以我们需要手动安装。
 
@@ -16,9 +16,9 @@ requests 属于第三方库，就是 Python 默认不会自带的库，所以我
 pip install requests
 ```
 
-### 发送请求
+## 发送请求
 
-##### 请求类型
+### 请求类型
 
 前面提到过，HTTP有多种请求类型，requests库同样可以实现。**一般在爬虫中用的最多的是get请求、post请求。**
 
@@ -39,7 +39,7 @@ requests.put('http://httpbin.org/put', data = {'key':'value'})
 requests.delete('http://httpbin.org/delete')
 ```
 
-##### GET请求
+### GET请求
 
 **当你在浏览器中输入一个网址并回车访问时，就是一个get请求**。
 
@@ -109,7 +109,7 @@ print(response.text)
 '''
 ```
 
-##### POST请求
+### POST请求
 
 post请求和get请求的主要区别在于：
 
@@ -275,7 +275,7 @@ print(response.text)
 # 总结：参数json会把存储的值进行序列化，请求头'application/json'会再转换一次json格式，相当于序列化了两次，因此全都可以反序列化一次，所以所有的"json": 都有值。
 ```
 
-##### 添加请求头
+### 添加请求头
 
 **没有请求头的爬虫是没有灵魂的爬虫**。结合之前讲过请求头中最重要的一个参数User-Agent和请求头库，可以写一个基本的爬虫了。
 
@@ -319,11 +319,11 @@ print(response2.request.headers)
 '''
 ```
 
-### 接受响应
+## 接受响应
 
 当我们向服务器发送请求后，服务器会返回给客户端响应，在响应中包含许多内容，通过响应的各种属性可以轻松获取到我们想要的内容。
 
-##### 响应内容属性
+### 响应内容属性
 
 ```python
 import requests
@@ -369,7 +369,7 @@ for key, value in response.cookies.items():
     print(key + '=' + value)
 ```
 
-##### 爬取网页
+### 爬取网页
 
 爬取基本的网页内容，可以使用下面代码：
 
@@ -387,7 +387,7 @@ response = requests.get(url=url, headers=headers)
 print(response.text)
 ```
 
-##### 爬取图片
+### 爬取图片
 
 图片、音频、视频都属于二进制文件，可以使用下面代码：
 
@@ -408,9 +408,9 @@ with open('文件名.后缀名', 'wb') as f:
     f.write(response.content)
 ```
 
-### 异常处理
+## 异常处理
 
-##### 追踪重定向
+### 追踪重定向
 
 重定向：**网络请求被重新定个方向转到了其它位置。**
 
@@ -469,7 +469,7 @@ print(r.text)
 '''
 ```
 
-##### 连接、读取超时
+### 连接、读取超时
 
 **requests默认的超时是 `None`，而这货默认是阻塞的，除非显式指定了 `timeout` 值，否则不会做超时处理，这意味着它将等待(挂起)直到连接关闭。因此使用requests最好设定 `timeout` 值。**
 
@@ -507,7 +507,7 @@ requests.exceptions.ConnectTimeout: HTTPConnectionPool(host='github.com', port=8
 '''
 ```
 
-##### 超过最大连接
+### 超过最大连接
 
 爬虫默认连接是Keep-alive的，当服务器保持的http连接数超过最大限制时，就不能再新建连接，抛出：`requests.exceptions.ConnectionError: HTTPSConnectionPool Max retries exceeded` 错误。
 
@@ -518,7 +518,7 @@ headers = {'Connection': 'close'}
 time.sleep(3)
 ```
 
-##### 未知服务器
+### 未知服务器
 
 访问不存在的网址，抛出 `requests.exceptions.ConnectionError` 错误。
 
@@ -534,7 +534,7 @@ requests.exceptions.ConnectionError: HTTPConnectionPool(host='github.comasf', po
 '''
 ```
 
-##### 网络异常
+### 网络异常
 
 在断网的情况下，抛出 `requests.exceptions.ConnectionError` 错误。
 
@@ -550,7 +550,7 @@ requests.exceptions.ConnectionError: HTTPConnectionPool(host='github.com', port=
 '''
 ```
 
-##### 代理异常
+### 代理异常
 
 代理服务器拒绝建立连接，端口拒绝连接或未开放，抛出 `requests.exceptions.ProxyError` 错误。
 
@@ -568,7 +568,7 @@ requests.exceptions.ProxyError: HTTPConnectionPool(host='192.168.10.1', port=800
 '''
 ```
 
-##### SSL证书错误
+### SSL证书错误
 
 使用requests库爬取有些网站比如：[国家税务总局全国增值税发票查验平台](https://inv-veri.chinatax.gov.cn/)，就会报如下错误：
 
@@ -616,7 +616,7 @@ print(f'状态码：{response.status_code}')
 '''
 ```
 
-##### DH键太小
+### DH键太小
 
 有时候，即使我们已经忽略警告并关闭了SSL验证，在某些服务器上验证时，还是会返回一个SSL错误，导致无法通过。
 
