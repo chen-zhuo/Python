@@ -2,9 +2,9 @@
 
 项目开发是一个非常耗时间和精力的工程，如果我们将所有的Flask请求方法都写在 `manage.py` 文件下的话，这会让我们后期管理和维护代码变得复杂且困难，因此我们需要对程序进行模块化的处理。
 
-### 蓝图 Blueprint
+## 蓝图 Blueprint
 
-##### Blueprint简介
+### Blueprint简介
 
 **Blueprint 是一个存储视图方法的容器，这些操作在这个Blueprint 被注册到一个应用之后就可以被调用，Flask 可以通过Blueprint来组织URL以及处理请求。**
 

@@ -2,7 +2,7 @@
 
 Scrapy文档参看：[Scrapy官方文档](https://doc.scrapy.org/en/latest/intro/overview.html#)  
 
-### Scrapy简介
+## Scrapy简介
 
 **Scrapy 是一个基于 Twisted 的异步处理纯 Python 实现的爬虫框架。**架构清晰，模块之间的耦合程度低（相互影响小），可扩展性极强，可以灵活完成各种需求，我们只需要定制开发几个模块就可以轻松实现一个爬虫。
 
@@ -14,7 +14,7 @@ Scrapy文档参看：[Scrapy官方文档](https://doc.scrapy.org/en/latest/intro
 
 3. 执行系统层次操作的代码，如等待系统队列
 
-##### Scrapy安装
+### Scrapy安装
 
 Scrapy是一个完整的爬虫框架，安装过程中会涉及到许多依赖库，需要一步一步安装：
 
@@ -42,7 +42,7 @@ conda install scrapy
 
 ?> 在安装Scrapy时，conda会收集安装Scrapy所需要的依赖包，安装好后，再安装scrapy框架。
 
-##### Scrapy架构
+### Scrapy架构
 
 ![1370011-a3be891e6a48dad7](image/1370011-a3be891e6a48dad7.webp)
 
@@ -57,7 +57,7 @@ Downloader Middlewares:下载器中间件，位于引擎和下载器之间的钩
 Spide Middlewares:蜘蛛中间件，位于引擎和蜘蛛之间的钩子框架，主要处理蜘蛛输入的响应和输出的结果及新的请求。
 ```
 
-##### Scrapy数据流
+### Scrapy数据流
 
 ```
 1、引擎打开起点网站(open a domain)，向处理该网站的Spider请求第一个要爬取的URL。
@@ -71,9 +71,9 @@ Spide Middlewares:蜘蛛中间件，位于引擎和蜘蛛之间的钩子框架�
 9、重复第二步到第八步直到调度器中没有更多地request，引擎关闭该网站。
 ```
 
-### Scrapy项目
+## Scrapy项目
 
-##### 创建项目文件
+### 创建项目文件
 
 命令行选择项目创建的所在路径，执行下面命令就会在路径下面生成名称为`test1` 的scrapy项目：
 
@@ -121,7 +121,7 @@ settings.py：它定义项目的全局配置。
 scrapy.cfg：它是 Scrapy 项目的配置文件，其内定义了项目的配置文件路径、部署相关信息等内容。
 ```
 
-##### 创建爬虫文件
+### 创建爬虫文件
 
 创建的爬虫文件**自动存放在上面提到了 `test1` 项目文件夹里面的 `spiders` 文件夹里面**。
 
@@ -178,7 +178,7 @@ class QuotesSpider(scrapy.Spider):
         pass
 ```
 
-##### Item数据结构
+### Item数据结构
 
 items.py文件作用是定义Item数据结构。
 
@@ -199,7 +199,7 @@ class Test1Item(scrapy.Item):
     tags = scrapy.Field()
 ```
 
-##### 解析Response
+### 解析Response
 
 定义好了items.py中的字段，回到爬虫文件解析Response响应中的内容，赋值给定义好的字段：
 
@@ -237,7 +237,7 @@ class QuotesSpider(scrapy.Spider):
             yield item
 ```
 
-##### 生成Resquest
+### 生成Resquest
 
 上面解析Response只是解析了第一页的内容，**并没有生成后续的Resquest，也就无法采集后面页数，因此需要构造下一个Resquest，循环往复，全部采集。**
 
@@ -266,7 +266,7 @@ class QuotesSpider(scrapy.Spider):
 yield scrapy.Request(url=url, callback=self.parse, dont_filter=True)
 ```
 
-##### 运行爬虫文件
+### 运行爬虫文件
 
 接下来，在命令行爬虫项目所在的路径下，输入下面命令，即可运行爬虫：
 
@@ -277,7 +277,7 @@ scrapy crawl quotes
 
 ![QQ截图20200816005006](image/QQ截图20200816005006.png)
 
-##### 保存结果(文件)
+### 保存结果(文件)
 
 如果想将上面的结果保存成JSON文件，可以执行下面命令：
 
@@ -295,7 +295,7 @@ scrapy crawl quotes -o quotes.marshal
 scrapy crawl quotes -o ftp://user:pass@ftp.example.com/path/to/quotes.csv
 ```
 
-##### 保存结果(数据库)
+### 保存结果(数据库)
 
 在 settings.py 的最下面设置在 `Item Pileline` 中使用到的数据库的相关信息：
 
@@ -412,9 +412,9 @@ ITEM_PIPELINES = {
 # 后面对应的键值代表调用优先级，数字越小越先被调用。也就是先存入MySQL，然后再存入MongoDB。
 ```
 
-### Scrapy进阶
+## Scrapy进阶
 
-##### 禁用Robots协议
+### 禁用Robots协议
 
 **Robots协议**：Robots协议（也称为爬虫协议、机器人协议等）的全称是“网络爬虫排除标准”（Robots Exclusion Protocol），网站通过Robots协议告诉爬虫和搜索引擎哪些页面可以抓取，哪些页面不能抓取。
 
@@ -425,7 +425,7 @@ ITEM_PIPELINES = {
 ROBOTSTXT_OBEY = False
 ```
 
-##### Selector自带选择器
+### Selector自带选择器
 
 Scrapy 框架还自带了 `Selector选择器`，基于lxml构建，支持Xpath、CSS 选择器及正则表达式，解析速度和准确度非常高。
 
@@ -447,7 +447,7 @@ Hello World
 '''
 ```
 
-##### Middleware中间件
+### Middleware中间件
 
 **Downloader Middleware(下载中间件)：一个处于 Scrapy 的 Request 和 Response 之间的处理模块，其功能十分强大，修改 User-Agent、处理重定向、设置代理、失败重试、设置 Cookies 等功能都需要借助它来实现**。在整个架构中起作用的位置是以下两个：
 
@@ -521,7 +521,7 @@ process_start_requests()方法以Spider启动Request参数被调用，执行的�
 '''
 ```
 
-##### 设置新response
+### 设置新response
 
 在初始定义的spider文件中，只有一个parse方法来爬取网页信息，而第一次使用的parse方法中的response就是访问初始请求 `start_urls` 中的地址返回的响应。
 
@@ -562,7 +562,7 @@ class ChongSpider(scrapy.Spider):
         pass
 ```
 
-##### 设置请求头
+### 设置请求头
 
 方法一：在 settings.py 里面加一行 USER_AGENT 的定义即可
 
@@ -600,7 +600,7 @@ DOWNLOADER_MIDDLEWARES = {
 }
 ```
 
-##### 设置代理IP
+### 设置代理IP
 
 在项目文件的 middlewares.py 文件，新建 `ProxyMiddleware` 类，添加代理IP:
 
@@ -632,7 +632,7 @@ DOWNLOADER_MIDDLEWARES = {
 }
 ```
 
-##### 设置断点续爬
+### 设置断点续爬
 
 在爬虫运行过程中，可能由于网络问题、或者突然断电等多种原因，导致爬虫意外结束。如果重启爬虫，前面爬取的数据又需要重新爬取一次，浪费时间；若舍弃没有爬取的数据，就会造成数据的不完整。**因此最好的办法就是将已经爬取的url保存起来，实现断点续爬。**
 
@@ -653,7 +653,7 @@ class ChongSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse, dont_filter=True)
 ```
 
-##### 添加Item处理
+### 添加Item处理
 
 **如果想对结果进行处理，则可以在 pipelines.py 定义 `Item Pileline` 来实现，定义一个类并实现 `process_item()` 方法即可。启用 `Item Pipeline` 后会自动调用这个方法。`process_item()` 方法必须返回包含数据的字典或 Item 对象，或者抛出 `Dropltem` 异常。**
 
@@ -691,7 +691,7 @@ DOWNLOADER_MIDDLEWARES = {
 }
 ```
 
-##### 添加Item去重
+### 添加Item去重
 
 假如 Item 有一个 `id` 属性，且属性值是唯一的，但是我们的 spider 返回的多个 Item 中包含有相同的 id，这时就要在 pipeline(项目管道) 中添加一个去重功能了，丢弃那些已经被处理过的item。
 
@@ -724,7 +724,7 @@ DOWNLOADER_MIDDLEWARES = {
 }
 ```
 
-##### 对接Selenium
+### 对接Selenium
 
 **Scrapy 抓取页面的方式和 requests 库类似，都是直接模拟 HTTP 请求，但 Scrapy 也不能抓 JavaScript 动态渲染的页面。**如果 Scrapy 可以对接 Selenium ，那 Scrapy 就基本可以处理任何网站的抓取了。
 
