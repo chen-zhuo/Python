@@ -105,7 +105,186 @@ remote.push()
 结合以上需求和第三方库的学习，我们就可以写一个自动更新并提交的Python脚本：
 
 ```python
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+# @Time    : 2021/6/13 1:35
+# @Author  : chenzhuo
+# @Desc    : Github和Cloud日常更新
+import os
+import git
+
+
+class Github(object):
+    disk = 'F:/GitHub'
+    route = {
+        'Python': ['基础', '进阶','后端', '爬虫', '分析'],
+        'System': ['DOS批处理', 'Linux系统'],
+        'JavaScript': ['JS基础', 'JS逆向'],
+        'DataBase': ['MySQL', 'Redis'],
+        'Math': ['基础'],
+    }
+
+    def index(self, library):
+        '''
+        GitHubPage页面
+        '''
+        content = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!--网页名称-->
+  <title>'''+library+'''</title>
+  <!--网页小图标-->
+  <link rel="icon" href="https://chen-zhuo.github.io/image/avatar.jpg">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <!--vue主题样式-->
+  <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
+  <!--夜晚模式样式-->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-dark-mode@0.6.1/dist/style.css"/>
+  <!--数学符号样式-->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"/>
+</head>
+<body>
+  <!--等待加载的显示内容-->
+  <div id="app">加载中...</div>
+  <script>
+    window.$docsify = {
+      <!--边侧栏标题-->
+      name: \''''+library+'''\',
+      <!--加载导航栏-->
+      loadNavbar: true,
+      <!--加载边侧栏-->
+      loadSidebar:true,
+      <!--内容标题等级-->
+      subMaxLevel: 6,
+      <!--Corner 挂件-->
+      repo: 'https://github.com/chen-zhuo',
+      <!--夜晚模式-->
+      darkMode: {
+        light: {
+          toggleBtnBg: '#42b983'
+        }
+      },
+      <!--定义搜索框-->
+      search: {
+      placeholder: '搜索', //搜索框默认显示的内容
+      noData: '没有结果！', //没有查询结果的显示内容
+      }
+    }
+  </script>
+  <!--基础框架-->
+  <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
+  <!--夜晚模式插件-->
+  <script src="https://cdn.jsdelivr.net/npm/docsify-dark-mode@0.6.1/dist/index.js"></script>
+  <!--搜索框插件-->
+  <script src="//unpkg.com/docsify/lib/plugins/search.js"></script>
+  <!--表情符解析-->
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/emoji.min.js"></script>
+  <!--python代码高亮-->
+  <script src="//unpkg.com/prismjs/components/prism-python.js"></script>
+  <!--go代码高亮-->
+  <script src="//unpkg.com/prismjs/components/prism-go.js"></script>
+  <!--c代码高亮-->
+  <script src="//unpkg.com/prismjs/components/prism-c.js"></script>
+  <!--java代码高亮-->
+  <script src="//unpkg.com/prismjs/components/prism-java.js"></script>
+  <!--javascript代码高亮-->
+  <script src="//unpkg.com/prismjs/components/prism-javascript.js"></script>
+  <!--sql语句高亮-->
+  <script src="//unpkg.com/prismjs/components/prism-sql.js"></script>
+  <!--katex数学公式渲染库-->
+  <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
+</body>
+</html>'''
+        with open(f'{self.disk}/{library}/index.html', 'r', encoding='utf-8')as read:
+            read_content = read.read()
+
+        if read_content != content:
+            print(f'《{library}》框架结构内容不一致开始写入...')
+            with open(f'{self.disk}/{library}/index.html', 'w', encoding='utf-8')as f:
+                f.write(content)
+            print(f'《{library}》框架结构内容不一致写入完成')
+        else:
+            print(f'《{library}》框架结构内容一致无需写入')
+
+    def navbar(self, library):
+        '''
+        GitHub顶侧栏
+        '''
+        content = '''* [Document](https://chen-zhuo.github.io/Document/)
+* [Python](https://chen-zhuo.github.io/Python/)
+* [JavaScript](https://chen-zhuo.github.io/JavaScript/)
+* [DataBase](https://chen-zhuo.github.io/DataBase/)
+* [System](https://chen-zhuo.github.io/System/)
+* [Math](https://chen-zhuo.github.io/Math/)'''
+        with open(f'{self.disk}/{library}/_navbar.md', 'r', encoding='utf-8')as read:
+            read_content = read.read()
+
+        if read_content != content:
+            print(f'《{library}》上顶侧栏内容不一致开始写入...')
+            with open(f'{self.disk}/{library}/_navbar.md', 'w', encoding='utf-8')as f:
+                f.write(content)
+            print(f'《{library}》上顶侧栏内容不一致写入完成')
+        else:
+            print(f'《{library}》上顶侧栏内容一致无需写入')
+
+    def sidebar(self, library):
+        '''
+        GitHub边侧栏
+        '''
+        a = os.listdir(f'{self.disk}/{library}')
+        content = f'- {library}目录\n'
+        for file_type in self.route[library]:
+            file_list = [c for c in a if c.startswith(file_type)]
+            for name in file_list:
+                content += f'  - [{name.replace(".md", "")}]({name})\n'
+
+        with open(f'{self.disk}/{library}/_sidebar.md', 'r', encoding='utf-8')as read:
+            read_content = read.read()
+
+        if read_content != content:
+            print(f'《{library}》左边侧栏内容不一致开始写入...')
+            with open(f'{self.disk}/{library}/_sidebar.md', 'w', encoding='utf-8')as f:
+                f.write(content)
+            print(f'《{library}》左边侧栏内容不一致写入完成')
+        else:
+            print(f'《{library}》左边侧栏内容一致无需写入')
+
+    def git_commit(self, library):
+        '''
+        git提交代码
+        :return:
+        '''
+        repo = git.Repo(path=f'{self.disk}/{library}/.git')
+        if repo.is_dirty():
+            print(f'《{library}》文件内容不一致开始提交...')
+            start_operation = repo.git
+            start_operation.add('.')
+            mid_operation = repo.index
+            mid_operation.commit('update')
+            end_operation = repo.remote()
+            end_operation.pull()
+            end_operation.push()
+            print(f'《{library}》文件内容不一致提交完成')
+        else:
+            print(f'《{library}》文件内容一致无需提交')
+
+    def update_data(self):
+        '''
+         更新并提交每个仓库
+        '''
+        for library in self.route:
+            print("-" * 50 + f'《{library}》' + "-" * 50)
+            self.sidebar(library)
+            self.navbar(library)
+            self.index(library)
+            self.git_commit(library)
+
+
+if __name__ == '__main__':
+    run = Github()
+    run.update_data()
 ```
-
-
 
