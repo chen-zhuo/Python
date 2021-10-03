@@ -211,7 +211,7 @@ Referer:https://www.上一层网页URL.com?...
 
 **Authorization**：当客户端接收到来自WEB服务器的 WWW-Authenticate 响应时，该头部来回应自己的身份验证信息给WEB服务器。主要是授权验证，确定符合服务器的要求。在爬虫时，按需而定。
 
-**User-Agent**：**用户代理**，服务器从此处知道客户端的操作系统类型和版本，电脑CPU类型，浏览器种类版本，浏览器渲染引擎，等等。这是**爬虫中最重要的⼀个请求头参数**，所以爬虫⼀定要有，如果没有，很容易被服务器识别并封禁。
+**User-Agent**：**用户代理**，服务器从此处知道客户端的操作系统类型和版本，电脑CPU类型，浏览器种类版本，浏览器渲染引擎，等等。这是**爬虫中最重要的一个请求头参数**，如果没有此参数很容易被服务器识别并封禁，这是因为许多服务器都会检测请求头的User-Agent参数是否是浏览器，因此我们要尽量将爬虫伪装成正常的用户使用浏览器来请求访问，避免服务器的检测反爬。
 
 ```
 # 浏览器Firefox版本52.0
@@ -221,6 +221,51 @@ User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0
 User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like 
 Gecko) Chrome/52.0.2743.116 Safari/537.36
 ```
+
+在爬取的某些网站时候，需要一定数量的User-Agent来让爬虫随机更换，达到更好的伪装。
+
+```python
+import random
+
+def UserAgent():
+    header = (
+                'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; ARM; Trident/6.0)',
+                'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13',
+                'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-US) AppleWebKit/533.4 (KHTML, like Gecko) Chrome/5.0.375.55 Safari/533.4',
+                'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3',
+                'Mozilla/5.0 (Windows; U; Win98; ja-JP; m18) Gecko/20001108 Netscape6/6.0',
+                '...'
+            )
+    return random.choice(header)
+```
+
+fake-useragent是一个非常好用的伪装请求头的库，可以随机生成大部分浏览器的user-agent。
+
+```python
+from fake_useragent import UserAgent
+
+# ie浏览器
+print(UserAgent().ie)  
+# Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; SLCC1; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; .NET CLR 1.1.4322)
+
+# chrome浏览器
+print(UserAgent().chrome)  
+# Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36
+
+# firefox浏览器
+print(UserAgent().firefox)  
+# Mozilla/5.0 (X11; Linux i586; rv:31.0) Gecko/20100101 Firefox/31.0
+
+#safri浏览器
+print(UserAgent().safari)  
+# Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; fr-fr) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27
+
+# 最常用的方式，随机生成请求头
+print(UserAgent().random)  
+# Mozilla/5.0 (X11; NetBSD) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36
+```
+
+?> 若遇到报错`fake_useragent.errors.FakeUserAgentError: Maximum amount of retries reached`，是因为 `fake_useragent` 中存储的 `UserAgent` 列表发生了变动，而本地 `UserAgent` 的列表未更新所导致的，在更新 `fake_useragent` 后报错就消失了，更新命令`pip install -U fake-useragent`，或者直接禁用缓存服务`UserAgent(use_cache_server=False)` 能解决。
 
 ## 响应
 
