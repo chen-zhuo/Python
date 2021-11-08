@@ -106,7 +106,7 @@ remote.push()
 
 ```python
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 # @Time    : 2021/6/13 1:35
 # @Author  : chenzhuo
 # @Desc    : Github和Cloud日常更新
@@ -117,11 +117,12 @@ import git
 class Github(object):
     disk = 'F:/GitHub'
     route = {
-        'Python': ['基础', '进阶','后端', '爬虫', '分析'],
+        'chen-zhuo.github.io': '',
+        'Document': ['Markdown语法', 'LaTeX排版', 'GitHub平台', 'Git版本控制', 'Docsify工具'],
+        'Python': ['基础', '图表','功能', '后端', '爬虫'],
         'System': ['DOS批处理', 'Linux系统'],
         'JavaScript': ['JS基础', 'JS逆向'],
         'DataBase': ['MySQL', 'Redis'],
-        'Math': ['基础'],
     }
 
     def index(self, library):
@@ -133,7 +134,7 @@ class Github(object):
 <head>
   <meta charset="UTF-8">
   <!--网页名称-->
-  <title>'''+library+'''</title>
+  <title>''' + library + '''</title>
   <!--网页小图标-->
   <link rel="icon" href="https://chen-zhuo.github.io/image/avatar.jpg">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
@@ -152,7 +153,7 @@ class Github(object):
   <script>
     window.$docsify = {
       <!--边侧栏标题-->
-      name: \''''+library+'''\',
+      name: \'''' + library + '''\',
       <!--加载导航栏-->
       loadNavbar: true,
       <!--加载边侧栏-->
@@ -198,12 +199,12 @@ class Github(object):
   <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
 </body>
 </html>'''
-        with open(f'{self.disk}/{library}/index.html', 'r', encoding='utf-8')as read:
+        with open(f'{self.disk}/{library}/index.html', 'r', encoding='utf-8') as read:
             read_content = read.read()
 
         if read_content != content:
             print(f'《{library}》框架结构内容不一致开始写入...')
-            with open(f'{self.disk}/{library}/index.html', 'w', encoding='utf-8')as f:
+            with open(f'{self.disk}/{library}/index.html', 'w', encoding='utf-8') as f:
                 f.write(content)
             print(f'《{library}》框架结构内容不一致写入完成')
         else:
@@ -213,18 +214,18 @@ class Github(object):
         '''
         GitHub顶侧栏
         '''
-        content = '''* [Document](https://chen-zhuo.github.io/Document/)
+        content = '''* [Home](https://chen-zhuo.github.io/)
+* [Document](https://chen-zhuo.github.io/Document/)
 * [Python](https://chen-zhuo.github.io/Python/)
 * [JavaScript](https://chen-zhuo.github.io/JavaScript/)
 * [DataBase](https://chen-zhuo.github.io/DataBase/)
-* [System](https://chen-zhuo.github.io/System/)
-* [Math](https://chen-zhuo.github.io/Math/)'''
-        with open(f'{self.disk}/{library}/_navbar.md', 'r', encoding='utf-8')as read:
+* [System](https://chen-zhuo.github.io/System/)'''
+        with open(f'{self.disk}/{library}/_navbar.md', 'r', encoding='utf-8') as read:
             read_content = read.read()
 
         if read_content != content:
             print(f'《{library}》上顶侧栏内容不一致开始写入...')
-            with open(f'{self.disk}/{library}/_navbar.md', 'w', encoding='utf-8')as f:
+            with open(f'{self.disk}/{library}/_navbar.md', 'w', encoding='utf-8') as f:
                 f.write(content)
             print(f'《{library}》上顶侧栏内容不一致写入完成')
         else:
@@ -241,50 +242,57 @@ class Github(object):
             for name in file_list:
                 content += f'  - [{name.replace(".md", "")}]({name})\n'
 
-        with open(f'{self.disk}/{library}/_sidebar.md', 'r', encoding='utf-8')as read:
+        with open(f'{self.disk}/{library}/_sidebar.md', 'r', encoding='utf-8') as read:
             read_content = read.read()
 
         if read_content != content:
             print(f'《{library}》左边侧栏内容不一致开始写入...')
-            with open(f'{self.disk}/{library}/_sidebar.md', 'w', encoding='utf-8')as f:
+            with open(f'{self.disk}/{library}/_sidebar.md', 'w', encoding='utf-8') as f:
                 f.write(content)
             print(f'《{library}》左边侧栏内容不一致写入完成')
         else:
             print(f'《{library}》左边侧栏内容一致无需写入')
 
-    def git_commit(self, library):
-        '''
-        git提交代码
-        :return:
-        '''
-        repo = git.Repo(path=f'{self.disk}/{library}/.git')
-        if repo.is_dirty():
-            print(f'《{library}》文件内容不一致开始提交...')
-            start_operation = repo.git
-            start_operation.add('.')
-            mid_operation = repo.index
-            mid_operation.commit('update')
-            end_operation = repo.remote()
-            end_operation.pull()
-            end_operation.push()
-            print(f'《{library}》文件内容不一致提交完成')
-        else:
-            print(f'《{library}》文件内容一致无需提交')
 
-    def update_data(self):
+    def push_all(self):
         '''
          更新并提交每个仓库
         '''
         for library in self.route:
-            print("-" * 50 + f'《{library}》' + "-" * 50)
-            self.sidebar(library)
-            self.navbar(library)
-            self.index(library)
-            self.git_commit(library)
+            if library != 'chen-zhuo.github.io':
+                self.sidebar(library)
+                self.navbar(library)
+                self.index(library)
+            repo = git.Repo(path=f'{self.disk}/{library}/.git')
+            if repo.is_dirty():
+                print(f'《{library}》文件内容不一致开始提交...')
+                start_operation = repo.git
+                start_operation.add('.')
+                mid_operation = repo.index
+                mid_operation.commit('update')
+                end_operation = repo.remote()
+                end_operation.push()
+                print(f'《{library}》文件内容不一致提交完成')
+            else:
+                print(f'《{library}》库没有修改')
+
+    def pull_all(self):
+        '''
+         更新并提交每个仓库
+        '''
+        for library in self.route:
+            print(f'《{library}》开始拉取...')
+            repo = git.Repo(path=f'{self.disk}/{library}/.git')
+            operation = repo.remote()
+            operation.pull()
+            print(f'《{library}》拉取结束')
 
 
 if __name__ == '__main__':
     run = Github()
-    run.update_data()
+    # 拉取所有库
+    run.pull_all()
+    # 提交所有库
+    run.push_all()
 ```
 
