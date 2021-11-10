@@ -8,6 +8,8 @@ Echarts 是一个由百度开源的数据可视化，凭借着良好的交互性
 
 pyecharts官方文档：https://pyecharts.org/
 
+pyecharts使用案例：https://gallery.pyecharts.org/#/README
+
 ### 特性
 
 - 简洁的 API 设计，使用如丝滑般流畅，支持链式调用
@@ -97,26 +99,26 @@ $ python setup.py install
 ### 第一个图表
 
 ```python
+# 导入柱状图
 from pyecharts.charts import Bar
-# 使用options配置项，在pyecharts中，一切皆Options。
-from pyecharts import options as opts
+# 在pyecharts一切配置皆在options中
+from pyecharts import options
 
 # 写法一：pyecharts常见写法
-bar = Bar()
+bar = Bar(init_opts=options.InitOpts(width="900px", height="500px"))
 bar.add_xaxis(["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"])
 bar.add_yaxis("商家A", [5, 20, 36, 10, 75, 90])
-bar.set_global_opts(title_opts=opts.TitleOpts(title="主标题", subtitle="副标题"))
+bar.set_global_opts(title_opts=options.TitleOpts(title="主标题", subtitle="副标题"))
 
 # 写法二：pyecharts所有方法均支持链式调用
 bar = (
-    Bar()
+    Bar(init_opts={"width": "900px", "height": "500px"})
     .add_xaxis(["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"])
     .add_yaxis("商家A", [5, 20, 36, 10, 75, 90])
     .set_global_opts(title_opts={"text": "主标题", "subtext": "副标题"})
 )
 
-# render 会生成本地 HTML 文件，默认会在当前目录生成 render.html 文件
-# 也可以传入路径参数，如 bar.render("mycharts.html")
+# 默认在当前目录生成render.html文件，也可以传入路径参数，如bar.render("mycharts.html")
 bar.render()
 ```
 
@@ -129,7 +131,9 @@ bar.render()
 pyecharts 内置提供了 10+ 种不同的风格，另外也提供了便捷的定制主题的方法。
 
 ```python
+# 导入柱状图
 from pyecharts.charts import Bar
+# 导入主题
 from pyecharts.globals import ThemeType
 
 Bar(init_opts=opts.InitOpts(theme=ThemeType.WHITE)) # 默认主题，等价于Bar()
@@ -178,3 +182,4 @@ Bar(init_opts=opts.InitOpts(theme=ThemeType.WONDERLAND))
 <img src="image/55897595-6a4b2180-5bf3-11e9-97b1-61b9c575af9e.png" alt="55897595-6a4b2180-5bf3-11e9-97b1-61b9c575af9e" style="zoom:33%;" />
 
 <img src="image/55897678-8bac0d80-5bf3-11e9-9ca4-a85b3868cf81.png" alt="55897678-8bac0d80-5bf3-11e9-9ca4-a85b3868cf81" style="zoom:33%;" />
+
