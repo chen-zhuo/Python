@@ -54,8 +54,6 @@ pyecharts使用案例：https://gallery.pyecharts.org/#/README
 
 <img src="image/52347915-0a52c600-2a5e-11e9-8039-41268238576c.gif" alt="52347915-0a52c600-2a5e-11e9-8039-41268238576c" style="zoom:33%;" />
 
-
-
 <img src="image/52433989-4f075b80-2b49-11e9-9979-ef32c2d17c96.gif" alt="52433989-4f075b80-2b49-11e9-9979-ef32c2d17c96" style="zoom:33%;" />
 
 <img src="image/52464826-4baab900-2bb7-11e9-8299-776f5ee43670.gif" alt="52464826-4baab900-2bb7-11e9-8299-776f5ee43670" style="zoom:33%;" />
