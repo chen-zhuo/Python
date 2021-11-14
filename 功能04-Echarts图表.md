@@ -181,3 +181,188 @@ Bar(init_opts=opts.InitOpts(theme=ThemeType.WONDERLAND))
 
 <img src="image/55897678-8bac0d80-5bf3-11e9-9ca4-a85b3868cf81.png" alt="55897678-8bac0d80-5bf3-11e9-9ca4-a85b3868cf81" style="zoom:33%;" />
 
+### 图标案例
+
+```python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Time    : 2021/11/5
+# @Author  : chenzhuo
+# @Desc    : 统计爬虫采集的数据量
+import datetime
+import os
+import openpyxl
+#  Line折现图
+from pyecharts.charts import Line
+# opts全局配置
+from pyecharts import options as opts
+# ThemeType主题
+from pyecharts.globals import ThemeType
+
+
+class Echarts(object):
+
+    def __init__(self):
+        self.route = 'E:\Desktop\资质安许历史'
+        self.qca_data = {}
+        self.safe_data = {}
+        self.area_qca_data = {}
+        self.area_safe_data = {}
+        self.history_date = []
+
+    def read_excel(self):
+        '''
+        读取所有资质安许excel表
+        :return:
+        '''
+        file_list = os.listdir(self.route)
+        for file in file_list:
+            # 表格日期
+            excel_date = file.replace('资质安许.xlsx', '')
+            # 导入字典
+            self.qca_data.update({excel_date:{}})
+            self.safe_data.update({excel_date:{}})
+            # 读取excel表格
+            wb = openpyxl.load_workbook(self.route+'\\'+file)
+            # 选定需要读取的工作薄
+            ws = wb['Sheet1']
+            # 字段
+            filed = '资质'
+            # ws.max_row最大行，ws.max_column最大列
+            for row in range(3, ws.max_row + 1):
+                if ws.cell(row=row, column=1).value == '安许':
+                    filed = '安许'
+                    continue
+                area = ws.cell(row=row, column=2).value[:2]
+                if filed == '资质':
+                    self.qca_data.get(excel_date).update(
+                        {
+                            area:
+                                {
+                                    'qca_area_level':ws.cell(row=row, column=1).value,
+                                    'qca_count': ws.cell(row=row, column=3).value,
+                                    'qca_update_time': f'{ws.cell(row=row, column=4).value.month}-{ws.cell(row=row, column=4).value.day}',
+                                    'qca_update':ws.cell(row=row, column=5).value,
+                                    'qca_people': ws.cell(row=row, column=6).value
+                                }
+                        }
+                    )
+                else:
+                    self.safe_data.get(excel_date).update(
+                        {
+                            area:
+                                {
+                                    'safe_area_level': ws.cell(row=row, column=1).value,
+                                    'safe_count': ws.cell(row=row, column=3).value,
+                                    'safe_update_time': f'{ws.cell(row=row, column=4).value.month}-{ws.cell(row=row, column=4).value.day}',
+                                    'safe_update': ws.cell(row=row, column=5).value,
+                                    'safe_people': ws.cell(row=row, column=6).value
+                                }
+                        }
+                    )
+
+    def row_date(self, num):
+        '''
+        时间范围和地区初始空列表
+        :return:
+        '''
+        now_dt = datetime.datetime.now()
+        for day in range(-num+1, 1):
+            history_date = now_dt + datetime.timedelta(days=day)
+            self.history_date.append(f'{history_date.month}-{history_date.day}')
+
+        self.area_qca_data = {'江苏':[None]*num, '四川':[None]*num, '广西':[None]*num, '湖北':[None]*num,
+                            '湖南':[None]*num, '河南':[None]*num, '云南':[None]*num, '广东':[None]*num, '浙江':[None]*num,
+                            '重庆':[None]*num, '安徽':[None]*num, '山东':[None]*num}
+        self.area_safe_data = {'江苏':[None]*num, '四川':[None]*num, '广西':[None]*num, '湖北':[None]*num,
+                          '湖南':[None]*num, '河南':[None]*num,'云南':[None]*num, '广东':[None]*num, '浙江':[None]*num,
+                          '重庆':[None]*num, '安徽':[None]*num, '山东':[None]*num}
+
+    def etl_data(self):
+        '''
+        数据处理成图表数据
+        :return:
+        '''
+        # 遍历资质数据
+        for qca_name in self.qca_data:
+            for area in self.area_qca_data:
+                try:
+                    qca_count = self.qca_data.get(qca_name).get(area).get('qca_count')
+                    qca_update_time = self.qca_data.get(qca_name).get(area).get('qca_update_time')
+                    if qca_update_time in self.history_date:
+                        index = self.history_date.index(qca_update_time)
+                        self.area_qca_data.get(area)[index] = qca_count
+                except:
+                    print(f'{qca_name},{area}数据为空')
+        # 遍历安许数据
+        for safe_name in self.safe_data:
+            for area in self.area_safe_data:
+                safe_count = self.safe_data.get(safe_name).get(area).get('safe_count')
+                safe_update_time = self.safe_data.get(safe_name).get(area).get('safe_update_time')
+                if safe_update_time in self.history_date:
+                    index = self.history_date.index(safe_update_time)
+                    self.area_safe_data.get(area)[index] = safe_count
+
+
+    def paint_zizhi_chart(self):
+        # Line折线图，宽度1900px，高度900px，主题CHALK
+        chart_line = Line(init_opts={'width':'1900px', 'height':'900px', 'theme':ThemeType.CHALK})
+        # 网页标题'资质图表'
+        chart_line.page_title = '资质图表'
+        # 横坐标日期
+        chart_line.add_xaxis(self.history_date)
+        for area in self.area_qca_data:
+  			# 纵坐标地区和数量，is_connect_nones忽略None直接相连，is_selected开始默认不选择地区
+            chart_line.add_yaxis(area, self.area_qca_data.get(area), is_connect_nones=True, is_selected=False)
+        chart_line.set_global_opts(
+            # title主标题, subtitle副标题
+            title_opts=opts.TitleOpts(title="资质抓取数据", subtitle="时间范围30天"),
+            # is_show=True展示工具栏，os_top="top"在顶部，pos_left="right"在右边
+            toolbox_opts = opts.ToolboxOpts(is_show=True,
+            pos_top="top",
+            pos_left="right",
+            # 工具内容：保存图片、还原、类型切换（折现、柱形）、数据展示
+            feature={"saveAsImage": {},
+                  "restore": {},
+                  "magicType": {"show": True, "type": ["line", "bar"]},
+                  "dataView": {}}))
+        chart_line.render("chart/zizhi_chart.html")
+
+    def paint_anxu_chart(self):
+        chart_line = Line(init_opts={'width':'1900px', 'height':'900px', 'theme':ThemeType.CHALK})
+        chart_line.page_title = '安许图表'
+        # 横坐标日期
+        chart_line.add_xaxis(self.history_date)
+        # 纵坐标地区和数量
+        for area in self.area_safe_data:
+            chart_line.add_yaxis(area, self.area_safe_data.get(area), is_connect_nones=True, is_selected=False)
+        chart_line.set_global_opts(
+            title_opts=opts.TitleOpts(title="安许抓取数据", subtitle="时间范围30天"),
+            toolbox_opts = opts.ToolboxOpts(is_show=True,
+            pos_top="top",
+            pos_left="right",
+            feature={"saveAsImage": {},
+                  "restore": {},
+                  "magicType": {"show": True, "type": ["line", "bar"]},
+                  "dataView": {}}))
+        chart_line.render("chart/anxu_chart.html")
+
+
+    def creat_chart(self):
+        self.read_excel()
+        # 设置时间范围为20天
+        self.row_date(30)
+        self.etl_data()
+        # 生成资质图表
+        self.paint_zizhi_chart()
+        # 生成安许图表
+        self.paint_anxu_chart()
+
+
+if __name__ == '__main__':
+    chart = Echarts()
+    chart.creat_chart()
+```
+
+![QQ截图20211113180159](image/QQ截图20211113180159.png)
+
