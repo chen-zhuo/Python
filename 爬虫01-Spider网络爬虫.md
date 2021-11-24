@@ -64,13 +64,27 @@ https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=157841874076
 
 ### HTTP协议
 
-**我们在网页上看到的内容通常是浏览器执行HTML语言得到的结果，而HTTP就是传输HTML数据的协议。**HTTP和其他很多应用级协议一样是构建在TCP（传输控制协议）之上的，它利用了TCP提供的可靠的传输服务实现了Web应用中的数据交换。按照维基百科上的介绍，设计HTTP最初的目的是为了提供一种发布和接收HTML页面的方法，也就是说**HTTP协议是浏览器和Web服务器之间传输的数据的载体**。
+**我们在网页上看到的内容通常是浏览器执行HTML语言得到的结果，而HTTP就是传输HTML数据的协议。HTTP和其他很多应用级协议一样是构建在TCP（传输控制协议）之上的，它利用了TCP提供的可靠的传输服务实现了Web应用中的数据交换。**按照维基百科上的介绍，设计HTTP最初的目的是为了提供一种发布和接收HTML页面的方法，也就是说**HTTP协议是浏览器和Web服务器之间传输的数据的载体**。
 
 HTTP最直观的体现就是在网址URL最前的HTTP头，一般分为两类：`http`、`https`。
 
-`http` ：即`Hyper Text Transfer Protocol`，超文本传输协议。
+`http` ：即 `Hyper Text Transfer Protocol` 超文本传输协议，使用80端口。
 
-`https` ：即`Hyper Text Transfer Protocol over Secure Socket Layer`，在 HTTP 加入 SSL 层（安全套接字层），传输内容通过 SSL 加密，保证数据传输安全和网站真实性。
+`https` ：即 `Hyper Text Transfer Protocol over Secure Socket Layer` 安全超文本传输协议，在 HTTP 加入 SSL 层（安全套接字层），传输内容经过加密，保证数据传输安全和网站真实性，可以有效的防止运营商劫持，使用443端口。
+
+总结：**HTTP协议运行在TCP之上，所有传输的内容都是明文，HTTPS运行在SSL/TLS之上，SSL/TLS运行在TCP之上，所有传输的内容都经过加密的。**
+
+![138606-0360ca017b6f5eb7](image/138606-0360ca017b6f5eb7.png)
+
+### CA证书
+
+**使用HTTPS协议需要到CA（数字证书管理机构）申请CA证书，也可以叫数字证书，CA证书有很多种，其中SSL证书就是一种由专业的数字证书签发机构所签发的数字安全证书。**
+
+不同的ca机构所签发的ca证书价格也是不同的，而即便是同一个签发机构的不同品牌、不同安全等级的证书，价格也有比较大的差异。目前，安全证书主要分为DV、OV和EV三个种类，对应的安全等级为一般、较好和最高三个等级。三者的审核过程、审核标准和对应的域名数量也不同，所以价格在几百元到几万元不等。另外，第一种安全证书还有免费版本的可供使用，只不过数量很少。
+
+因此，**https的签发机构选择一定要特别谨慎，最好选择行业认可且全球范围内都可以使用的ca机构签发的证书。目前，我们国内的证书能够符合标准的还不是特别多，主要原因是有一些证书不能够被国外的浏览器所认可，在使用的时候需要进行一定的额外操作。**例如[国家税务总局全国增值税发票查验平台](https://inv-veri.chinatax.gov.cn/)网站，即使网址开端是https，但由于证书不被认可，浏览器还是会提示不是私密链接。
+
+![QQ截图20200719004117](image/QQ截图20200719004117.png)
 
 ## 请求
 
@@ -221,51 +235,6 @@ User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0
 User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like 
 Gecko) Chrome/52.0.2743.116 Safari/537.36
 ```
-
-在爬取的某些网站时候，需要一定数量的User-Agent来让爬虫随机更换，达到更好的伪装。
-
-```python
-import random
-
-def UserAgent():
-    header = (
-                'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; ARM; Trident/6.0)',
-                'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13',
-                'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-US) AppleWebKit/533.4 (KHTML, like Gecko) Chrome/5.0.375.55 Safari/533.4',
-                'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3',
-                'Mozilla/5.0 (Windows; U; Win98; ja-JP; m18) Gecko/20001108 Netscape6/6.0',
-                '...'
-            )
-    return random.choice(header)
-```
-
-fake-useragent是一个非常好用的伪装请求头的库，可以随机生成大部分浏览器的user-agent。
-
-```python
-from fake_useragent import UserAgent
-
-# ie浏览器
-print(UserAgent().ie)  
-# Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; SLCC1; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; .NET CLR 1.1.4322)
-
-# chrome浏览器
-print(UserAgent().chrome)  
-# Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36
-
-# firefox浏览器
-print(UserAgent().firefox)  
-# Mozilla/5.0 (X11; Linux i586; rv:31.0) Gecko/20100101 Firefox/31.0
-
-#safri浏览器
-print(UserAgent().safari)  
-# Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; fr-fr) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27
-
-# 最常用的方式，随机生成请求头
-print(UserAgent().random)  
-# Mozilla/5.0 (X11; NetBSD) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36
-```
-
-?> 若遇到报错`fake_useragent.errors.FakeUserAgentError: Maximum amount of retries reached`，是因为 `fake_useragent` 中存储的 `UserAgent` 列表发生了变动，而本地 `UserAgent` 的列表未更新所导致的，在更新 `fake_useragent` 后报错就消失了，更新命令`pip install -U fake-useragent`，或者直接禁用缓存服务`UserAgent(use_cache_server=False)` 能解决。
 
 ## 响应
 
