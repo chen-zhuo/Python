@@ -6,7 +6,7 @@
 
 **标准的HTTP协议是无状态、无连接的，意思就是每一个访问都是独立的，服务器处理完一个访问就断开连接，然后处理下一个新的访问。**
 
-然而这种机制缺点显而易见，就是客户端在浏览网页时，服务器会与客户端频繁的建立连接和断开连接。为了弥补这一不足，**两种用于保持HTTP连接状态的技术**就应运而生了，**一个是Cookie，而另一个则是Session**。
+这种机制缺点显而易见，就是客户端在同一网站下浏览网页时，服务器会与客户端频繁的建立连接和断开连接，让服务器有很大的访问压力。为了弥补这一不足，**两种用于保持HTTP连接状态的技术**就应运而生了，**一个是Cookie，而另一个则是Session**。
 
 ## Cookie
 
@@ -35,6 +35,10 @@
 ![QQ截图20200325225035](image/QQ截图20200325225035.png)
 
 ![QQ截图20200325225228](image/QQ截图20200325225228.png)
+
+更快捷的方式就是，在浏览的Network选中任一请求，单击右键选择 `Clear Browser cookies` 清空浏览器Cookies：
+
+![QQ截图20211125144730](image/QQ截图20211125144730.png)
 
 ## Session
 
@@ -154,9 +158,9 @@ print(response1.text)
 
 ## 会话对象Session
 
-`requests` 库的高级用法：`会话对象Session`。
+requests 库的高级用法：`会话对象Session`
 
-**会话对象让你能够跨请求保持某些参数**。它也会在同一个 Session 实例发出的所有请求之间保持 cookie。所以如果你向同一主机发送多个请求，底层的 TCP 连接将会被重用，从而带来显著的性能提升。
+**会话对象让你能够跨请求保持某些参数，也会在同一个 Session 实例发出的所有请求之间保持 cookie。所以如果你向同一主机发送多个请求，底层的 TCP 连接将会被重用，从而带来显著的性能提升。**
 
 会话对象具有**主要的 Requests API 的所有方法**。
 
@@ -213,7 +217,7 @@ url = 'http://www.renren.com/PLogin.do'
 # 使用s去发送post请求
 response = s.post(url=url, data=data, headers=headers)
 
-# 注意这里：post请求发送后，会收到服务器返回在响应头的Cookie，因为这里是会话对象，底层的 TCP 连接将会被重用，Cookie被更新到新的头部中，达到了保持会话的目的。
+# 注意这里：post请求发送后，会收到服务器返回在响应头的Cookie，因为这里是会话对象，底层的TCP连接将会被重用，Cookie被更新到新的头部中，达到了保持会话的目的。
 
 # 个人主页
 url1 = 'http://www.renren.com/974088904/profile'
@@ -253,3 +257,102 @@ class sessions(requests.Session):
         kwargs.setdefault('timeout', (30, 30))
         return super(sessions, self).request(*args, **kwargs)
 ```
+
+## 客户对象Client
+
+requests库有高级用法 `会话对象Session`，同样的httpx库也有高级用法 `客户对象Client`，其用途和 `会话对象Session` 类似，这里讲解一点其他的用法。
+
+### 使用方式
+
+上面提到，走完后底层的TCP端口不会马上断开连接，要等会才释放，你也可以通过 `.close()` 方法提前释放：
+
+```python
+import httpx
+
+# 生成一个名称为client的Client对象
+client = httpx.Client()
+try:
+    pass
+finally:
+    client.close()
+```
+
+为了确保在离开模块时正确清理连接，更推荐下面写法：
+
+```python
+import httpx
+
+with httpx.Client() as client:
+    pass
+```
+
+### 配置参数
+
+```python
+with httpx.Client() as client:
+    headers = {'X-Custom': 'value'}
+    r = client.get('https://example.com', headers=headers)
+print(r)  # <Response [200 OK]>
+print(r.request.headers['X-Custom'])  # value
+```
+
+客户端允许您通过向客户端构造函数传递参数，将配置应用于所有传出请求。例如，要在每个请求上应用一组自定义头，请执行以下操作：
+
+```python
+url = 'http://httpbin.org/headers'
+headers = {'user-agent': 'my-app/0.0.1'}
+with httpx.Client(headers=headers) as client:
+    r = client.get(url)
+print(r.json()['headers']['User-Agent'])  # 'my-app/0.0.1'
+```
+
+甚至还可以合并参数：
+
+```python
+headers = {'X-Auth': 'from-client'}
+params = {'client_id': 'client1'}
+with httpx.Client(headers=headers, params=params) as client:
+    headers = {'X-Custom': 'from-request'}
+    params = {'request_id': 'request1'}
+    r = client.get('https://example.com', headers=headers, params=params)
+print(r.request.url)  # https://example.com?client_id=client1&request_id=request1
+print(r.request.headers['X-Auth'])  # from-client
+print(r.request.headers['X-Custom'])  # from-request
+```
+
+### 钩子事件
+
+HTTPX允许您向客户机写入“事件挂钩”，每次特定类型的事件发生时都会调用这些挂钩，以便您日志记录、监视或跟踪。当前现有两个事件挂钩：
+
+`request` - 在请求完全准备好后，但在发送到网络之前调用。已传递请求实例。
+
+`response` - 在从网络获取响应之后，但在将响应返回给调用方之前调用。已传递响应实例。
+
+```python
+def log_request(request):
+    print(f"Request event hook: {request.method} {request.url} - Waiting for response")
+
+def log_response(response):
+    request = response.request
+    print(f"Response event hook: {request.method} {request.url} - Status {response.status_code}")
+
+client = httpx.Client(event_hooks={'request': [log_request], 'response': [log_response]})
+```
+
+例，该实例总是在4xx和5xx响应上引发httpx.HTTPStatusError。在确定是否应该读取响应主体之前，将调用响应事件挂钩。
+
+```python
+def raise_on_4xx_5xx(response):
+    response.raise_for_status()
+
+client = httpx.Client(event_hooks={'response': [raise_on_4xx_5xx]})
+```
+
+事件挂钩必须始终设置为可调用的列表，并且可以为每种类型的事件注册多个事件挂钩。除了能够在实例化客户端时设置事件挂钩外，还有一个.event_hooks属性，允许您检查和修改已安装的挂钩。
+
+```python
+with httpx.Client(headers=headers, params=params) as client:
+    client.event_hooks['request'] = [log_request]
+    client.event_hooks['response'] = [log_response, raise_on_4xx_5xx]
+```
+

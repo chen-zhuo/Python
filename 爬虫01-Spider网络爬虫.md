@@ -236,6 +236,86 @@ User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like
 Gecko) Chrome/52.0.2743.116 Safari/537.36
 ```
 
+### 随机User-Agent
+
+在爬取的某些网站时候，需要一定数量的User-Agent来让爬虫随机更换，达到更好的伪装。
+
+```python
+import random
+
+def UserAgent():
+    header = (
+                'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; ARM; Trident/6.0)',
+                'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13',
+                'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-US) AppleWebKit/533.4 (KHTML, like Gecko) Chrome/5.0.375.55 Safari/533.4',
+                'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3',
+                'Mozilla/5.0 (Windows; U; Win98; ja-JP; m18) Gecko/20001108 Netscape6/6.0',
+                '...'
+            )
+    return random.choice(header)
+```
+
+fake-useragent是一个非常好用的伪装请求头的库，可以随机生成大部分浏览器的user-agent。
+
+```python
+from fake_useragent import UserAgent
+
+# ie浏览器
+print(UserAgent().ie)  
+# Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; SLCC1; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; .NET CLR 1.1.4322)
+
+# chrome浏览器
+print(UserAgent().chrome)  
+# Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36
+
+# firefox浏览器
+print(UserAgent().firefox)  
+# Mozilla/5.0 (X11; Linux i586; rv:31.0) Gecko/20100101 Firefox/31.0
+
+#safri浏览器
+print(UserAgent().safari)  
+# Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; fr-fr) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27
+
+# 最常用的方式，随机生成请求头
+print(UserAgent().random)  
+# Mozilla/5.0 (X11; NetBSD) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36
+```
+
+?> 若遇到报错`fake_useragent.errors.FakeUserAgentError: Maximum amount of retries reached`，是因为 `fake_useragent` 中存储的 `UserAgent` 列表发生了变动，而本地 `UserAgent` 的列表未更新所导致的，在更新 `fake_useragent` 后报错就消失了，更新命令`pip install -U fake-useragent`，或者直接禁用缓存服务`UserAgent(use_cache_server=False)` 能解决。
+
+除了PC端浏览器的User-Agent，还有手机端浏览器的User-Agent，两者之间还是有所区别的，而且某些网站使用手机端的User-Agent取爬取相对使用PC端浏览器的User-Agent要容易一点。
+
+```
+手机：三星I9000  系统：安卓
+
+1.自带浏览器
+Mozilla/5.0 (Linux; U; Android 4.0.3; zh-cn; U8860 Build/HuaweiU8860) UC AppleWebKit/530+ (KHTML, like Gecko) Mobile Safari/530 
+
+2.uc浏览器uc7/uc8
+Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; GT-I9000 Build/MIUI) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1 360browser(securitypay,securityinstalled)
+
+3.QQ浏览器
+MQQBrowser/3.4/Adr (Linux; U; 2.3.7; zh-cn; GT-I9000 Build/MIUI.2.4.13;480*800) 
+
+4.遨游浏览器
+Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; GT-I9000 Build/MIUI)Maxthon AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1 
+
+5.360浏览器
+Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; GT-I9000 Build/MIUI) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1 360browser(securitypay,securityinstalled)
+
+
+手机：Iphone4s  系统：ios
+
+1.Safari
+Mozilla/5.0 (iPhone; CPU iPhone OS 5_0_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A405 Safari/7534.48.3 
+
+2、uc浏览器
+IUC(U;iOS 5.0.1;Zh-cn;320*480;)/UCWEB8.5.0.163/42/999
+
+3、QQ浏览器
+MQQBrowser/31 (iOS; U; CPU like Mac OS X; zh-cn) 
+```
+
 ## 响应
 
 ### HTTP状态码
