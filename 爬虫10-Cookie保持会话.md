@@ -160,9 +160,84 @@ print(response1.text)
 
 requests 库的高级用法：`会话对象Session`
 
-**会话对象让你能够跨请求保持某些参数，也会在同一个 Session 实例发出的所有请求之间保持 cookie。所以如果你向同一主机发送多个请求，底层的 TCP 连接将会被重用，从而带来显著的性能提升。**
-
 会话对象具有**主要的 Requests API 的所有方法**。
+
+```python
+import requests
+
+# 创建一个会话对象session
+session = requests.Session()
+
+# 发送GET请求
+session.get()
+# 发送POST请求
+session.post()
+```
+
+### 性能提升
+
+如果向同一主机发送100个请求，**requests每次请求都会创建新的连接**，速度较慢：
+
+```python
+import random
+import time
+import datetime
+import requests
+ 
+def make_request(body):
+    resp = requests.post('http://122.51.39.219:8000/query', json=body)
+    result = resp.json()
+    print(result)
+
+def main():
+    start = time.time()
+    for _ in range(100):
+        now = datetime.datetime.now()
+        delta = random.randint(5, 15)
+        ts = (now - datetime.timedelta(days=delta)).strftime('%Y-%m-%d %H:%M:%S')
+        make_request({'ts': ts})
+    end = time.time()
+    print(f'发送100次请求，耗时：{end - start}')
+ 
+if __name__ == '__main__':
+    main()
+```
+
+![aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X3BuZy9vaG9vMWRDbXZxZUJNTGh4YXh3bzNCY2dRWUtXOExuOHhZeWFuY05VRFlhTThWOEw4TmJIQ2R4TDNLaGJsaWJyVWNDc2thR3cwajMyMnZtOTlsWTlibEEvNjQw](image/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X3BuZy9vaG9vMWRDbXZxZUJNTGh4YXh3bzNCY2dRWUtXOExuOHhZeWFuY05VRFlhTThWOEw4TmJIQ2R4TDNLaGJsaWJyVWNDc2thR3cwajMyMnZtOTlsWTlibEEvNjQw.jpg)
+
+**如果首先初始化一个session，那么requests会保持连接，那么底层的 TCP 连接将会被重用，从而带来显著的性能提升，大大提高请求速度**：
+
+```python
+import random
+import time
+import datetime
+import requests
+ 
+def make_request(session, body):
+    resp = session.post('http://122.51.39.219:8000/query', json=body)
+    result = resp.json()
+    print(result)
+ 
+def main():
+    session = requests.Session()
+    start = time.time()
+    for _ in range(100):
+        now = datetime.datetime.now()
+        delta = random.randint(5, 15)
+        ts = (now - datetime.timedelta(days=delta)).strftime('%Y-%m-%d %H:%M:%S')
+        make_request(session, {'ts': ts})
+    end = time.time()
+    print(f'发送100次请求，耗时：{end - start}')
+ 
+if __name__ == '__main__':
+    main()
+```
+
+![aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X3BuZy9vaG9vMWRDbXZxZUJNTGh4YXh3bzNCY2dRWUtXOExuODlueFZpYnVWVjNPVlZ5ZGtNVVhrY2ZHaGVHMWljRjVTRG1uRGdhS28yYWxhaWF6bjVmUUx0cThGZy82NDA](image/aHR0cHM6Ly9tbWJpei5xcGljLmNuL21tYml6X3BuZy9vaG9vMWRDbXZxZUJNTGh4YXh3bzNCY2dRWUtXOExuODlueFZpYnVWVjNPVlZ5ZGtNVVhrY2ZHaGVHMWljRjVTRG1uRGdhS28yYWxhaWF6bjVmUUx0cThGZy82NDA.jpg)
+
+### 保持参数
+
+**会话对象让你能够跨请求保持某些参数，也会在同一个 Session 实例发出的所有请求之间保持 cookie。**
 
 ```python
 import requests
@@ -171,29 +246,19 @@ import requests
 s = requests.Session()
 
 q = s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
-print(q.text)
 r = s.get("http://httpbin.org/cookies")
-print(r.text)
-'''
-输出：
-{"cookies": {"sessioncookie": "123456789"}}
-{"cookies": {"sessioncookie": "123456789"}}
-'''
-```
-
-**注意：就算使用了会话，方法级别的参数也不会被跨请求保持。**下面的例子只会和第一个请求发送 cookie ，而非第二个：
-
-```python
-import requests
-
-s = requests.Session()
-
-q = s.get('http://httpbin.org/cookies', cookies={'from-my': 'browser'})
 print(q.text)
+print(r.text)
+
+# 就算使用了会话，方法级别的参数也不会被跨请求保持。
+q = s.get('http://httpbin.org/cookies', cookies={'from-my': 'browser'})
 r = s.get('http://httpbin.org/cookies')
+print(q.text)
 print(r.text)
 '''
 输出：
+{"cookies": {"sessioncookie": "123456789"}}
+{"cookies": {"sessioncookie": "123456789"}}
 {"cookies": {"from-my": "browser"}}
 {"cookies": {}}
 '''

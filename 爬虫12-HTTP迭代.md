@@ -1,4 +1,4 @@
-# HTTP2迭代
+# HTTP迭代
 
 前面我们大体了解一下关于HTTP协议的一些东西，例如：http和https的区别、Ajax异步请求、保持HTTP连接状态会话Cookie技术。这些只是整个HTTP的冰山一角，作为爬虫工程师需要对HTTP协议有更加深入的了解。
 
@@ -6,7 +6,7 @@
 
 在HTTP建立之初，就是为了将超文本标记语言(HTML)文档从Web服务器传送到客户端的浏览器。也是说，我们所写的HTML页面将要放在我们的web服务器上，用户端通过浏览器访问url地址来获取网页的显示内容，但是到了WEB2.0以来，我们的页面变得复杂，不仅仅单纯的是一些简单的文字和图片，同时我们的HTML页面有了CSS，Javascript，来丰富我们的页面展示，当ajax的出现，我们又多了一种向服务器端获取数据的方法，这些其实都是基于HTTP协议的。同样到了移动互联网时代，我们页面可以跑在手机端浏览器里面，但是和PC相比，手机端的网络情况更加复杂，这使得我们开始了不得不对HTTP进行深入理解并不断优化过程中。
 
-### HTTP的基本优化
+### HTTP优化
 
 影响一个HTTP网络请求的因素主要有两个：带宽因素、延迟因素。
 **带宽因素**：如果说我们还停留在拨号上网的阶段，带宽可能会成为一个比较严重影响请求的问题，但是现在网络基础建设已经使得带宽得到极大的提升，我们不再会担心由带宽而影响网速，那么就只剩下延迟了。
@@ -83,4 +83,92 @@ HTTP2.0的多路复用和HTTP1.X中的长连接复用有什么区别？
 
 ![QQ截图20211125180534](image/QQ截图20211125180534.png)
 
-## HTTP
+## HTTP应用
+
+### 服务器HTTP版本
+
+在'开发者工具栏'点击 `Network` 选择一个请求，点击 `Headers` 可以看到在 `Response Headers` 右侧有一个 `View source` 选项：
+
+![QQ截图20211126113018](image/QQ截图20211126113018.png)
+
+点击 `View source` 选项第一行就可以看到服务器HTTP版本：
+
+![QQ截图20211126113556](image/QQ截图20211126113556.png)
+
+?> 只有部分请求在 `Response Headers` 右侧会有 `View source` 选项。
+
+?> 目前绝大部分的服务器使用的都是HTTP1.1的版本。
+
+不仅如此，还可以通过httpx库中响应的 `http_version` 属性确定服务器使用的HTTP版本：
+
+```python
+import httpx
+
+url = '...'
+response = client.get(url=url)
+# 输出服务器使用了哪个版本的HTTP协议
+print(response.http_version)  # "HTTP/1.0" or "HTTP/1.1" or "HTTP/2"
+```
+
+### HTTP2爬虫
+
+前面讲过requests库不支持http2.0，而httpx库支持。因此这里就轮到httpx大显身手了。
+
+首先安装可以选用http2.0的httpx库：
+
+```
+pip install httpx[http2]
+```
+
+通过实例化启功支持http2的客户端：
+
+```python
+client = httpx.Client(http2=True)
+```
+
+启动后，就可以开始爬取数据了。例如下面的这道题的名称为：天杀的http2.0（提示本题采用的http2.0），题目地址：https://match.yuanrenxue.com/match/17，爬虫代码如下：
+
+```python
+import re
+import httpx
+
+# 启动支持http2的client
+client = httpx.Client(http2=True)
+
+# 请求头
+headers = {
+    'accept': 'application/json, text/javascript, */*; q=0.01',
+    'accept-encoding': 'gzip, deflate, br',
+    'accept-language': 'zh-CN,zh;q=0.9',
+    'cookie': '自己当前的cookie',
+    'referer': 'https://match.yuanrenxue.com/match/17',
+    'sec-ch-ua': '"Google Chrome";v="94", " Not;A Brand";v="99", "Chromium";v="99"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    'user-agent': 'yuanrenxue.project',
+    'x-requested-with': 'XMLHttpRequest'
+}
+
+# 数值
+values = 0
+
+# 共5页数据
+for page in range(1, 6):
+    # 接口地址
+    url = f'https://match.yuanrenxue.com/api/match/17?page={page}'
+    print(url)
+    # 输出响应
+    response = client.get(url=url, headers=headers)
+    print(response.http_version)
+    print(f'第{page}页:{response.text}')
+    for v in re.findall(r'{"value": (-?\d+)}', response.text):
+        values += int(v)
+
+# 总值
+print(values)
+```
+
+?> 请求和响应通过HTTP/2传输，意味着客户机和服务器都需要支持HTTP/2。如果连接到仅支持HTTP/1.1的服务器，则客户端将使用标准HTTP/1.1连接。

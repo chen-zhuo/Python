@@ -191,6 +191,9 @@ print(r.headers)  # {'content-encoding': 'gzip','transfer-encoding': 'chunked'..
 print(r.headers['Content-Type'])  # 'application/json'
 print(r.headers.get('content-type'))  # 'application/json'
 
+# 输出服务器使用了哪个版本的HTTP协议
+print(response.http_version)  # "HTTP/1.0" or "HTTP/1.1" or "HTTP/2"
+
 # 输出响应的字符串文本
 print(r.text)  # '<!doctype html>\n<html>\n<head>\n<title>Example Domain</title>...'
 
