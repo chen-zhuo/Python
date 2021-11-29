@@ -778,3 +778,6 @@ DOWNLOADER_MIDDLEWARES = {
    'test1.middlewares.SeleniumMiddleware': 543,
 }
 ```
+
+最后，建议大家参考一下这篇文章：[Python爬虫的N种姿势](https://www.cnblogs.com/jclian91/p/9799697.html)
+
