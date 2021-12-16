@@ -425,7 +425,7 @@ ITEM_PIPELINES = {
 ROBOTSTXT_OBEY = False
 ```
 
-### Selector自带选择器
+### Selector选择器
 
 Scrapy 框架还自带了 `Selector选择器`，基于lxml构建，支持Xpath、CSS 选择器及正则表达式，解析速度和准确度非常高。
 
@@ -780,4 +780,26 @@ DOWNLOADER_MIDDLEWARES = {
 ```
 
 最后，建议大家参考一下这篇文章：[Python爬虫的N种姿势](https://www.cnblogs.com/jclian91/p/9799697.html)
+
+## Scrapy报错
+
+### POST字符对象
+
+Scrapy当中通常使用 `FormRequest` 函数来完成POST请求，这里需要注意的一点就是，使用如下代码会报错：
+
+```python
+post_data = {"pageIndex":page, "pageSize":10}
+FormRequest(url=self.url, formdata=post_data, dont_filter=True, callback=self.parse, meta=meta, errback=self.errback)
+```
+
+错误提示：`TypeError: to_bytes must receive a unicode, str or bytes object, got int`
+
+错误翻译：类型错误：to_bytes必须接收unicode、str或bytes对象，得到int   to_bytes也就是需要传给服务器的二进制数据。
+
+**简单说， `FormRequest` 方法默认是传输字符串的   所以就会报那个错误，我们只需要把那个10和page变成str数据结构就行了。**正确写法如下：
+
+```python
+post_data = {"pageIndex":str(page), "pageSize":"10"}
+FormRequest(url=self.url, formdata=post_data, dont_filter=True, callback=self.parse, meta=meta, errback=self.errback)
+```
 
