@@ -24,6 +24,7 @@
   - [功能03-Android移动端](功能03-Android移动端.md)
   - [功能04-Echarts图表](功能04-Echarts图表.md)
   - [功能05-Linux操作](功能05-Linux操作.md)
+  - [功能06-发送短信邮件](功能06-发送短信邮件.md)
   - [后端01-Web后端开发](后端01-Web后端开发.md)
   - [后端02-虚拟环境virtualenv](后端02-虚拟环境virtualenv.md)
   - [后端03-Flask入门](后端03-Flask入门.md)
