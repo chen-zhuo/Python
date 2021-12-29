@@ -181,7 +181,7 @@ Bar(init_opts=opts.InitOpts(theme=ThemeType.WONDERLAND))
 
 <img src="image/55897678-8bac0d80-5bf3-11e9-9ca4-a85b3868cf81.png" alt="55897678-8bac0d80-5bf3-11e9-9ca4-a85b3868cf81" style="zoom:33%;" />
 
-### 图标案例
+### 图表案例
 
 ```python
 #!/usr/bin/env python
@@ -189,14 +189,14 @@ Bar(init_opts=opts.InitOpts(theme=ThemeType.WONDERLAND))
 # @Time    : 2021/11/5
 # @Author  : chenzhuo
 # @Desc    : 统计爬虫采集的数据量
-import datetime
 import os
+import time
 import openpyxl
-#  Line折现图
+import datetime
+import requests
+import paramiko
 from pyecharts.charts import Line
-# opts全局配置
 from pyecharts import options as opts
-# ThemeType主题
 from pyecharts.globals import ThemeType
 
 
@@ -204,18 +204,28 @@ class Echarts(object):
 
     def __init__(self):
         self.route = 'E:\Desktop\资质安许历史'
+        # 初始话
         self.qca_data = {}
         self.safe_data = {}
-        self.area_qca_data = {}
-        self.area_safe_data = {}
+        self.company_data = {}
+        # 处理后
+        self.etl_qca_data = {}
+        self.etl_safe_data = {}
+        self.etl_company_data = {}
+        # 工商数据接口
+        self.link = 'http://47.103.21.215:8008/data_status'
+        # 时间范围
         self.history_date = []
+        # 215服务器
+        self.linux_server = '47.103.21.215'
 
     def read_excel(self):
         '''
         读取所有资质安许excel表
         :return:
         '''
-        file_list = os.listdir(self.route)
+        # 读取最后30个文件
+        file_list = os.listdir(self.route)[-40:]
         for file in file_list:
             # 表格日期
             excel_date = file.replace('资质安许.xlsx', '')
@@ -241,9 +251,7 @@ class Echarts(object):
                                 {
                                     'qca_area_level':ws.cell(row=row, column=1).value,
                                     'qca_count': ws.cell(row=row, column=3).value,
-                                    'qca_update_time': f'{ws.cell(row=row, column=4).value.month}-{ws.cell(row=row, column=4).value.day}',
-                                    'qca_update':ws.cell(row=row, column=5).value,
-                                    'qca_people': ws.cell(row=row, column=6).value
+                                    'qca_update_time': str(ws.cell(row=row, column=4).value)[5:10],
                                 }
                         }
                     )
@@ -254,12 +262,26 @@ class Echarts(object):
                                 {
                                     'safe_area_level': ws.cell(row=row, column=1).value,
                                     'safe_count': ws.cell(row=row, column=3).value,
-                                    'safe_update_time': f'{ws.cell(row=row, column=4).value.month}-{ws.cell(row=row, column=4).value.day}',
-                                    'safe_update': ws.cell(row=row, column=5).value,
-                                    'safe_people': ws.cell(row=row, column=6).value
+                                    'safe_update_time': str(ws.cell(row=row, column=4).value)[5:10],
                                 }
                         }
                     )
+
+    def get_company_data(self):
+        '''
+        获取工商数据
+        :return:
+        '''
+        response = requests.get(self.link).json()
+        data = response.get("data").get("CompanyData")
+        for item in data:
+            mouth = data.get(item).get('version')[4:6]
+            day = data.get(item).get('version')[6:]
+            date = mouth + '-' +day
+            count = data.get(item).get('data_num')
+            self.company_data.update(
+                {date: count}
+            )
 
     def row_date(self, num):
         '''
@@ -269,14 +291,15 @@ class Echarts(object):
         now_dt = datetime.datetime.now()
         for day in range(-num+1, 1):
             history_date = now_dt + datetime.timedelta(days=day)
-            self.history_date.append(f'{history_date.month}-{history_date.day}')
+            self.history_date.append(str(history_date)[5:10])
 
-        self.area_qca_data = {'江苏':[None]*num, '四川':[None]*num, '广西':[None]*num, '湖北':[None]*num,
+        self.etl_qca_data = {'江苏':[None]*num, '四川':[None]*num, '广西':[None]*num, '湖北':[None]*num,
                             '湖南':[None]*num, '河南':[None]*num, '云南':[None]*num, '广东':[None]*num, '浙江':[None]*num,
                             '重庆':[None]*num, '安徽':[None]*num, '山东':[None]*num}
-        self.area_safe_data = {'江苏':[None]*num, '四川':[None]*num, '广西':[None]*num, '湖北':[None]*num,
+        self.etl_safe_data = {'江苏':[None]*num, '四川':[None]*num, '广西':[None]*num, '湖北':[None]*num,
                           '湖南':[None]*num, '河南':[None]*num,'云南':[None]*num, '广东':[None]*num, '浙江':[None]*num,
                           '重庆':[None]*num, '安徽':[None]*num, '山东':[None]*num}
+        self.etl_company_data = {'工商':[None]*num}
 
     def etl_data(self):
         '''
@@ -285,83 +308,119 @@ class Echarts(object):
         '''
         # 遍历资质数据
         for qca_name in self.qca_data:
-            for area in self.area_qca_data:
+            for area in self.etl_qca_data:
                 try:
                     qca_count = self.qca_data.get(qca_name).get(area).get('qca_count')
                     qca_update_time = self.qca_data.get(qca_name).get(area).get('qca_update_time')
                     if qca_update_time in self.history_date:
                         index = self.history_date.index(qca_update_time)
-                        self.area_qca_data.get(area)[index] = qca_count
+                        self.etl_qca_data.get(area)[index] = qca_count
                 except:
-                    print(f'{qca_name},{area}数据为空')
+                    print(f'{qca_name},{area}资质数据为空')
         # 遍历安许数据
         for safe_name in self.safe_data:
-            for area in self.area_safe_data:
-                safe_count = self.safe_data.get(safe_name).get(area).get('safe_count')
-                safe_update_time = self.safe_data.get(safe_name).get(area).get('safe_update_time')
-                if safe_update_time in self.history_date:
-                    index = self.history_date.index(safe_update_time)
-                    self.area_safe_data.get(area)[index] = safe_count
+            for area in self.etl_safe_data:
+                try:
+                    safe_count = self.safe_data.get(safe_name).get(area).get('safe_count')
+                    safe_update_time = self.safe_data.get(safe_name).get(area).get('safe_update_time')
+                    if safe_update_time in self.history_date:
+                        index = self.history_date.index(safe_update_time)
+                        self.etl_safe_data.get(area)[index] = safe_count
+                except:
+                    print(f'{safe_name},{area}安许数据为空')
+        # 遍历工商数据
+        for com_data in self.company_data:
+            try:
+                index = self.history_date.index(com_data)
+                self.etl_company_data.get('工商')[index] = self.company_data.get(com_data)
+            except:
+                print(f'工商接口数据大于30天：{com_data}')
 
+    def paint_chart(self, num):
+        all_chart = {
+            '资质': [self.etl_qca_data, 'zizhi_chart.html', '资质抓取数据（公司数量）'],
+            '安许': [self.etl_safe_data, 'anxu_chart.html', '安许抓取数据（公司数量）'],
+            '工商': [self.etl_company_data, 'gongshang_chart.html', '工商加载数据（加载数量）']
+        }
+        for chart_type in all_chart:
+            # 图表类
+            chart_line = Line(init_opts={'width': '1900px', 'height': '900px', 'theme': ThemeType.CHALK})
+            # 资质图表
+            chart_line.page_title = f'{chart_type}图表'
+            # 横坐标日期
+            chart_line.add_xaxis(self.history_date)
+            # 纵坐标地区和数量
+            etl_data = all_chart.get(chart_type)[0]
+            for area in etl_data:
+                chart_line.add_yaxis(area, etl_data.get(area), is_connect_nones=True, is_selected=False)
+            chart_line.set_global_opts(
+                title_opts=opts.TitleOpts(title=f"{all_chart.get(chart_type)[2]}", subtitle=f"时间范围{num}天"),
+                toolbox_opts = opts.ToolboxOpts(is_show=True,
+                pos_top="top",
+                pos_left="right",
+                feature={"saveAsImage": {},
+                      "restore": {},
+                      "magicType": {"show": True, "type": ["line", "bar"]},
+                      "dataView": {}}))
+            chart_line.render(f"chart/{all_chart.get(chart_type)[1]}")
 
-    def paint_zizhi_chart(self):
-        # Line折线图，宽度1900px，高度900px，主题CHALK
-        chart_line = Line(init_opts={'width':'1900px', 'height':'900px', 'theme':ThemeType.CHALK})
-        # 网页标题'资质图表'
-        chart_line.page_title = '资质图表'
-        # 横坐标日期
-        chart_line.add_xaxis(self.history_date)
-        for area in self.area_qca_data:
-  			# 纵坐标地区和数量，is_connect_nones忽略None直接相连，is_selected开始默认不选择地区
-            chart_line.add_yaxis(area, self.area_qca_data.get(area), is_connect_nones=True, is_selected=False)
-        chart_line.set_global_opts(
-            # title主标题, subtitle副标题
-            title_opts=opts.TitleOpts(title="资质抓取数据", subtitle="时间范围30天"),
-            # is_show=True展示工具栏，os_top="top"在顶部，pos_left="right"在右边
-            toolbox_opts = opts.ToolboxOpts(is_show=True,
-            pos_top="top",
-            pos_left="right",
-            # 工具内容：保存图片、还原、类型切换（折现、柱形）、数据展示
-            feature={"saveAsImage": {},
-                  "restore": {},
-                  "magicType": {"show": True, "type": ["line", "bar"]},
-                  "dataView": {}}))
-        chart_line.render("chart/zizhi_chart.html")
+    def update_chart(self):
+        # 上传html文件
+        windows_command = (
+            'scp D:/chenzhuo/longna_distributed_reboot/test/chart/home_chart.html root@47.103.21.215:/home/py_saas/longna_saas_app/app/templates/admin/',
+            'scp D:/chenzhuo/longna_distributed_reboot/test/chart/zizhi_chart.html root@47.103.21.215:/home/py_saas/longna_saas_app/app/templates/admin/',
+            'scp D:/chenzhuo/longna_distributed_reboot/test/chart/anxu_chart.html root@47.103.21.215:/home/py_saas/longna_saas_app/app/templates/admin/',
+            'scp D:/chenzhuo/longna_distributed_reboot/test/chart/gongshang_chart.html root@47.103.21.215:/home/py_saas/longna_saas_app/app/templates/admin/'
+        )
+        # 命令流重启flask服务
+        linux_command = (
+            # 进入flask会话
+            "tmux a -t flask\n",
+            # 暂停服务（作用等于Ctrl+C）
+            "\x03\n",
+            # 再启动flask服务
+            "python /home/py_saas/longna_saas_app/manage.py\n"
+        )
+        try:
+            # 上传文件
+            for com in windows_command:
+                print(os.system(com))  # 将结果赋值给变量
+                time.sleep(3)
+            # 重启服务
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(self.linux_server, port=22, username='root', key_filename='C:/Users/yy/.ssh/id_rsa')
+            chan = ssh.invoke_shell()  # 新函数
+            for com in linux_command:
+                chan.send(com)
+                # 暂停一段时间，等待命令响应
+                time.sleep(5)
+                res = chan.recv(20000)  # 非必须，接受返回消息
+                print(res.decode())
+            ssh.close()
+        except Exception as e:
+            print(e)
 
-    def paint_anxu_chart(self):
-        chart_line = Line(init_opts={'width':'1900px', 'height':'900px', 'theme':ThemeType.CHALK})
-        chart_line.page_title = '安许图表'
-        # 横坐标日期
-        chart_line.add_xaxis(self.history_date)
-        # 纵坐标地区和数量
-        for area in self.area_safe_data:
-            chart_line.add_yaxis(area, self.area_safe_data.get(area), is_connect_nones=True, is_selected=False)
-        chart_line.set_global_opts(
-            title_opts=opts.TitleOpts(title="安许抓取数据", subtitle="时间范围30天"),
-            toolbox_opts = opts.ToolboxOpts(is_show=True,
-            pos_top="top",
-            pos_left="right",
-            feature={"saveAsImage": {},
-                  "restore": {},
-                  "magicType": {"show": True, "type": ["line", "bar"]},
-                  "dataView": {}}))
-        chart_line.render("chart/anxu_chart.html")
-
-
-    def creat_chart(self):
-        self.read_excel()
-        # 设置时间范围为20天
-        self.row_date(30)
-        self.etl_data()
-        # 生成资质图表
-        self.paint_zizhi_chart()
-        # 生成安许图表
-        self.paint_anxu_chart()
-
+    def run(self):
+        # 设置时间范围为30天
+        self.date_length = 30
+        # 获取表格数据
+        chart.read_excel()
+        # 获取工商数据
+        chart.get_company_data()
+        # 时间范围和地区初始空列表
+        chart.row_date(self.date_length)
+        # 处理成
+        chart.etl_data()
+        # 生成图表
+        chart.paint_chart(self.date_length)
+        # 更新图表
+        chart.update_chart()
+        print('所有图表已更新')
 
 if __name__ == '__main__':
     chart = Echarts()
-    chart.creat_chart()
+    chart.run()
 ```
 
 ![QQ截图20211113180159](image/QQ截图20211113180159.png)
