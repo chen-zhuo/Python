@@ -16,7 +16,7 @@
 
 GitPython是一个与Git库交互的Python库，包括底层命令（Plumbing）与高层命令（Porcelain）。它可以实现绝大部分的Git读写操作，避免了频繁与Shell交互的畸形代码。它并非是一个纯粹的Python实现，而是有一部分依赖于直接执行`git`命令，另一部分依赖于GitDB。
 
-GitDB也是一个Python库。它为`.git/objects`建立了一个[数据库](https://cloud.tencent.com/solution/database?from=10680)模型，可以实现直接的读写。由于采用流式（stream）读写，所以运行高效、内存占用低。
+GitDB也是一个Python库。它为`.git/objects`建立了一个数据库模型，可以实现直接的读写。由于采用流式（stream）读写，所以运行高效、内存占用低。
 
 ### GitPython安装
 
