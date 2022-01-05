@@ -26,6 +26,8 @@ SQLAlChemy的三个最重要的部分是：**SQL表达式语言、对象关系�
 
 ## 简单使用
 
+本章节使用的SQLAlchemy版本为1.4，所有的例子也都适用于1.4以上的版本，有一点要注意的就是1.4版本与1.3版本有较大改动，以下案例或许不能通用。
+
 ### 安装检查
 
 下载安装SQLAlchemy：
@@ -57,29 +59,100 @@ engine = create_engine("mysql+pymysql://用户名:密码@IP:端口/数据库名�
         )
 
 # 1.4.0版本
-engine = create_engine("mysql+pymysql://root:123456@127.0.0.1:3306/mysql_database",
+engine = create_engine("mysql+pymysql://root:123456@127.0.0.1:3306/new_origin_data",
                        echo=True,  # 将所有SQL记录到Python记录器中
                        future=True  # 指定future参数为True以便我们充分利用2.0style
                       )
+
+# 从用户的角度来看Engine对象的唯一目的提供到数据库的连接单元，称为Connection。
+conn = engine.connect()
+# 如果我们希望将Engine对象的使用范围限制在特定上下文中，最好的方法是使用Python上下文管理器表单，也称为 the with statement。
+with engine.connect() as conn:
+    ...
 ```
 
+### 执行文本SQL
 
+`text()` 方法允许编写文本SQL语句。
+
+`conn.execute()` 方法执行文本SQL语句。
 
 ```python
 from sqlalchemy import text
 from sqlalchemy import create_engine
 
-engine = create_engine(f'mysql+pymysql://root:123456@127.0.0.1:3306/new_origin_data',
-            max_overflow=10,  # 最大连接数
-            pool_size=10,  # 连接池大小
-            pool_timeout=60,  # 池中没有线程最多等待的时间，否则报错
-            pool_recycle=60 * 60 * 2
-        )
+engine = create_engine("mysql+pymysql://root:123456@127.0.0.1:3306/new_origin_database")
 
+# 通过conn.execute()方法执行文本SQL语句
 with engine.connect() as conn:
     result = conn.execute(text("select 'hello world'"))
-    print(result.all())
+    print(result.all())  # [('hello world',)]
+    result = conn.execute(text("SELECT 3*8"))
+    print(result.all())  # [(24,)]
+
+# 使用冒号格式“:变量”接受变量传递的参数
+with engine.connect() as conn:
+    result = conn.execute(text("SELECT 3*8 WHERE 5>:y"), {"y": 1})
+    print(result.all())  # [(24,)]
+    result = conn.execute(text("SELECT 3*8 WHERE 5>:y"), {"y": 10})
+    print(result.all())  # []
+
+# 同样的我们还可以对表做出一些更改操作
+with engine.connect() as conn:
+    # 建表语句
+    conn.execute(text("CREATE TABLE some_table (x int, y int)"))
+    # 插入语句
+    conn.execute(text("INSERT INTO some_table (x, y) VALUES (:x, :y)"),[{"x": 1, "y": 1}, {"x": 2, "y": 4}, {"x": 6, "y": 8}, {"x": 9, "y": 10}])
 ```
+
+!> 注意SQLAlchemy的1.4.29版本已经没有 `conn.commit()` 方法来提交更改，都是 `conn.execute()` 边走边执行。
+
+### 结果遍历
+
+`Result` 有很多用于获取和转换行的方法，例如上面 `Result.all()` 方法一次性接受所有结果，它返回所有 Row 物体。它还实现了Python迭代器接口，以便我们可以迭代 Row 直接对象。这个 `Row` 对象本身的作用类似于Python named tuples. 下面我们将演示访问行的各种方法。
+
+- **元组赋值** -这是Python最惯用的风格，即在接收到变量时将变量按位置分配给每一行：
+
+  ```python
+  with engine.connect() as conn:
+      result = conn.execute(text("select x, y from some_table"))
+      for x, y in result:
+          print(f'x: {x}, y: {y}')
+  ```
+
+- **整数索引** -元组是Python序列，因此也可以进行常规整数访问：
+
+  ```python
+  with engine.connect() as conn:
+      result = conn.execute(text("select x, y from some_table"))
+          for row in result:
+              x = row[0]
+  ```
+
+- **属性名称** -由于这些是Python命名的元组，这些元组具有与每个列的名称相匹配的动态属性名。这些名称通常是SQL语句为每行中的列指定的名称。虽然它们通常是相当可预测的，也可以由标签控制，但在定义较少的情况下，它们可能会受到特定于数据库的行为的影响：
+
+  ```python
+  with engine.connect() as conn:
+      result = conn.execute(text("SELECT x, y FROM some_table"))
+      for row in result:
+          print(f"x: {row.x}  y: {row.y}")
+  '''
+  x: 1  y: 1
+  x: 2  y: 4
+  x: 6  y: 8
+  x: 9  y: 10
+  '''
+  ```
+
+- **映射访问** -以Python形式接收行 **映射** 对象，它本质上是Python的公共接口的只读版本 `dict` 对象 `Result` 可能是 **转化** 变成一个 `MappingResult` 对象使用 `Result.mappings()` 修饰符；这是一个结果对象，它生成类似dictionary的 `RowMapping` 对象而不是 `Row` 物体：：
+
+  ```python
+  with engine.connect() as conn:
+      result = conn.execute(text("select x, y from some_table"))
+      for dict_row in result.mappings():
+          x = dict_row['x']
+          y = dict_row['y']
+  ```
 
 
 
