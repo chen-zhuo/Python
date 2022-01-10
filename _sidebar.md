@@ -28,6 +28,7 @@
   - [功能07-常用文件读写](功能07-常用文件读写.md)
   - [功能08-SQLAlchemy软件](功能08-SQLAlchemy软件.md)
   - [功能09-艺术字体](功能09-艺术字体.md)
+  - [功能10-Zookeeper分布式](功能10-Zookeeper分布式.md)
   - [后端01-Web后端开发](后端01-Web后端开发.md)
   - [后端02-虚拟环境virtualenv](后端02-虚拟环境virtualenv.md)
   - [后端03-Flask入门](后端03-Flask入门.md)
