@@ -27,4 +27,3 @@
   - [RabbitMQ官方文档](https://www.rabbitmq.com/documentation.html)
   - [微信小程序官方文档](https://developers.weixin.qq.com/miniprogram/dev/framework/)
   - [Vue.js官方文档](https://cn.vuejs.org/v2/guide/)
-  - [Vue.js官方文档](https://cn.vuejs.org/v2/guide/)
