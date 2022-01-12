@@ -6,7 +6,7 @@
 
 面向对象是从软件工程基本原则（如耦合、聚合、封装）的基础上发展起来的，而关系数据库则是从数学理论发展而来的，两套理论存在显著的区别。为了解决这个不匹配的现象，对象关系映射技术应运而生。
 
-**对象关系映射（英语：Object Relational Mapping，简称ORM，或O/RM，或O/R mapping），是一种程序设计技术，用于实现面向对象编程语言里不同类型系统的数据之间的转换，它其实是创建了一个可在编程语言里使用的“虚拟对象数据库”。简单的说：ORM相当于中继数据。**
+**对象关系映射（英语：Object Relational Mapping，简称ORM），是一种程序设计技术，用于实现面向对象编程语言里不同类型系统的数据之间的转换，它其实是创建了一个可在编程语言里使用的“虚拟对象数据库”。简单的说：ORM相当于中继数据。**
 
 ### SQLAlchemy简介
 
@@ -52,17 +52,17 @@ from sqlalchemy import create_engine
 
 # 1.3.24版本
 engine = create_engine("mysql+pymysql://用户名:密码@IP:端口/数据库名称", 
-            max_overflow=10,  # 最大连接数
-            pool_size=10,  # 连接池大小
-            pool_timeout=60,  # 池中没有线程最多等待的时间，否则报错
-            pool_recycle=60 * 60 * 2
+         max_overflow=10,  # 最大连接数
+         pool_size=10,  # 连接池大小
+         pool_timeout=60,  # 池中没有线程最多等待的时间，否则报错
+         pool_recycle=60 * 60 * 2
         )
 
 # 1.4.0版本
 engine = create_engine("mysql+pymysql://root:123456@127.0.0.1:3306/new_origin_data",
-                       echo=True,  # 将所有SQL记录到Python记录器中
-                       future=True  # 指定future参数为True以便我们充分利用2.0style
-                      )
+         echo=True,  # 将所有SQL记录到Python记录器中
+         future=True  # 指定future参数为True以便我们充分利用2.0style
+        )
 
 # 从用户的角度来看Engine对象的唯一目的提供到数据库的连接单元，称为Connection。
 conn = engine.connect()
@@ -90,7 +90,7 @@ with engine.connect() as conn:
     result = conn.execute(text("SELECT 3*8"))
     print(result.all())  # [(24,)]
 
-# 使用冒号格式“:变量”接受变量传递的参数
+# 使用冒号格式“变量名:变量”接受变量传递的参数
 with engine.connect() as conn:
     result = conn.execute(text("SELECT 3*8 WHERE 5>:y"), {"y": 1})
     print(result.all())  # [(24,)]
@@ -105,7 +105,7 @@ with engine.connect() as conn:
     conn.execute(text("INSERT INTO some_table (x, y) VALUES (:x, :y)"),[{"x": 1, "y": 1}, {"x": 2, "y": 4}, {"x": 6, "y": 8}, {"x": 9, "y": 10}])
 ```
 
-!> 注意SQLAlchemy的1.4.29版本已经没有 `conn.commit()` 方法来提交更改，都是 `conn.execute()` 边走边执行。
+!> 注意：SQLAlchemy的1.4.29版本已经没有 `conn.commit()` 方法来提交更改，都是 `conn.execute()` 边走边执行。
 
 ### 结果遍历
 
@@ -154,5 +154,5 @@ with engine.connect() as conn:
           y = dict_row['y']
   ```
 
-
+## 数据库元数据
 
