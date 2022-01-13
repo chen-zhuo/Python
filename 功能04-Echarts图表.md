@@ -6,10 +6,6 @@
 
 Echarts 是一个由百度开源的数据可视化，凭借着良好的交互性，精巧的图表设计，得到了众多开发者的认可。而 Python 是一门富有表达力的语言，很适合用于数据处理。当数据分析遇上数据可视化时，pyecharts 诞生了。
 
-pyecharts官方文档：https://pyecharts.org/
-
-pyecharts使用案例：https://gallery.pyecharts.org/#/README
-
 ### 特性
 
 - 简洁的 API 设计，使用如丝滑般流畅，支持链式调用
@@ -20,9 +16,11 @@ pyecharts使用案例：https://gallery.pyecharts.org/#/README
 - 详细的文档和示例，帮助开发者更快的上手项目
 - 多达 400+ 地图文件以及原生的百度地图，为地理数据可视化提供强有力的支持
 
+<img src="image/52348737-01fb8a80-2a60-11e9-94ac-dacbd7b58811.png" alt="52348737-01fb8a80-2a60-11e9-94ac-dacbd7b58811" style="zoom:33%;" />
+
 <img src="image/52332988-0b243180-2a37-11e9-9db8-eb6b8c86a0de.png" alt="52332988-0b243180-2a37-11e9-9db8-eb6b8c86a0de" style="zoom:33%;" />
 
-<img src="image/35089737-ccc1c01c-fc72-11e7-874d-8ba8b89572eb.png" alt="35089737-ccc1c01c-fc72-11e7-874d-8ba8b89572eb" style="zoom:50%;" />
+<img src="image/35089737-ccc1c01c-fc72-11e7-874d-8ba8b89572eb.png" alt="35089737-ccc1c01c-fc72-11e7-874d-8ba8b89572eb" style="zoom:33%;" />
 
 <img src="image/52348202-bb596080-2a5e-11e9-84a7-60732be0743a.gif" alt="52348202-bb596080-2a5e-11e9-84a7-60732be0743a" style="zoom:33%;" />
 
@@ -40,15 +38,11 @@ pyecharts使用案例：https://gallery.pyecharts.org/#/README
 
 <img src="image/52197440-843a5200-289a-11e9-8601-3ce8d945b04a.gif" alt="52197440-843a5200-289a-11e9-8601-3ce8d945b04a" style="zoom:33%;" />
 
-<img src="image/52349544-c2ce3900-2a61-11e9-82af-28aaaaae0d67.gif" alt="52349544-c2ce3900-2a61-11e9-82af-28aaaaae0d67" style="zoom:33%;" />
+<img src="image/56976071-b9f28c80-6ba4-11e9-8efd-603203c77619.png" alt="56976071-b9f28c80-6ba4-11e9-8efd-603203c77619" style="zoom:33%;" />
 
 <img src="image/35082279-e111743c-fc53-11e7-9362-580160593715.gif" alt="35082279-e111743c-fc53-11e7-9362-580160593715" style="zoom:33%;" />
 
 <img src="image/52345490-4a16af00-2a58-11e9-9b43-7bbc86aa05b6.gif" alt="52345490-4a16af00-2a58-11e9-9b43-7bbc86aa05b6" style="zoom:33%;" />
-
-<img src="image/52332816-ac5eb800-2a36-11e9-8227-3538976f447d.gif" alt="52332816-ac5eb800-2a36-11e9-8227-3538976f447d" style="zoom:33%;" />
-
-<img src="image/52798246-7ebae400-30b2-11e9-8489-6c10339c3429.gif" alt="52798246-7ebae400-30b2-11e9-8489-6c10339c3429" style="zoom:33%;" />
 
 <img src="image/52345115-6534ef00-2a57-11e9-80cd-9cbfed252139.gif" alt="52345115-6534ef00-2a57-11e9-80cd-9cbfed252139" style="zoom:33%;" />
 
@@ -60,11 +54,7 @@ pyecharts使用案例：https://gallery.pyecharts.org/#/README
 
 <img src="image/52464647-aee81b80-2bb6-11e9-864e-c544392e523a.gif" alt="52464647-aee81b80-2bb6-11e9-864e-c544392e523a" style="zoom:33%;" />
 
-<img src="image/52465183-a55fb300-2bb8-11e9-8c10-4519c4e3f758.gif" alt="52465183-a55fb300-2bb8-11e9-8c10-4519c4e3f758" style="zoom:33%;" />
-
 <img src="image/52533994-932b7380-2d76-11e9-93b4-0de3132eb941.gif" alt="52533994-932b7380-2d76-11e9-93b4-0de3132eb941" style="zoom:33%;" />
-
-<img src="image/44004598-5636d74e-9e97-11e8-8a5c-92de6278880d.gif" alt="44004598-5636d74e-9e97-11e8-8a5c-92de6278880d" style="zoom:30%;" />
 
 <img src="image/52802261-8d0cfe00-30ba-11e9-8ae7-ae0773770a59.gif" alt="52802261-8d0cfe00-30ba-11e9-8ae7-ae0773770a59" style="zoom:33%;" />
 
