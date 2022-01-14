@@ -475,6 +475,7 @@ class Github(object):
             self.sidebar(library)
             self.navbar(library)
             self.index(library)
+            # 直接到指定路径下用git命令提交文档
             os.system(f'cd {self.disk}/{library} && git add -A && git commit -m "update" && git push')
 
     def pull_all(self):

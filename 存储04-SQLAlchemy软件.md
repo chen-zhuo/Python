@@ -211,7 +211,7 @@ Column.__init__(self, name, type_, *args, **kwargs)
 
 ### 全部类型
 
-在上面Column类中type_是专门定义列的类型的，所有的类型都在sqlalchemy中的 `types.py` 文件里面，通过 `from sqlalchemy import types` 即可看到，所有类型内容如下：
+在上面Column类中type_是专门定义列的类型的，大部分常用的类型都在sqlalchemy中的 `types.py` 文件里面，通过 `from sqlalchemy import types` 即可看到，所有类型内容如下：
 
 ```python
 __all__ = ['TypeEngine', 'TypeDecorator', 'UserDefinedType', 'ExternalType', 'INT', 'CHAR', 'VARCHAR', 'NCHAR', 'NVARCHAR', 'TEXT', 'Text', 'FLOAT', 'NUMERIC', 'REAL', 'DECIMAL', 'TIMESTAMP', 'DATETIME', 'CLOB', 'BLOB', 'BINARY', 'VARBINARY', 'BOOLEAN', 'BIGINT', 'SMALLINT', 'INTEGER', 'DATE', 'TIME', 'TupleType', 'String', 'Integer', 'SmallInteger', 'BigInteger', 'Numeric', 'Float', 'DateTime', 'Date', 'Time', 'LargeBinary', 'Boolean', 'Unicode', 'Concatenable', 'UnicodeText', 'PickleType', 'Interval', 'Enum', 'Indexable', 'ARRAY', 'JSON']
@@ -223,7 +223,19 @@ __all__ = ['TypeEngine', 'TypeDecorator', 'UserDefinedType', 'ExternalType', 'IN
 from sqlalchemy import Integer, String
 ```
 
-## 建表映射
+还有一部分不常用的类型在 `from sqlalchemy.dialects import mysql` 当中，内容如下：
+
+```python
+__all__ = ('BIGINT', 'BINARY', 'BIT', 'BLOB', 'BOOLEAN', 'CHAR', 'DATE', 'DATETIME', 'DECIMAL', 'DOUBLE', 'ENUM', 'DECIMAL', 'FLOAT', 'INTEGER', 'INTEGER', 'JSON', 'LONGBLOB', 'LONGTEXT', 'MEDIUMBLOB', 'MEDIUMINT', 'MEDIUMTEXT', 'NCHAR', 'NVARCHAR', 'NUMERIC', 'SET', 'SMALLINT', 'REAL', 'TEXT', 'TIME', 'TIMESTAMP', 'TINYBLOB', 'TINYINT', 'TINYTEXT', 'VARBINARY', 'VARCHAR', 'YEAR', 'dialect', 'insert', 'Insert')
+```
+
+**如果需要使用上述类型，则需从 `sqlalchemy.dialects.mysql` 进行导入。**例如：
+
+```python
+from sqlalchemy.dialects.mysql import MEDIUMTEXT
+```
+
+## 建表并映射
 
 ### 新建数据库表
 
@@ -367,6 +379,32 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 ```
 
+假如我们的MySQL数据库在服务器上，且不能通过IP直连，就需要通过SSH链接来连接：
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sshtunnel import SSHTunnelForwarder
+
+try:
+    ssh_mysql_server = SSHTunnelForwarder(
+            ('服务器IP地址', 22),  # 服务器IP地址
+            ssh_username="root",  # 登录服务器的用户名
+            ssh_password="密码",  # 登录服务器用户名的密码
+            remote_bind_address=('172.19.216.186', 3306)) # 再跳转到内网186服务器上的3306端口的MySQL
+    ssh_mysql_server.start()
+    temp_new_engine = create_engine(
+            "mysql+pymysql://root:123456@127.0.0.1:3306/数据库名",
+            max_overflow=10,
+            pool_size=10,  # 连接池大小
+            pool_timeout=60,  # 池中没有线程最多等待的时间，否则报错
+            pool_recycle=60 * 60 * 2
+        )
+    SSH_MYSQL_SESSION = sessionmaker(bind=temp_new_engine)
+except Exception as e:
+    print(e)
+```
+
 ### 插入操作
 
 ```python
@@ -416,7 +454,34 @@ session.close()
 session.query(映射类名).过滤条件.返回形式
 ```
 
-查询操作例子：
+常用的过滤条件如下表格：
+
+| 过滤条件                                      | 含义                                           |
+| --------------------------------------------- | ---------------------------------------------- |
+| filter(类.id==1001)                           | 筛选id为1001的数据                             |
+| filter(类.id==None)                           | 筛选id为空的数据                               |
+| filter(类.id!=1001)                           | 筛选id不为1001的数据                           |
+| filter(类.name.like("%m%"))                   | 模糊查询name中有m字符的数据（区分大小写）      |
+| filter(类.name.ilike("%m%"))                  | 模糊查询name中有m或M字符的数据（不区分大小写） |
+| filter(类.name.contains("m"))                 | 模糊查询name中有m字符的数据                    |
+| filter(and_(类.id>=1001, 类.name.like("%m%")) | 筛选id大于等于1001且name中有m字符的数据        |
+| filter(or_(类.id>=1001, 类.name.like("%m%"))  | 筛选id大于等于1001或name中有m字符的数据        |
+| filter(类.id.in_([1001, 1002]))               | 筛选id等于1001或等于1002的数据                 |
+| filter(类.id.notin_([1001, 1002]))            | 筛选id不等于1001且不等于1002的数据             |
+| order_by(类.id)                               | 以id字段排序将数据升序输出                     |
+| order_by(类.id.desc())                        | 以id字段排序将数据降序输出                     |
+| limit(3)                                      | 返回最前面3条数据                              |
+
+常用的返回形式如下表格：
+
+| 返回形式 | 含义                                                         |
+| -------- | ------------------------------------------------------------ |
+| one()    | 当结果只有一个返回该结果，当结果不足一个或者多个时会报错。   |
+| first()  | 当结果不足一个返回None，当结果只有一个返回该结果，当结果多个返回第一个结果。 |
+| all()    | 以列表形式返回所有结果，当结果不足一个返回空列表。           |
+| count()  | 返回查询结果的数量。                                         |
+
+简单查询操作例子：
 
 ```python
 from sqlalchemy.orm import sessionmaker
@@ -447,7 +512,7 @@ user_1 = session.query(User).filter(User.id==1001).first()
 print(user_1)           # <__main__.User object at 0x000001F71E244508>
 print(user_1.name)      # ling
 print(user_1.fullname)  # ling jing
-# filter_by方法的where条件不能使用>、<等符号，指定列名时，参数名即对应名类中的属性名，等号用=
+# filter_by方法的where条件不能使用>、<等符号，指定列名时，`参数名`即对应名类中的`属性名`，等号用=
 user_2 = session.query(User).filter_by(id=1002).first()
 print(user_2)           # <__main__.User object at 0x000001F71E244D48>
 print(user_2.name)      # molin
@@ -457,21 +522,86 @@ print(user_2.fullname)  # molin xi
 '''
 ```
 
-过滤条件如下表格：
+### 更新操作
 
-| 过滤条件                                      | 含义                                           |
-| --------------------------------------------- | ---------------------------------------------- |
-| filter(类.id==1001)                           | 筛选id为1001的数据                             |
-| filter(类.id==None)                           | 筛选id为空的数据                               |
-| filter(类.id!=1001)                           | 筛选id不为1001的数据                           |
-| filter(类.name.like("%m%"))                   | 模糊查询name中有m字符的数据（区分大小写）      |
-| filter(类.name.ilike("%m%"))                  | 模糊查询name中有m或M字符的数据（不区分大小写） |
-| filter(类.name.contains("m"))                 | 模糊查询name中有m字符的数据                    |
-| filter(and_(类.id>=1001, 类.name.like("%m%")) | 筛选id大于等于1001且name中有m字符的数据        |
-| filter(or_(类.id>=1001, 类.name.like("%m%"))  | 筛选id大于等于1001或name中有m字符的数据        |
-| filter(类.id.in_([1001, 1002]))               | 筛选id等于1001或1002的数据                     |
-| filter(类.id.notin_([1001, 1002]))            | 筛选id不等于1001且1002的数据                   |
-| filter(类.id!=1001).limit(3)                  | 筛选id不为1001最前面3条数据                    |
+**更新操作就比较简单了，直接查询出来重新赋值就可以了。**
 
+```python
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine, Column, Integer, String
 
+engine = create_engine("mysql+pymysql://root:123456@127.0.0.1:3306/new_origin_data")
+# 实例化session对象
+DBSession = sessionmaker(bind=engine)
+session = DBSession()
+
+# declarative_base()是一个工厂函数，它为声明性类定义构造基类。
+Base = declarative_base()
+
+# Base作为我们声明的ORM映射类的基类。
+class User(Base):
+    # user表
+    __tablename__ = 'user'
+    # id字段，主键
+    id = Column(Integer, primary_key=True)
+    # name姓名字段
+    name = Column(String(30))
+    # fullname全名字段
+    fullname = Column(String(100))
+
+user_1 = session.query(User).filter(User.id==1001).first()
+print(user_1)           # <__main__.User object at 0x000001F71E244508>
+print(user_1.name)      # ling
+print(user_1.fullname)  # ling jing
+# 重新赋值
+user_1.name = 'xiao'
+user_1.fullname = 'xiao hong'
+# 提交session操作
+session.commit()
+
+# 再次查询，信息已经被更新
+user_1 = session.query(User).filter(User.id==1001).first()
+print(user_1)           # <__main__.User object at 0x000001F71E244508>
+print(user_1.name)      # xiao
+print(user_1.fullname)  # xiao hong
+# 关闭session
+session.close()
+```
+
+### 删除操作
+
+删除其实也是跟查询相关的，直接查出来，调用 `delete()` 方法直接就可以删除掉。
+
+```python
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine, Column, Integer, String
+
+engine = create_engine("mysql+pymysql://root:123456@127.0.0.1:3306/new_origin_data")
+# 实例化session对象
+DBSession = sessionmaker(bind=engine)
+session = DBSession()
+
+# declarative_base()是一个工厂函数，它为声明性类定义构造基类。
+Base = declarative_base()
+
+# Base作为我们声明的ORM映射类的基类。
+class User(Base):
+    # user表
+    __tablename__ = 'user'
+    # id字段，主键
+    id = Column(Integer, primary_key=True)
+    # name姓名字段
+    name = Column(String(30))
+    # fullname全名字段
+    fullname = Column(String(100))
+
+# 删除id为1001的数据
+session.query(User).filter(User.id==1001).delete()
+# 提交session操作
+session.commit()
+# 关闭session
+session.close()
+```
 

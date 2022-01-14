@@ -40,7 +40,6 @@ if __name__ == '__main__':
     local_name = 'qualification_company_association.tar'
     # 下载文件
     ssh_down("服务器IP", 22, "登录的用户名", "连接密码", f'{server_route}/{server_name}',f'{local_route}/{local_name}')
-
 ```
 
 ## 代码部署
