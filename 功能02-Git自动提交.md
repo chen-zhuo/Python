@@ -117,12 +117,11 @@ import git
 class Github(object):
     disk = 'F:/GitHub'
     route = {
-        'chen-zhuo.github.io': '',
         'Document': ['Markdown语法', 'LaTeX排版', 'GitHub平台', 'Git版本控制', 'Docsify工具'],
-        'Python': ['基础', '图表','功能', '后端', '爬虫'],
+        'Python': ['基础', '功能', '后端', '爬虫'],
         'System': ['DOS批处理', 'Linux系统'],
         'JavaScript': ['JS基础', 'JS逆向'],
-        'DataBase': ['MySQL', 'Redis'],
+        'DataBase': ['MySQL', 'MongoDB', 'Redis'],
     }
 
     def index(self, library):
@@ -136,7 +135,7 @@ class Github(object):
   <!--网页名称-->
   <title>''' + library + '''</title>
   <!--网页小图标-->
-  <link rel="icon" href="https://chen-zhuo.github.io/image/avatar.jpg">
+  <link rel="icon" href="http://101.34.203.135/image/avatar.jpg">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="Description">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
@@ -214,12 +213,12 @@ class Github(object):
         '''
         GitHub顶侧栏
         '''
-        content = '''* [Home](https://chen-zhuo.github.io/)
-* [Document](https://chen-zhuo.github.io/Document/)
-* [Python](https://chen-zhuo.github.io/Python/)
-* [JavaScript](https://chen-zhuo.github.io/JavaScript/)
-* [DataBase](https://chen-zhuo.github.io/DataBase/)
-* [System](https://chen-zhuo.github.io/System/)'''
+        content = '''* [Home](http://101.34.203.135/)
+* [Document](http://101.34.203.135/Document/)
+* [Python](http://101.34.203.135/Python/)
+* [JavaScript](http://101.34.203.135/JavaScript/)
+* [DataBase](http://101.34.203.135/DataBase/)
+* [System](http://101.34.203.135/System/)'''
         with open(f'{self.disk}/{library}/_navbar.md', 'r', encoding='utf-8') as read:
             read_content = read.read()
 
@@ -256,13 +255,12 @@ class Github(object):
 
     def push_all(self):
         '''
-         更新并提交每个仓库
+        更新并提交每个仓库
         '''
         for library in self.route:
-            if library != 'chen-zhuo.github.io':
-                self.sidebar(library)
-                self.navbar(library)
-                self.index(library)
+            self.sidebar(library)
+            self.navbar(library)
+            self.index(library)
             repo = git.Repo(path=f'{self.disk}/{library}/.git')
             if repo.is_dirty():
                 print(f'《{library}》文件内容不一致开始提交...')
@@ -293,7 +291,7 @@ if __name__ == '__main__':
     # 拉取所有库
     run.pull_all()
     # 提交所有库
-    run.push_all()
+    # run.push_all()
 ```
 
 更加简单的就是用一个os库就能实现：
@@ -317,6 +315,9 @@ class Github(object):
     }
 
     def index(self, library):
+        '''
+        index文件
+        '''
         content = '''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -414,9 +415,9 @@ class Github(object):
   - [在线时间戳](https://tool.lu/timestamp/)
   - [在线JSON解析](https://www.json.cn/)
   - [在线编码解码](http://tool.chinaz.com/tools/unicode.aspx)
-  - [在线AES/DES加密解密](https://www.json.cn/)
+  - [在线AES/DES加密解密](https://www.fly63.com/tool/cipher/)
   - [在线ASCII表](https://www.fly63.com/tool/ascii/)
-  - [在线思维导图](https://www.tianyancha.com/)
+  - [在线思维导图](http://www.mindline.cn/webapp)
   - [猿人学爬虫分析工具](http://tool.yuanrenxue.com/)
   - [企查查](https://www.qcc.com/)
   - [天眼查](https://www.tianyancha.com/)
@@ -425,8 +426,11 @@ class Github(object):
 * 技术文档
   - [Git中文手册](https://git-scm.com/book/zh/v2)
   - [Docsify官方文档](https://docsify.js.org/#/zh-cn/)
+  - [PyMySQL官方文档](https://pymysql.readthedocs.io/en/latest/index.html)
   - [SQLAlchemy官方文档](https://www.osgeo.cn/sqlalchemy/index.html)
   - [Flask官方文档](https://dormousehole.readthedocs.io/en/latest/)
+  - [pyecharts官方文档](https://pyecharts.org/#/zh-cn/)
+  - [pyecharts使用案例](https://gallery.pyecharts.org/#/README)
   - [Nginx中文文档](https://www.nginx.cn/doc/index.html)
   - [Docker官方文档](https://docs.docker.com/get-started/)
   - [RabbitMQ官方文档](https://www.rabbitmq.com/documentation.html)
@@ -466,7 +470,6 @@ class Github(object):
         else:
             print(f'《{library}》左边侧栏内容一致无需写入')
 
-
     def push_all(self):
         '''
         更新并提交每个仓库
@@ -475,12 +478,11 @@ class Github(object):
             self.sidebar(library)
             self.navbar(library)
             self.index(library)
-            # 直接到指定路径下用git命令提交文档
             os.system(f'cd {self.disk}/{library} && git add -A && git commit -m "update" && git push')
 
     def pull_all(self):
         '''
-         更新并提交每个仓库
+        更新并提交每个仓库
         '''
         for library in self.route:
             print(f'《{library}》开始拉取...')
@@ -492,6 +494,6 @@ if __name__ == '__main__':
     # 拉取所有库
     run.pull_all()
     # 提交所有库
-    run.push_all()
+    # run.push_all()
 ```
 

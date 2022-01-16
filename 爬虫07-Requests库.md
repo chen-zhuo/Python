@@ -219,6 +219,86 @@ print(response2.request.headers)
 '''
 ```
 
+### 随机请求头
+
+在爬取的某些网站时候，需要一定数量的User-Agent来让爬虫随机更换，达到更好的伪装。
+
+```python
+import random
+
+def UserAgent():
+    header = (
+                'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; ARM; Trident/6.0)',
+                'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13',
+                'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-US) AppleWebKit/533.4 (KHTML, like Gecko) Chrome/5.0.375.55 Safari/533.4',
+                'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3',
+                'Mozilla/5.0 (Windows; U; Win98; ja-JP; m18) Gecko/20001108 Netscape6/6.0',
+                '...'
+            )
+    return random.choice(header)
+```
+
+fake-useragent是一个非常好用的伪装请求头的库，可以随机生成大部分浏览器的user-agent。
+
+```python
+from fake_useragent import UserAgent
+
+# ie浏览器
+print(UserAgent().ie)  
+# Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; SLCC1; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; .NET CLR 1.1.4322)
+
+# chrome浏览器
+print(UserAgent().chrome)  
+# Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36
+
+# firefox浏览器
+print(UserAgent().firefox)  
+# Mozilla/5.0 (X11; Linux i586; rv:31.0) Gecko/20100101 Firefox/31.0
+
+#safri浏览器
+print(UserAgent().safari)  
+# Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; fr-fr) AppleWebKit/533.20.25 (KHTML, like Gecko) Version/5.0.4 Safari/533.20.27
+
+# 最常用的方式，随机生成请求头
+print(UserAgent().random)  
+# Mozilla/5.0 (X11; NetBSD) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36
+```
+
+?> 若遇到报错`fake_useragent.errors.FakeUserAgentError: Maximum amount of retries reached`，是因为 `fake_useragent` 中存储的 `UserAgent` 列表发生了变动，而本地 `UserAgent` 的列表未更新所导致的，在更新 `fake_useragent` 后报错就消失了，更新命令`pip install -U fake-useragent`，或者直接禁用缓存服务`UserAgent(use_cache_server=False)` 能解决。
+
+**除了PC端浏览器的User-Agent，还有手机端浏览器的User-Agent，两者之间还是有所区别的，而且某些网站使用手机端的User-Agent取爬取相对使用PC端浏览器的User-Agent要容易一点。**
+
+```
+手机：三星I9000  系统：安卓
+
+1.自带浏览器
+Mozilla/5.0 (Linux; U; Android 4.0.3; zh-cn; U8860 Build/HuaweiU8860) UC AppleWebKit/530+ (KHTML, like Gecko) Mobile Safari/530 
+
+2.uc浏览器uc7/uc8
+Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; GT-I9000 Build/MIUI) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1 360browser(securitypay,securityinstalled)
+
+3.QQ浏览器
+MQQBrowser/3.4/Adr (Linux; U; 2.3.7; zh-cn; GT-I9000 Build/MIUI.2.4.13;480*800) 
+
+4.遨游浏览器
+Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; GT-I9000 Build/MIUI)Maxthon AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1 
+
+5.360浏览器
+Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; GT-I9000 Build/MIUI) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1 360browser(securitypay,securityinstalled)
+
+
+手机：Iphone4s  系统：ios
+
+1.Safari
+Mozilla/5.0 (iPhone; CPU iPhone OS 5_0_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A405 Safari/7534.48.3 
+
+2、uc浏览器
+IUC(U;iOS 5.0.1;Zh-cn;320*480;)/UCWEB8.5.0.163/42/999
+
+3、QQ浏览器
+MQQBrowser/31 (iOS; U; CPU like Mac OS X; zh-cn) 
+```
+
 ## 接受响应
 
 当我们向服务器发送请求后，服务器会返回给客户端响应，在响应中包含许多内容，通过响应的各种属性可以轻松获取到我们想要的内容。
@@ -494,5 +574,61 @@ print(f'状态码：{response.status_code}')
 '''
 输出：
 状态码：200
+'''
+```
+
+### 反DH检测爬虫
+
+有时候，即使我们已经忽略警告并关闭了SSL验证，在某些服务器上验证时，还是会返回一个SSL错误，导致无法通过：
+
+```python
+import requests
+
+data = {
+    'mainZZ': '0',
+    'aptText': '',
+    'areaCode': '0',
+    'entName': '',
+    'pageSize': '10',
+    'pageIndex': 1,
+}
+url = 'https://cxpt.fssjz.cn/cxpt/web/enterprise/getEnterpriseList.do'
+
+requests.packages.urllib3.disable_warnings()
+response = requests.post(url=url, data=data, verify=False)
+print(response.text)
+
+'''
+输出：
+...
+requests.exceptions.SSLError: HTTPSConnectionPool(host='cxpt.fssjz.cn', port=443): Max retries exceeded with url: /cxpt/web/enterprise/getEnterpriseList.do (Caused by SSLError(SSLError("bad handshake: Error([('SSL routines', 'tls_process_ske_dhe', 'dh key too small')])")))
+翻译：由SSL错误导致了错误的握手（“SSL例程”中的“tls进程”中的“dh密钥太小”）
+'''
+```
+
+通过报错可知错误的原因是：**服务器检测到DH密钥太短小，很可能在中间人攻击中被破解，导致禁用警告或证书验证无济于事。**要解决此问题，就要不受弱DH密钥的影响，即要**选择一个不使用Diffie Hellman密钥交换的密码**，并且此密码必须由服务器支持。如果不知道服务器支持什么，可以尝试使用密码 `AES128-SHA` 或密码设置 `HIGH:!DH:!aNULL`。
+
+```python
+import requests
+
+data = {
+    'mainZZ': '0',
+    'aptText': '',
+    'areaCode': '0',
+    'entName': '',
+    'pageSize': '10',
+    'pageIndex': 1,
+}
+url = 'https://cxpt.fssjz.cn/cxpt/web/enterprise/getEnterpriseList.do'
+
+requests.packages.urllib3.disable_warnings()
+# 添加默认密码HIGH:!DH:!aNULL
+requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
+response = requests.post(url=url, data=data, verify=False)
+print(response.text)
+
+'''
+输出：
+{"total":8608,"data":[{"id":"54fbff74402344f28026b2cbf38bfd1d"...
 '''
 ```

@@ -285,3 +285,68 @@ import httpx
 # verify=False关闭SSL证书验证，follow_redirects=True设置自动重定向
 response = httpx.get('https://inv-veri.chinatax.gov.cn/', verify=False, follow_redirects=True)
 print(response.status_code)
+
+```
+
+### HTTP2爬虫
+
+前面讲过requests库不支持http2.0，而httpx库支持。因此这里就轮到httpx大显身手了。
+
+首先安装可以选用http2.0的httpx库：
+
+```
+pip install httpx[http2]
+```
+
+通过实例化启功支持http2的客户端：
+
+```python
+client = httpx.Client(http2=True)
+```
+
+启动后，就可以开始爬取数据了。例如下面的这道题的名称为：天杀的http2.0（提示本题采用的http2.0），题目地址：https://match.yuanrenxue.com/match/17，爬虫代码如下：
+
+```python
+import re
+import httpx
+
+# 启动支持http2的client
+client = httpx.Client(http2=True)
+
+# 请求头
+headers = {
+    'accept': 'application/json, text/javascript, */*; q=0.01',
+    'accept-encoding': 'gzip, deflate, br',
+    'accept-language': 'zh-CN,zh;q=0.9',
+    'cookie': '自己当前的cookie',
+    'referer': 'https://match.yuanrenxue.com/match/17',
+    'sec-ch-ua': '"Google Chrome";v="94", " Not;A Brand";v="99", "Chromium";v="99"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    'user-agent': 'yuanrenxue.project',
+    'x-requested-with': 'XMLHttpRequest'
+}
+
+# 数值
+values = 0
+
+# 共5页数据
+for page in range(1, 6):
+    # 接口地址
+    url = f'https://match.yuanrenxue.com/api/match/17?page={page}'
+    print(url)
+    # 输出响应
+    response = client.get(url=url, headers=headers)
+    print(response.http_version)
+    print(f'第{page}页:{response.text}')
+    for v in re.findall(r'{"value": (-?\d+)}', response.text):
+        values += int(v)
+
+# 总值
+print(values)
+```
+
+?> 请求和响应通过HTTP/2传输，意味着客户机和服务器都需要支持HTTP/2。如果连接到仅支持HTTP/1.1的服务器，则客户端将使用标准HTTP/1.1连接。
