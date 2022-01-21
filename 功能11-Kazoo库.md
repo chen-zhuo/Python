@@ -1,10 +1,12 @@
-## kazoo库
+# kazoo库
 
 **Kazoo使用纯Python实现Zookeeper协议，因此不需要安装任何额外的软件就可以直接连接Zookeeper。**
 
-### 简单使用
+?> 什么是zookeeper，参看在《System》当中的”ZK分布式“章节。
 
-#### 安装kazoo库
+## 简单使用
+
+### 安装kazoo库
 
 安装Kazoo也很简单，直接通过 `pip` 安装：
 
@@ -12,7 +14,7 @@
 $ pip install kazoo
 ```
 
-#### 创建连接
+### 创建连接
 
 要开始使用 Kazoo，必须创建一个 `KazooClient` 对象并建立连接：
 
@@ -31,7 +33,7 @@ zk.start()
 zk.stop()
 ```
 
-#### 监听状态
+### 监听状态
 
 **客户端的常见状态可以分为三种：丢失（LOST）、连接（CONNECTED）、暂停（SUSPENDED）。**可以通过查看 `state` 属性来确定：
 
@@ -74,13 +76,13 @@ zk.add_listener(my_listener)
 
 ?> 在使用 `kazoo.recipe.lock.Lock` 或创建临时节点时，强烈建议添加状态侦听器，以便您的程序可以正确处理连接中断或 Zookeeper 会话丢失。
 
-### 节点CRUD
+## 节点CRUD
 
 Zookeeper 有用于创建、读取、更新和删除 Zookeeper 节点（这里称为 znodes 或节点）的功能。针对的，Kazoo 添加了几个方便的方法和一个更 Pythonic 的 API。
 
 **首先需要明白的一点就是，节点是一个抽象的事物存在于会话当中，因此节点的路径也不是真实存在的。**
 
-#### 创建节点
+### 创建节点
 
 Kazoo创建节点的最常用两个方法：
 
@@ -98,7 +100,7 @@ zk.create("/my/favorite/node", b"a value")
 
 ?> 子节点可以被无限递归的创建。
 
-#### 检查节点
+### 检查节点
 
 Kazoo检查节点的最常用三个方法：
 
@@ -122,7 +124,7 @@ children = zk.get_children("/my/favorite")
 print("There are %s children with names %s" % (len(children), children))
 ```
 
-#### 更新节点
+### 更新节点
 
 `set()`：更新指定节点的数据，在更新数据之前需要匹配提供的节点版本，否则将引发`BadVersionError` 而不是更新。
 
@@ -130,7 +132,7 @@ print("There are %s children with names %s" % (len(children), children))
 zk.set("/my/favorite", b"some data")
 ```
 
-#### 删除节点
+### 删除节点
 
 `delete()`：删除一个节点，也可以选择递归删除该节点的所有子节点。在删除节点之前需要匹配节点的版本，否则将引发 `BadVersionError` 而不是删除。
 
@@ -138,9 +140,9 @@ zk.set("/my/favorite", b"some data")
 zk.delete("/my/favorite/node", recursive=True)
 ```
 
-### 重试连接
+## 重试连接
 
-#### retry方法
+### retry方法
 
 如果 Zookeeper 服务器出现故障或无法访问，与 Zookeeper 的连接可能会中断。默认情况下，kazoo 不会重试命令，因此这些失败将导致引发异常。为了帮助解决失败，kazoo 附带了一个 `retry()` 助手，如果 Zookeeper 连接异常被触发，重试连接到Zookeeper。
 
@@ -148,9 +150,9 @@ zk.delete("/my/favorite/node", recursive=True)
 result = zk.retry(zk.get, "/path/to/node")
 ```
 
-#### 重试函数
+### 重试函数
 
-**某些命令可能具有独特的行为，不保证在每个命令的基础上自动重试。**例如，当使用临时和序列选项集创建一个节点，在命令成功返回之前可能会丢失连接，但该节点实际上已创建，再次运行时引发`kazoo.exceptions.NodeExistsError`。
+**某些命令可能具有独特的行为，不保证在每个命令的基础上自动重试。**例如，当使用临时和序列选项集创建一个节点，在命令成功返回之前可能会丢失连接，但该节点实际上已创建，再次运行时引发 `kazoo.exceptions.NodeExistsError`。
 
 由于 `retry()` 方法需要调用一个函数及其参数，因此可以将运行多个 Zookeeper 命令的函数传递给它，以便在连接丢失时重试整个函数。锁实现中的这个片段显示了它如何使用重试重新运行获取锁的函数，并检查它是否已经被创建来处理这种情况：
 
@@ -188,7 +190,7 @@ def _inner_acquire(self):
         node = node[len(self.path) + 1:]
 ```
 
-#### 自定义重试
+### 自定义重试
 
 有时，您可能希望为与 `retry()` 方法不同的命令或命令集设置特定的重试策略 。您可以使用您喜欢的特定重试策略手动创建 `KazooRetry` 实例：
 
@@ -201,13 +203,13 @@ result = kr(client.get, "/some/path")
 
 这将重试`client.get`命令最多 3 次，并在发生时引发会话过期。您还可以使用默认行为创建一个实例，在重试期间忽略会话过期。
 
-### 观察者
+## 监视
 
 **Kazoo 可以在节点上设置监视功能，该功能可以在更改或删除节点或其子节点更改时触发。**
 
 Watchers 可以通过两种不同的方式设置：
 
-**第一种是 Zookeeper 默认支持一次性 watch 事件样式。**这些 watch 函数会被 kazoo 调用一次，并且不接收 session 事件。使用此样式需要将 watch 函数传递给`get()`、`get_children()`、`exists()`方法之一，当节点上的数据发生变化或节点本身被删除时，将调用传递给该方法的 watch 函数。它将传递一个 `WatchedEvent`实例：
+**第一种是 Zookeeper 默认支持一次性 watch 事件样式。**这些 watch 函数会被 kazoo 调用一次，并且不接收 session 事件。使用此样式需要将 watch 函数传递给`get()`、`get_children()`、`exists()` 方法之一，当节点上的数据发生变化或节点本身被删除时，将调用传递给该方法的 watch 函数。它将传递一个 `WatchedEvent` 实例：
 
 ```python
 def my_func(event):
@@ -231,7 +233,7 @@ def watch_node(data, stat):
     print("Version: %s, data: %s" % (stat.version, data.decode("utf-8")))
 ```
 
-### 命令流
+## 命令流
 
 **Zookeeper 3.4 及更高版本支持一次发送多个命令，这些命令将作为单个原子单元提交。他们要么全部成功，要么全部失败。事务的结果将是事务中每个命令的成功/失败结果列表。**
 
@@ -247,7 +249,7 @@ results = transaction.commit()
 
 在上面的示例中，只要有一个命令不可用，就会失败报错。这可以用来检查特定版本的节点，节点 `/node/a` 版本必须是3，如果节点与它应该处于的版本不匹配，将不会创建 `/node/b` ，则该版本事务失败。
 
-### 异步使用
+## 异步使用
 
 所有异步 Kazoo API 依赖于异步方法返回的 `IAsyncResult` 对象。可以使用 `rawlink()` 方法添加回调，无论使用线程还是使用 gevent 等异步框架，该方法都可以兼容。
 
