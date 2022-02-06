@@ -171,10 +171,20 @@ Cookie:ASP....=...
 Host:www.主机域名.com
 ```
 
-**Referer**：**上一层网页的 URL**。由于**http协议的无记忆性**，服务器可从这里了解到客户端访问的前后路径，并做⼀些判断，**如果后⼀次访问的 URL 不能从前⼀次访问的页面上跳转获得， 在⼀定程度上说明了请求头有可能伪造**。个别爬虫需要加上该参数。
+**Referer**：**上一层网页的 URL**。由于**http协议的无记忆性**，服务器可从这里了解到客户端访问的前后路径，并做⼀些判断，**如果后一次访问的URL不能从前⼀次访问的页面上跳转获得， 在⼀定程度上说明了请求头有可能伪造**。个别爬虫需要加上该参数。
 
 ```
 Referer:https://www.上一层网页URL.com?...
+
+Referrer策略一共有8种：
+Referrer-Policy: no-referrer
+Referrer-Policy: no-referrer-when-downgrade
+Referrer-Policy: origin
+Referrer-Policy: origin-when-cross-origin
+Referrer-Policy: same-origin
+Referrer-Policy: strict-origin
+Referrer-Policy: strict-origin-when-cross-origin
+Referrer-Policy: unsafe-url
 ```
 
 **DNT**： **禁止第三方网站追踪**，主要是用来保护浏览器用户隐私的，用户可以检测到跨站跟踪、cookie 跟踪等等。 在爬⾍时⼀般都是禁止的。**数字1代表禁止追踪，0代表接收追踪，null 代表空置，没有规定**。
