@@ -86,16 +86,22 @@ Zookeeper 有用于创建、读取、更新和删除 Zookeeper 节点（这里�
 
 Kazoo创建节点的最常用两个方法：
 
-`ensure_path()`： 递归创建节点和沿途所需路径中的任何节点，但不能为节点设置数据，只能设置 ACL。
+`ensure_path()`：递归创建节点和沿途所需路径中的任何节点，但不能为节点设置数据，只能设置 ACL。
 
-`create()`： 创建一个节点，并可以在节点上设置数据以及一个 watch 函数。它要求它的路径首先存在，除非 `makepath` 选项设置为True。
+`create()`：创建一个节点，并可以在节点上设置数据以及一个 watch 函数。它要求它的路径首先存在，除非 `makepath` 选项设置为True。
 
 ```python
-# 创建一个节点，前提是该路径存在
+# 创建一个节点
 zk.ensure_path("/my/favorite")
 
-# 创建一个带有数据的节点
+# 创建一个带有数据的永久节点，前提是/my/favorite路径必须存在
 zk.create("/my/favorite/node", b"a value")
+
+# 创建一个带有数据的永久节点，/my/favorite路径可以不存在
+zk.create("/my/favorite/node", b"a value", makepath=True)
+
+# 创建一个带有数据的临时节点，/my/favorite路径可以不存在
+zk.create("/my/favorite/node", b"a value", makepath=True, ephemeral=True)
 ```
 
 ?> 子节点可以被无限递归的创建。
