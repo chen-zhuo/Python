@@ -156,6 +156,8 @@ print(response1.text)
 '''
 ```
 
+?> 提示：requests提供了方法 `requests.utils.dict_from_cookiejar(response.cookies)` 可以把返回的cookies转换成字典。
+
 ## 会话对象Session
 
 requests 库的高级用法：`会话对象Session`
