@@ -781,9 +781,55 @@ DOWNLOADER_MIDDLEWARES = {
 
 最后，建议大家参考一下这篇文章：[Python爬虫的N种姿势](https://www.cnblogs.com/jclian91/p/9799697.html)
 
-## Scrapy报错
+## Scrapy技巧
 
-### POST字符对象
+### 启动多个爬虫
+
+我们知道，如果要在命令行下面运行一个 Scrapy 爬虫，一般这样输入命令：
+
+```
+scrapy crawl xxx（爬虫名称）
+```
+
+此时，这个命令行窗口在爬虫结束之前，会一直有数据流动，无法再输入新的命令。如果要运行另一个爬虫，必须另外开一个命令行窗口。假设有一个 Scrapy 项目叫做 `test_multple_crawler`，它下面有两个爬虫 `exercise` 和 `ua`。如果我把运行两个爬虫的代码同时写到`main.py`里面会怎么样呢？输出如下图所示：
+
+![640](image/640.png)
+
+可以看到，这两个爬虫是串行运行的。首先第一个爬虫运行。直到它里面所有代码全部运行完成了，它结束了以后，第二个爬虫才会开始运行。这显然不是我们需要的。**我们要在一个命令窗口里面同时运行同一个项目下面的两个爬虫，我们可以使用 Scrapy 的 `CrawlerProcess` 来让多个爬虫实现真正的同时运行。**它的用法如下：
+
+```python
+from scrapy.crawler import CrawlerProcess
+from scrapy.utils.project import get_project_settings
+settings = get_project_settings()
+crawler = CrawlerProcess(settings)
+crawler.crawl('爬虫名1')
+crawler.crawl('爬虫名2')
+crawler.crawl('爬虫名3')
+crawler.start()
+```
+
+回到我们的例子中，修改 `main.py` 代码为：
+
+```python
+from scrapy.crawler import CrawlerProcess
+from scrapy.utils.project import get_project_settings
+
+settings = get_project_settings()
+
+crawler = CrawlerProcess(settings)
+
+crawler.crawl('exercise')
+crawler.crawl('ua')
+
+crawler.start()
+crawler.start()
+```
+
+可以看到，两个爬虫真正实现了同时运行。运行效果如下图所示：
+
+![640 (1)](image/640 (1).png)
+
+### POST字符对象报错
 
 Scrapy当中通常使用 `FormRequest` 函数来完成POST请求，这里需要注意的一点就是，使用如下代码会报错：
 
