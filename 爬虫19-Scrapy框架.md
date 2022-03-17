@@ -829,7 +829,7 @@ crawler.start()
 
 ![640 (1)](image/640 (1).png)
 
-### POST字符对象报错
+### POST字符报错
 
 Scrapy当中通常使用 `FormRequest` 函数来完成POST请求，这里需要注意的一点就是，使用如下代码会报错：
 
