@@ -56,7 +56,7 @@ URL：在网络上，**每一项信息资源都有统一的且在网上唯一的
 
 ![QQ截图20200114225501](image/QQ截图20200114225501.png)
 
-### 请求头参数
+### 请求头
 
 请求头参数：`Request Headers` ，简称**请求头**，里面**包含了请求网页页面的参数**。
 
@@ -124,25 +124,25 @@ max-age=0：表示当访问过此网页后的多少秒内再次访问，只加�
 
 ```
  常见的媒体格式类型如下：
-    text/html ： HTML格式
-    text/plain ：纯文本格式      
-    text/xml ：  XML格式
-    image/gif ：gif图片格式    
-    image/jpeg ：jpg图片格式 
-    image/png：png图片格式
+    text/html    HTML格式
+    text/plain   纯文本格式      
+    text/xml     XML格式
+    image/gif    gif图片格式    
+    image/jpeg   jpg图片格式 
+    image/png    png图片格式
 
 以application开头的媒体格式类型：
-   application/xhtml+xml ：XHTML格式
-   application/xml     ： XML数据格式
-   application/atom+xml  ：Atom XML聚合格式    
-   application/json    ： JSON数据格式
-   application/pdf       ：pdf格式  
-   application/msword  ： Word文档格式
-   application/octet-stream ： 二进制流数据（如常见的文件下载）
-   application/x-www-form-urlencoded ： <form encType=””>中默认的encType，form表单数据被编码为key/value格式发送到服务器（表单默认的提交数据的格式）
+    application/xhtml+xml     XHTML格式
+    application/xml           XML数据格式
+    application/atom+xml      Atom XML聚合格式    
+    application/json          JSON数据格式
+    application/pdf           pdf格式  
+    application/msword        Word文档格式
+    application/octet-stream  二进制流数据（如常见的文件下载）
+    application/x-www-form-urlencoded 表单数据被编码为key/value格式发送到服务器（表单默认的提交数据的格式）
    
 另外一种常见的媒体格式是上传文件之时使用的：
-    multipart/form-data ： 需要在表单中进行文件上传时，就需要使用该格式
+    multipart/form-data  需要在表单中进行文件上传时，就需要使用该格式
 ```
 
 **Pragma**： 防止页面被缓存, 和 cache-control 类似的⼀个字段，**⼀般爬虫都写成 no-cache**。
@@ -272,7 +272,7 @@ text/xml：xml数据
 Date: Sat, 18 Jan 2020 14:40:05 GMT
 ```
 
-!> 因为北京时间是东八区，换算成北京时间还需要加上八个小时。
+!> 注意：因为北京时间是东八区，换算成北京时间还需要加上八个小时。
 
 **Server**：包含了服务器的信息，名称，版本号等。
 
