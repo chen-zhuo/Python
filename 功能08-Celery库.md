@@ -8,7 +8,7 @@
 
 ### Celery介绍
 
-**Celery 是一款Python 编写的非常简单、灵活、可靠的分布式消息队列工具，可用于处理大量消息，处理实时数据以及任务调度，并且提供了一整套操作此系统的一系列工具。**Celery可以在一台机器上运行，也可以在多台机器上运行，甚至可以跨数据中心运行，用来提高Celery的高可用性以及横向扩展能力。
+**Celery 是一款 Python 编写的非常简单、灵活、可靠的分布式消息队列工具，可用于处理大量消息，处理实时数据以及任务调度，并且提供了一整套操作此系统的一系列工具。**Celery可以在一台机器上运行，也可以在多台机器上运行，甚至可以跨数据中心运行，用来提高Celery的高可用性以及横向扩展能力。
 
 一个完整的Celery工作流程当中，有四个部分：**消息生产者（producer）、消息中间件（message broker）、 任务执行单元（worker）、 任务结果存储（result store）。**
 
@@ -58,11 +58,11 @@ Celery集成常用的Web框架，详细如下：
 | [Tornado](https://www.tornadoweb.org/en/stable/)     | [tornado-celery](https://pypi.org/project/tornado-celery/) |
 | [Tryton](http://www.tryton.org/)                     | [celery_tryton](https://pypi.org/project/celery_tryton/)   |
 
-集成包并不是必须安全的，但使用它们可以更加快速和方便的开发，有时它们会在fork(2) 中添加例如数据库关闭连接的回调。
+?> 提示：集成包并不是必须安全的，但使用它们可以更加快速和方便的开发，有时它们会在fork(2) 中添加例如数据库关闭连接的回调。
 
 ### Celery安装
 
-版本要求：当前使用的Celery4.3版本，Python ❨2.7,3.4,3.5❩
+版本要求：使用Celery4.0版本以上，需要Python ❨2.7,3.4,3.5❩
 
 使用pip进行安装：`pip install -U Celery`
 
@@ -303,8 +303,8 @@ $ docker run -d -p 6379:6379 redis
 from celery import Celery
 
 # 第一个参数为当前模块的名称，只有在 `__main__` 模块中定义任务时才会生产名称。
-# 第二个参数为中间人（Broker）的链接URL，实例中使用的RabbitMQ（Celery默认使用的也是RabbitMQ），使用 Redis 可以写为 redis://localhost。。
-app = Celery('tasks', broker='amqp://guest@localhost//')
+# 第二个参数为中间人（Broker）的链接URL，RabbitMQ可以写为amqp://guest@localhost//（Celery默认使用的也是RabbitMQ），使用Redis可以写为 redis://localhost。
+app = Celery('tasks', broker='redis://localhost')
 
 # 创建了一个名称为add的任务，返回的俩个数字的和。
 @app.task
@@ -314,21 +314,6 @@ def add(x, y):
 
 #### 调度任务
 
-需要调用我们创建的实例任务，可以通过 `delay()` （ `apply_async()` 的快捷方法）进行调用，这样可以更好的控制任务的执行：
-
-```python
-from tasks import add
-add.delay(4, 4)
-```
-
-该任务已经有执行单元（Worker）开始处理，可以通过控制台输出的日志进行查看执行情况。
-
-调用任务会返回一个 AsyncResult 的实例，用于检测任务的状态，等待任务完成获取返回值（如果任务执行失败，会抛出异常）。默认这个功能是不开启的，如果开启则需要配置 Celery 的结果后端，
-
-
-
-
-
 现在可以使用 worker 参数进行执行我们刚刚创建执行单元（Worker）：
 
 ```shell
@@ -337,5 +322,168 @@ celery -A tasks worker --loglevel=info
 
 ?> 提示：在生产环境中，如果需要将职程（Worker）作为守护进程在后台运行，可以使用平台提供的工具来进行实现，或使用类似 supervisord 这样的工具来进行管理。
 
+当然我们也可以通过 `delay()` （ `apply_async()` 的快捷方法）调用创建的实例任务，这样可以更好的控制任务的执行：
 
+```python
+from tasks import add
+
+# 该任务已经有执行单元（Worker）开始处理，可以通过控制台输出的日志进行查看执行情况。
+add.delay(4, 4)
+```
+
+调用任务会返回一个 AsyncResult 的实例，用于检测任务的状态，等待任务完成获取返回值（如果任务执行失败，会抛出异常）。默认这个功能是不开启的，如果开启则需要配置 Celery 的结果后端。
+
+#### 保存结果
+
+如果您需要跟踪任务的状态，Celery 需要在某处存储任务的状态信息。Celery 内置了一些后端结果：[SQLAlchemy/Django](https://www.sqlalchemy.org) ORM、[Memcached](http://memcached.org)、[Redis](https://redis.io)、 RPC ([RabbitMQ](https://www.rabbitmq.com)/AMQP)以及自定义的后端结果存储中间件。
+
+针对本次实例，我们使用 RPC 作为结果后端，将状态信息作为临时消息回传。后端通过 backend 参数指定给 Celery（或者通过配置模块中的 result_backend 选项设定）：
+
+```python
+app = Celery('tasks', broker='pyamqp://', backend='rpc://')
+```
+
+现在已经配置结果后端，重新调用执行任务。会得到调用任务后返回的一个 AsyncResult 实例：
+
+```python
+result = add.delay(4, 4)
+```
+
+`ready()` 可以检测是否已经处理完毕：
+
+```python
+# 返回False代表未处理完，True就是处理完了
+result.ready()
+```
+
+整个任务执行过程为异步的，如果一直等待任务完成，会将异步调用转换为同步调用：
+
+```python
+result.get(timeout=1)  # 8
+```
+
+如果任务出现异常，`get()` 会再次引发异常，可以通过 propagate 参数进行覆盖：
+
+```python
+result.get(propagate=False)
+```
+
+如果任务出现异常，可以通过以下命令进行回溯：
+
+```python
+result.traceback
+```
+
+!> 注意：如果后端使用资源进行存储结果，必须要针对调用任务后返回每一个 AsyncResult 实例调用 get() 或 forget() ，进行资源释放。
+
+#### 配置
+
+Celery 像家用电器一样，不需要任何配置，开箱即用。它有一个输入和输出，输入端必须连接中间人（Broker），输出端可以连接到结果后端。如果仔细观察一些家用电器，会发现有很多到按钮，这就是配置。
+
+大多数情况下，使用默认的配置就可以满足，也可以按需配置。查看配置选项可以更加的熟悉 Celery 的配置信息，可以参考 [`配置和默认配置：Configuration and defaults`]() 章节阅读 Celery 的配置。
+
+可以直接在程序中进行配置，也可以通过配置模块进行专门配置。例如，通过 task_serializer 选项可以指定序列化的方式：
+
+```python
+app.conf.task_serializer = 'json'
+```
+
+如果需要配置多个选项，可以通过 update 进行配置：
+
+```python
+app.conf.update(
+    task_serializer='json',
+    accept_content=['json'],  # Ignore other content
+    result_serializer='json',
+    timezone='Europe/Oslo',
+    enable_utc=True,
+)
+```
+
+针对大型的项目，建议使用专用配置模块，进行针对 Celery 配置。不建议使用硬编码，建议将所有的配置项集中化配置。集中化配置可以像系统管理员一样，当系统发生故障时可针对其进行微调。
+
+可以通过 `app.config_from_object()` 进行加载配置模块：
+
+```python
+app.config_from_object('celeryconfig')
+```
+
+其中 celeryconfig 为配置模块的名称，这个是可以自定义修改的。
+
+在上面的实例中，需要在同级目录下创建一个名为 `celeryconfig.py` 的文件，添加以下内容：
+
+```python
+broker_url = 'pyamqp://'
+result_backend = 'rpc://'
+
+task_serializer = 'json'
+result_serializer = 'json'
+accept_content = ['json']
+timezone = 'Europe/Oslo'
+enable_utc = True
+```
+
+可以通过以下命令来进行验证配置模块是否配置正确：
+
+```
+python -m celeryconfig
+```
+
+Celery 也可以设置任务执行错误时的专用队列中，这只是配置模块中一小部分，详细配置如下：
+
+```python
+task_routes = {
+    'tasks.add': 'low-priority',
+}
+```
+
+Celery 也可以针对任务进行限速，以下为每分钟内允许执行的10个任务的配置：
+
+```python
+task_annotations = {
+    'tasks.add': {'rate_limit': '10/m'}
+}
+```
+
+如果使用的是 RabbitMQ 或 Redis 的话，可以在运行时进行设置任务的速率：
+
+```
+$ celery -A tasks control rate_limit tasks.add 10/m
+worker@example.com: OK
+    new rate limit set successfully
+```
+
+有关远程控制以及监控职程（Worker），详情参阅 [`路由任务：Routing Tasks`]()了解更多的任务路由以及 task_annotations 有关的描述信息，或查阅 [`监控和管理手册：Monitoring and Management Guide`]()。
+
+
+
+
+
+## 故障处理
+
+“常见问题“中含有一部分故障排除信息。
+
+**职程（Worker）无法正常启动：权限错误**
+
+- 如果使用系统是 Debian、Ubuntu 或其他基于 Debian 的发行版：Debian 最近把 `/dev/shm/`重名 `/run/shm`。使用软连接可以解决该问题：
+
+```python
+# ln -s /run/shm /dev/shm
+```
+
+- 其他：如果设置了 `--pidfile` `--logfile` 或 `--statedb` 其中的一个参数，必须要保证职程（Worker）对指向的文件/目录可读可写。
+
+**任务总处于 PENDING （待处理）状态**
+
+所有任务的状态默认都是 PENDING （待处理）状态，Celery 在下发任务时不会更换任务状态， 并且如果没有历史任务的都是会被任务待处理状态。
+
+1. 确认任务没有启用 ignore_result，如果启用，会强制跳过任务更新状态。
+2. 确保 task_ignore_result 未启用。
+3. 确保没有旧的职程（Worker）正在运行。启动多个职程（Worker）比较容易，在每次运行新的职程（Worker）之前需要确保之前的职程是否关闭。未配置结果后端的职程（Worker）是否正在运行，可能会消费当前的任务消息。`–pidfile` 参数设置为绝对路径，确保该情况不会出现。
+4. 确认客户是否配置正确。可能由于某种场景，客户端与职程（Worker）的后端不配置不同，导致无法获取结果，所以需要确保配置是否正确：
+
+```python
+result = task.delay(…)
+print(result.backend)
+```
 
