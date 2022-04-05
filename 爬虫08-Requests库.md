@@ -303,8 +303,6 @@ MQQBrowser/31 (iOS; U; CPU like Mac OS X; zh-cn)
 
 当我们向服务器发送请求后，服务器会返回给客户端响应，在响应中包含许多内容，通过响应的各种属性可以轻松获取到我们想要的内容。
 
-### 响应属性
-
 ```python
 import requests
 from fake_useragent import UserAgent
@@ -332,6 +330,9 @@ response.encoding = response.apparent_encoding
 print(response.text)                 # 主要用于打印网页的代码和文本内容
 # 以二进制的形式打印响应内容数据
 print(response.content)              # 主要用于打印网页中图片、音频、视频（二进制文件）内容
+# 若爬取内容是图片、音频、视频等二进制文件，使用content属性输出，在指定路径以wb(二进制写入模式)方式打开或新建文件，将二进制流数据写入到文件当中
+with open('路径/文件名.后缀名', 'wb') as f:
+    f.write(response.content)
 # 以json格式打印响应的内容
 print(reponse.json())                # 等价于print(json.loads(reponse.text))
 # 打印响应头
@@ -349,28 +350,6 @@ for key, value in response.cookies.items():
     print(key + '=' + value)
 ```
 
-### 简单爬取资源
-
-```python
-import requests
-from fake_useragent import UserAgent
-
-# 请求头
-headers = {'User-Agent': UserAgent().random,}
-# 资源地址
-url = '...'
-# 返回响应
-response = requests.get(url=url, headers=headers)
-
-# 若爬取内容是网页，使用text属性输出
-print(response.text)
-
-# 若爬取内容是图片、音频、视频，使用content属性输出，因为他们都属于二进制文件：
-# 在指定路径以wb(二进制写入模式)方式打开或新建文件，将content(二进制流数据)写入到文件当中
-with open('路径/文件名.后缀名', 'wb') as f:
-    f.write(response.content)
-```
-
 ## 异常处理
 
 ### 追踪重定向
@@ -381,34 +360,12 @@ with open('路径/文件名.后缀名', 'wb') as f:
 
 重定向情况一般有：网站调整（如网页目录结构变化）、网页地址改变、网页扩展名（.php、.html、.asp）的改变、一个网站注册了多个域名。这些情况下都需要进行网页的重定向，否则就容易出现404错误。
 
-?> 默认状态下，requests 属性 `allow_redirects=True` ，即访问过程中会自动重定向。
+响应内容属性中有一个 `history` 属性，里面存储着访问的历史记录，可以通过这个属性来追踪重定向：
 
 ```python
 import requests
 url = 'http://home.cnblogs.com/u/xswt/'
-# all_redirects=False：禁止重定向
-r = requests.get(url,headers={"Content-Type":"application/json"}, allow_redirects=False)
-print(f'状态码：{r.status_code}')
-print(r.text)
-'''
-输出：
-状态码：302
-<html>
-<head><title>302 Found</title></head>
-<body bgcolor="white">
-<center><h1>302 Found</h1></center>
-<hr><center>nginx</center>
-</body>
-</html>
-'''
-```
-
-响应内容属性中有一个 `history` 属性，里面存储着访问的历史记录，可以通过这个属性来追踪重定向。
-
-```python
-import requests
-url = 'http://home.cnblogs.com/u/xswt/'
-r = requests.get(url,headers={"Content-Type":"application/json"})
+r = requests.get(url, headers={"Content-Type":"application/json"})
 # history追踪页面重定向历史，就是一个地址序列
 reditList = r.history
 print(f'获取重定向的历史记录：{reditList}')
@@ -429,6 +386,28 @@ print(r.text)
 </html>
 
 解释：访问该域名会进行一次重定向，重定向后的域名就存放在第一次重定向的headers头部信息中的Location键值对中。相较于原域名，重定向后的域名在头部变成了'https'。
+'''
+```
+
+默认状态下，requests 属性 `allow_redirects=True` 即访问过程中会自动重定向。当然，我们也可以关闭重定向：
+
+```python
+import requests
+url = 'http://home.cnblogs.com/u/xswt/'
+# all_redirects=False：禁止重定向
+r = requests.get(url, headers={"Content-Type":"application/json"}, allow_redirects=False)
+print(f'状态码：{r.status_code}')
+print(r.text)
+'''
+输出：
+状态码：302
+<html>
+<head><title>302 Found</title></head>
+<body bgcolor="white">
+<center><h1>302 Found</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
 '''
 ```
 
@@ -529,6 +508,22 @@ requests.get('http://github.com', proxies={"http": "192.168.10.1:800"})
 '''
 requests.exceptions.ProxyError: HTTPConnectionPool(host='192.168.10.1', port=800): Max retries exceeded with url: http://github.com/ (Caused by ProxyError('Cannot connect to proxy.', NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fce3438c6d8>: Failed to establish a new connection: [Errno 111] Connection refused',)))
 '''
+```
+
+### 基本身份认证
+
+我们访问有的网站（例如：https://ssr3.scrape.center/）会给我们弹出一个登录窗口，这是因为网站启用了基本身份认证。如图所示：
+
+![QQ截图20220404014558](image/QQ截图20220404014558.png)
+
+因此，我们访问这种网站就必须带着用户名和密码一起访问，才能访问成功：
+
+```python
+import requests
+
+# 网站启用了基本身份认证，auth=('admin', 'admin')，用户名密码均为admin
+response = requests.get(f'https://ssr3.scrape.center/', auth=('admin', 'admin'))
+print(response)  # <Response [200]>
 ```
 
 ### SSL证书错误
